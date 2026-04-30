@@ -1721,6 +1721,7 @@ function wirePortfolioEvents() {
 
 // ── Robinhood Login ────────────────────────────────────────────────────────────
 function rhLogin() {
+  get('rhErrorBox').style.display = 'none';  // clear any previous error
   var email    = get('rhEmail').value.trim();
   var password = get('rhPass').value;
   if (!email || !password) { toast('Enter your Robinhood email and password', 'info'); return; }
@@ -1794,6 +1795,7 @@ function rhVerify() {
 
 // ── Fetch Portfolio ────────────────────────────────────────────────────────────
 function fetchPortfolio() {
+  get('rhErrorBox').style.display = 'none';  // clear any previous error
   setRhBtn(true, 'Loading portfolio...');
   toast('Fetching your Robinhood portfolio...', 'info');
 
@@ -2164,20 +2166,6 @@ function submitManualPortfolio() {
   });
 }
 
-// ── Override rhLogin to show friendly error + auto-open manual entry ─────────
-var _origRhLogin = rhLogin;
-function rhLogin() {
-  // Hide previous errors
-  get('rhErrorBox').style.display = 'none';
-  _origRhLogin();
-}
-
-// Patch fetchPortfolio to handle Robinhood block gracefully
-var _origFetchPortfolio = fetchPortfolio;
-function fetchPortfolio() {
-  get('rhErrorBox').style.display = 'none';
-  _origFetchPortfolio.apply(this, arguments);
-}
 
 </script>
 </body>

@@ -20,12 +20,15 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "fonts.googleapis.com"],
-      styleSrc:  ["'self'", "'unsafe-inline'", "fonts.googleapis.com", "fonts.gstatic.com"],
-      fontSrc:   ["'self'", "fonts.gstatic.com"],
-      connectSrc:["'self'"],
-      imgSrc:    ["'self'", "data:"],
+      defaultSrc:    ["'self'"],
+      scriptSrc:     ["'self'", "'unsafe-inline'"],   // allows <script> blocks, no external scripts
+      scriptSrcAttr: ["'none'"],                       // blocks onclick="..." — use addEventListener instead
+      styleSrc:      ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc:       ["'self'", "https://fonts.gstatic.com"],
+      connectSrc:    ["'self'"],                       // fetch('/api/...') same-origin only
+      imgSrc:        ["'self'", "data:"],
+      objectSrc:     ["'none'"],
+      baseUri:       ["'self'"],
     }
   }
 }));

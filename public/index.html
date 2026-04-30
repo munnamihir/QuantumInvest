@@ -444,6 +444,30 @@ textarea{resize:vertical;min-height:62px;line-height:1.5}
 @media(max-width:900px){.port-summary{grid-template-columns:1fr 1fr}.ht-head,.ht-row{grid-template-columns:70px 1fr 80px 80px 80px}.ht-avg,.ht-cur{display:none}.pa-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.port-summary{grid-template-columns:1fr 1fr}.ht-head,.ht-row{grid-template-columns:60px 1fr 80px 80px}.ht-qty,.ht-avg,.ht-cur{display:none}.pa-grid{grid-template-columns:1fr}}
 
+
+/* ── Manual Portfolio Entry ─────────────────────────── */
+.manual-toggle{font-size:.78rem;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;margin-top:.5rem;display:block;transition:color .15s}
+.manual-toggle:hover{color:var(--text)}
+.manual-entry-section{display:none;margin-top:1.25rem;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.5rem}
+.manual-entry-section.show{display:block}
+.me-title{font-size:.72rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem}
+.me-table{width:100%;border-collapse:collapse;margin-bottom:1rem}
+.me-table th{font-size:.62rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:.4rem .5rem;text-align:left;border-bottom:1px solid var(--border)}
+.me-table td{padding:.3rem .4rem}
+.me-input{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:.4rem .6rem;font-family:"DM Sans",sans-serif;font-size:.78rem;color:var(--text);outline:none;width:100%;transition:border-color .2s}
+.me-input:focus{border-color:var(--green)}
+.me-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:2px 6px;border-radius:4px;transition:all .15s}
+.me-del:hover{color:var(--red);background:var(--red-bg)}
+.me-add-row{font-size:.75rem;color:var(--green);background:none;border:1px solid var(--green-border);border-radius:7px;padding:.4rem .9rem;cursor:pointer;transition:all .15s}
+.me-add-row:hover{background:var(--green-bg)}
+.me-submit-btn{padding:.75rem 1.5rem;background:var(--green);color:#fff;border:none;border-radius:9px;cursor:pointer;font-family:"DM Sans",sans-serif;font-weight:600;font-size:.85rem;transition:all .2s;display:flex;align-items:center;gap:8px}
+.me-submit-btn:hover{background:var(--green2);transform:translateY(-1px)}
+.me-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-top:.5rem}
+.rh-error-box{display:none;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:10px;padding:.9rem 1.1rem;margin-top:1rem}
+.rh-error-title{font-size:.78rem;font-weight:600;color:var(--amber);margin-bottom:.3rem}
+.rh-error-msg{font-size:.75rem;color:var(--muted2);line-height:1.6}
+.rh-error-hint{font-size:.72rem;color:var(--muted);margin-top:.5rem;font-style:italic}
+
 </style>
 </head>
 <body>
@@ -759,6 +783,53 @@ textarea{resize:vertical;min-height:62px;line-height:1.5}
 
             <div class="cf-disclaimer">
               <strong>Security:</strong> Your credentials are sent <strong>directly to Robinhood</strong> over HTTPS and are <strong>never stored</strong> on our servers. We only read your positions &mdash; we cannot place trades. You can disconnect at any time.
+            </div>
+          </div>
+
+          <!-- Error box shown when Robinhood blocks access -->
+          <div class="rh-error-box" id="rhErrorBox">
+            <div class="rh-error-title">&#9888; Robinhood Connection Blocked</div>
+            <div class="rh-error-msg" id="rhErrorMsg">Robinhood is blocking automated access. This is common on new IPs or with 2FA accounts.</div>
+            <div class="rh-error-hint">Use Manual Entry below to enter your holdings directly &mdash; the AI analysis works exactly the same.</div>
+          </div>
+
+          <!-- Manual entry toggle -->
+          <button class="manual-toggle" id="manualToggleBtn" type="button">&#43; Enter portfolio manually instead</button>
+
+          <!-- Manual entry form -->
+          <div class="manual-entry-section" id="manualEntrySection">
+            <div class="me-title">Manual Portfolio Entry</div>
+            <table class="me-table">
+              <thead>
+                <tr>
+                  <th style="width:80px">Symbol</th>
+                  <th>Name (optional)</th>
+                  <th style="width:80px">Shares</th>
+                  <th style="width:90px">Avg Cost $</th>
+                  <th style="width:90px">Curr. Price $</th>
+                  <th style="width:30px"></th>
+                </tr>
+              </thead>
+              <tbody id="meTableBody">
+                <tr>
+                  <td><input class="me-input me-sym" type="text" placeholder="AAPL" style="text-transform:uppercase"></td>
+                  <td><input class="me-input me-name" type="text" placeholder="Apple Inc."></td>
+                  <td><input class="me-input me-qty" type="number" placeholder="10" min="0" step="any"></td>
+                  <td><input class="me-input me-avg" type="number" placeholder="150.00" min="0" step="any"></td>
+                  <td><input class="me-input me-cur" type="number" placeholder="175.00" min="0" step="any"></td>
+                  <td><button class="me-del" type="button" title="Remove">&#10005;</button></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="me-footer">
+              <button class="me-add-row" id="meAddRow" type="button">&#43; Add row</button>
+              <button class="me-submit-btn" id="meSubmitBtn" type="button">
+                <span class="spin" id="meSpin"></span>
+                <span id="meBtnTxt">&#128202; Analyze This Portfolio</span>
+              </button>
+            </div>
+            <div style="font-size:.68rem;color:var(--muted);margin-top:.75rem;line-height:1.6">
+              Tip: Leave &ldquo;Curr. Price&rdquo; blank to use avg cost as the current price. Add a row with symbol <strong>CASH</strong> to include buying power.
             </div>
           </div>
         </div>
@@ -1624,6 +1695,7 @@ var P = {
 // ── Wire portfolio events (add to wireEvents) ──────────────────────────────────
 function wirePortfolioEvents() {
   get('tab-portfolio').addEventListener('click', function() { switchTab('portfolio'); });
+  wireManualEntry();
   get('rhLoginBtn').addEventListener('click', rhLogin);
   get('rhVerifyBtn').addEventListener('click', rhVerify);
   get('portAnalyzeBtn').addEventListener('click', portAnalyze);
@@ -1675,7 +1747,18 @@ function rhLogin() {
       setRhBtn(false, '\u{1F4F2} Connect Account');
     }
   })
-  .catch(function(e) { toast(e.message, 'err'); setRhBtn(false, '\u{1F4F2} Connect Account'); });
+  .catch(function(e) {
+    // Show the styled error box for Robinhood blocking
+    var errBox = get('rhErrorBox');
+    errBox.style.display = 'block';
+    get('rhErrorMsg').textContent = e.message;
+    // Auto-open manual entry
+    var sec = get('manualEntrySection');
+    sec.classList.add('show');
+    get('manualToggleBtn').textContent = '\u2212 Hide manual entry';
+    toast('Connection blocked — manual entry ready below', 'info');
+    setRhBtn(false, '\uD83D\uDCF2 Try Again');
+  });
 }
 
 // ── MFA Verify ────────────────────────────────────────────────────────────────
@@ -1984,6 +2067,116 @@ function buildPortfolioContext() {
   }).join(', ');
   var total = P.data.summary.totalEquity || 0;
   return 'Current holdings: '+top+'. Total equity: $'+(total).toFixed(0)+'. Cash available: $'+(P.data.summary.cash||0).toFixed(0)+'. Avoid duplicating existing large positions.';
+}
+
+
+
+// ── Manual Portfolio Entry ─────────────────────────────────────────────────────
+function wireManualEntry() {
+  get('manualToggleBtn').addEventListener('click', function() {
+    var sec = get('manualEntrySection');
+    sec.classList.toggle('show');
+    this.textContent = sec.classList.contains('show')
+      ? '\u2212 Hide manual entry'
+      : '\u002B Enter portfolio manually instead';
+  });
+  get('meAddRow').addEventListener('click', addManualRow);
+  get('meSubmitBtn').addEventListener('click', submitManualPortfolio);
+  get('meTableBody').addEventListener('click', function(e) {
+    var btn = e.target.closest('.me-del');
+    if (btn) {
+      var row = btn.closest('tr');
+      var tbody = get('meTableBody');
+      if (tbody.rows.length > 1) row.remove();
+    }
+  });
+  // Auto-uppercase symbol inputs
+  get('meTableBody').addEventListener('input', function(e) {
+    if (e.target.classList.contains('me-sym')) {
+      var pos = e.target.selectionStart;
+      e.target.value = e.target.value.toUpperCase();
+      e.target.setSelectionRange(pos, pos);
+    }
+  });
+}
+
+function addManualRow() {
+  var tbody = get('meTableBody');
+  var tr = document.createElement('tr');
+  tr.innerHTML = [
+    '<td><input class="me-input me-sym" type="text" placeholder="TSLA" style="text-transform:uppercase"></td>',
+    '<td><input class="me-input me-name" type="text" placeholder="Tesla Inc."></td>',
+    '<td><input class="me-input me-qty" type="number" placeholder="5" min="0" step="any"></td>',
+    '<td><input class="me-input me-avg" type="number" placeholder="200.00" min="0" step="any"></td>',
+    '<td><input class="me-input me-cur" type="number" placeholder="220.00" min="0" step="any"></td>',
+    '<td><button class="me-del" type="button" title="Remove">&#10005;</button></td>'
+  ].join('');
+  tbody.appendChild(tr);
+  tr.querySelector('.me-sym').focus();
+}
+
+function submitManualPortfolio() {
+  var rows = Array.from(get('meTableBody').rows);
+  var holdings = [];
+  var errors = [];
+
+  rows.forEach(function(row, i) {
+    var sym = row.querySelector('.me-sym')?.value.trim().toUpperCase();
+    var name = row.querySelector('.me-name')?.value.trim();
+    var qty = parseFloat(row.querySelector('.me-qty')?.value);
+    var avg = parseFloat(row.querySelector('.me-avg')?.value);
+    var cur = parseFloat(row.querySelector('.me-cur')?.value);
+
+    if (!sym) return; // skip empty rows
+    if (!qty || qty <= 0) { errors.push('Row '+(i+1)+': shares must be > 0'); return; }
+    if (!avg || avg <= 0) { errors.push('Row '+(i+1)+': avg cost must be > 0'); return; }
+
+    holdings.push({ symbol: sym, name: name || sym, quantity: qty, avgCost: avg, currentPrice: cur || avg });
+  });
+
+  if (!holdings.length) { toast('Add at least one holding', 'info'); return; }
+  if (errors.length) { toast(errors[0], 'err'); return; }
+
+  var btn = get('meSubmitBtn'), sp = get('meSpin'), bt = get('meBtnTxt');
+  btn.disabled = true; sp.classList.add('on'); bt.textContent = 'Loading...';
+
+  fetch('/api/portfolio/manual', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ holdings: holdings, profile: {
+      horizon: get('horizon').value, risk: get('risk').value, style: get('style').value
+    }})
+  })
+  .then(function(r){ return r.json().then(function(j){ if(!r.ok||!j.success) throw new Error(j.error||'Failed.'); return j; }); })
+  .then(function(j) {
+    P.data = j.data;
+    P.token = 'manual'; // flag as manually entered
+    get('portConnectSection').style.display = 'none';
+    get('portLoadedSection').classList.add('show');
+    renderPortfolioSummary(j.data.summary);
+    renderHoldings(j.data.positions);
+    toast(j.data.summary.totalPositions + ' holdings loaded from manual entry', 'ok');
+    switchTab('portfolio');
+  })
+  .catch(function(e) { toast(e.message, 'err'); })
+  .finally(function() {
+    btn.disabled = false; sp.classList.remove('on'); bt.textContent = '\uD83D\uDCCA Analyze This Portfolio';
+  });
+}
+
+// ── Override rhLogin to show friendly error + auto-open manual entry ─────────
+var _origRhLogin = rhLogin;
+function rhLogin() {
+  // Hide previous errors
+  get('rhErrorBox').style.display = 'none';
+  _origRhLogin();
+}
+
+// Patch fetchPortfolio to handle Robinhood block gracefully
+var _origFetchPortfolio = fetchPortfolio;
+function fetchPortfolio() {
+  get('rhErrorBox').style.display = 'none';
+  _origFetchPortfolio.apply(this, arguments);
 }
 
 </script>

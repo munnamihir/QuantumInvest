@@ -64,22 +64,37 @@ function parseJSON(raw) {
 // ─────────────────────────────────────────────────────────────────────────────
 const RH_BASE   = "https://api.robinhood.com";
 const RH_CLIENT = "c82SH0WZOsabOXGP2sxqcj34FxkvfnWRZBKlBjFS";
-const RH_UA     = "Robinhood/823 (iPhone; iOS 16.0.3; Scale/3.00)";
 
-const rhHeaders = (token) => ({
-  "Content-Type": "application/json",
-  "Accept": "application/json",
-  "Accept-Language": "en-US,en;q=0.9",
-  "User-Agent": RH_UA,
-  "X-Robinhood-API-Version": "1.431.4",
+// Try multiple User-Agents — Robinhood rejects outdated version strings.
+// We rotate through them on retry if the first gets a version error.
+const RH_USER_AGENTS = [
+  "python-requests/2.32.3",                                          // robin_stocks approach — widely accepted
+  "Robinhood/8.198.0 (iPhone; iOS 17.5.1; Scale/3.00)",             // recent iOS app version
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/21F90",
+];
+
+const rhHeaders = (token, uaIndex = 0) => ({
+  "Content-Type":              "application/json",
+  "Accept":                    "application/json",
+  "Accept-Language":           "en-US,en;q=0.9",
+  "Accept-Encoding":           "gzip, deflate, br",
+  "User-Agent":                RH_USER_AGENTS[uaIndex % RH_USER_AGENTS.length],
+  "X-Robinhood-API-Version":   "1.431.4",
+  "X-TimeZone-Id":             "America/New_York",
   ...(token ? { "Authorization": `Bearer ${token}` } : {})
 });
 
-async function rhPost(path, body, extraHeaders = {}) {
+// Detect Robinhood's "please update" response
+function isVersionError(data) {
+  const msg = (data?.detail || data?.message || "").toLowerCase();
+  return msg.includes("update") || msg.includes("version") || msg.includes("upgrade");
+}
+
+async function rhPost(path, body, extraHeaders = {}, uaIndex = 0) {
   try {
     const r = await axios.post(RH_BASE + path, body, {
-      headers: { ...rhHeaders(), ...extraHeaders },
-      timeout: 12000,
+      headers: { ...rhHeaders(null, uaIndex), ...extraHeaders },
+      timeout: 14000,
       validateStatus: () => true
     });
     return { status: r.status, data: r.data };
@@ -120,26 +135,41 @@ app.post("/api/robinhood/login", rhLim, async (req, res) => {
 
   const deviceToken = uuid();
 
-  const { status, data } = await rhPost("/oauth2/token/", {
-    username: email, password,
-    grant_type: "password",
-    client_id: RH_CLIENT,
-    expires_in: 86400,
-    scope: "internal",
-    device_token: deviceToken,
-    challenge_type: "sms"
-  });
+  let lastData = {};
+  // Try each User-Agent in sequence until one works
+  for (let uaIdx = 0; uaIdx < RH_USER_AGENTS.length; uaIdx++) {
+    const { status, data } = await rhPost("/oauth2/token/", {
+      username: email, password,
+      grant_type: "password",
+      client_id: RH_CLIENT,
+      expires_in: 86400,
+      scope: "internal",
+      device_token: deviceToken,
+      challenge_type: "sms"
+    }, {}, uaIdx);
 
-  if (status === 200 && data.access_token) {
-    return res.json({ success: true, token: data.access_token, deviceToken });
+    lastData = data;
+
+    if (status === 200 && data.access_token) {
+      return res.json({ success: true, token: data.access_token, deviceToken });
+    }
+    if (data.mfa_required) {
+      return res.json({ success: false, mfa_required: true, deviceToken, email, password });
+    }
+    if (data.challenge) {
+      return res.json({ success: false, challenge_required: true, challengeId: data.challenge.id, deviceToken, email, password });
+    }
+    // If not a version error, stop retrying — wrong credentials etc.
+    if (!isVersionError(data)) break;
   }
-  if (data.mfa_required) {
-    return res.json({ success: false, mfa_required: true, deviceToken, email, password });
+
+  if (isVersionError(lastData)) {
+    return res.status(503).json({
+      error: "Robinhood API is blocking automated access right now.",
+      hint: "Use Manual Portfolio Entry below to enter your holdings directly — it works the same way for analysis."
+    });
   }
-  if (data.challenge) {
-    return res.json({ success: false, challenge_required: true, challengeId: data.challenge.id, deviceToken, email, password });
-  }
-  const msg = data.detail || (Array.isArray(data.non_field_errors) ? data.non_field_errors[0] : null) || "Login failed. Check your credentials.";
+  const msg = lastData.detail || (Array.isArray(lastData.non_field_errors) ? lastData.non_field_errors[0] : null) || "Login failed. Check your email and password.";
   res.status(401).json({ error: msg });
 });
 
@@ -334,6 +364,57 @@ Respond ONLY with raw JSON (no fences):
     console.error("[portfolio-analyze]", e.message);
     res.status(500).json({ error: e instanceof SyntaxError ? "AI returned malformed data." : e.message });
   }
+});
+
+// ── POST /api/portfolio/manual ─────────────────────────────────────────────────
+// Accepts manually entered holdings and runs the same AI analysis
+app.post("/api/portfolio/manual", analyzeLim, async (req, res) => {
+  const { holdings, profile } = req.body;
+  // holdings: [{symbol, name, quantity, avgCost, currentPrice}]
+  if (!Array.isArray(holdings) || !holdings.length) {
+    return res.status(400).json({ error: "holdings array required." });
+  }
+
+  // Enrich each holding
+  const positions = holdings.map(h => {
+    const qty  = parseFloat(h.quantity)     || 0;
+    const avg  = parseFloat(h.avgCost)      || 0;
+    const cur  = parseFloat(h.currentPrice) || avg;
+    const mkt  = qty * cur;
+    const cost = qty * avg;
+    const plD  = mkt - cost;
+    const plP  = cost > 0 ? (plD/cost)*100 : 0;
+    return {
+      symbol:       h.symbol?.toUpperCase() || "N/A",
+      name:         h.name || h.symbol || "Unknown",
+      type:         "stock",
+      quantity:     qty,
+      avgCost:      avg,
+      currentPrice: cur,
+      marketValue:  mkt,
+      costBasis:    cost,
+      plDollar:     plD,
+      plPct:        plP,
+    };
+  }).filter(p => p.quantity > 0 && p.symbol !== "N/A")
+    .sort((a,b) => b.marketValue - a.marketValue);
+
+  const totalEquity = positions.reduce((s,p) => s + p.marketValue, 0);
+  const cash = parseFloat(holdings.find(h => h.symbol?.toUpperCase()==="CASH")?.marketValue || 0);
+
+  res.json({
+    success: true,
+    data: {
+      positions,
+      summary: {
+        totalEquity,
+        dayChange: 0,
+        dayChangePct: 0,
+        cash,
+        totalPositions: positions.length
+      }
+    }
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

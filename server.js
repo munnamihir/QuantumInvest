@@ -151,7 +151,7 @@ app.post('/api/generate', generateLimiter, async (req, res) => {
     const prompt = buildGeneratePrompt({ amount, horizon, risk, style, sectors, context });
 
     const message = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5',
       max_tokens: 2500,
       system: SYSTEM_PROMPT + '\n\nYou respond ONLY with the exact JSON structure requested. No markdown fences, no extra text, no preamble.',
       messages: [{ role: 'user', content: prompt }]
@@ -212,7 +212,7 @@ app.post('/api/chat', async (req, res) => {
       : '';
 
     const stream = await client.messages.stream({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5',
       max_tokens: 1000,
       system: SYSTEM_PROMPT + context + '\n\nAnswer follow-up questions about the investment ideas you generated. Be direct and concise. Plain text only.',
       messages: chatMessages
@@ -246,7 +246,7 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    model: 'claude-sonnet-4-20250514'
+    model: 'claude-sonnet-4-5'
   });
 });
 

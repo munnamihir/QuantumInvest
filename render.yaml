@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: investment-agent
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false          # You will paste this in the Render dashboard
+      - key: NODE_ENV
+        value: production

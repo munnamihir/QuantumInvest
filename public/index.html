@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InvestAI — Personalized Investment Research</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2310b981'/><text x='50%25' y='58%25' dominant-baseline='middle' text-anchor='middle' font-size='18' fill='white'>↗</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0c0e17;
+  --bg2:      #111422;
+  --bg3:      #181c2e;
+  --bg4:      #1e2338;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.12);
+  --text:     #dde1f0;
+  --muted:    #6b7280;
+  --muted2:   #9ca3af;
+  --green:    #10b981;
+  --green2:   #059669;
+  --green-bg: rgba(16,185,129,0.08);
+  --amber:    #f59e0b;
+  --amber-bg: rgba(245,158,11,0.08);
+  --red:      #ef4444;
+  --red-bg:   rgba(239,68,68,0.08);
+  --blue:     #3b82f6;
+  --blue-bg:  rgba(59,130,246,0.08);
+  --purple:   #8b5cf6;
+  --sidebar:  280px;
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* grid bg */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(16,185,129,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16,185,129,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none; z-index: 0;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--green2); border-radius: 2px; }
+
+/* ── LAYOUT ── */
+.layout {
+  display: flex;
+  min-height: 100vh;
+  position: relative; z-index: 1;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar);
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  overflow-y: auto;
+  z-index: 50;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 0.25rem;
+}
+.logo-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--green);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: #fff; font-weight: 700;
+}
+.logo-name { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.3px; }
+.logo-name span { color: var(--green); }
+.sidebar-tagline { font-size: 0.72rem; color: var(--muted); font-family: 'Space Mono', monospace; }
+
+.sidebar-body { padding: 1.25rem 1.5rem; flex: 1; display: flex; flex-direction: column; gap: 1.25rem; }
+
+.form-label {
+  display: block;
+  font-size: 0.72rem; font-family: 'Space Mono', monospace;
+  color: var(--muted); letter-spacing: 1px; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.form-group { display: flex; flex-direction: column; }
+
+select, input[type="text"], textarea {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 0.6rem 0.85rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem; color: var(--text);
+  outline: none; transition: border-color 0.2s;
+  width: 100%;
+  appearance: none; -webkit-appearance: none;
+}
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 0.8rem center;
+  padding-right: 2.2rem; cursor: pointer;
+}
+select:focus, input:focus, textarea:focus { border-color: var(--green); }
+select option { background: var(--bg2); }
+textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+textarea::placeholder, input::placeholder { color: var(--muted); }
+
+.amount-row { display: flex; gap: 8px; }
+.amount-row input { flex: 1; }
+.currency-badge {
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 0.6rem 0.75rem;
+  font-family: 'Space Mono', monospace; font-size: 0.78rem;
+  color: var(--green); flex-shrink: 0;
+  display: flex; align-items: center;
+}
+
+.sector-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.sector-btn {
+  padding: 4px 11px;
+  font-size: 0.72rem; font-family: 'DM Sans', sans-serif;
+  border: 1px solid var(--border2); border-radius: 20px;
+  background: var(--bg3); color: var(--muted);
+  cursor: pointer; transition: all 0.15s;
+}
+.sector-btn:hover { border-color: rgba(16,185,129,0.4); color: var(--text); }
+.sector-btn.active { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+
+.generate-btn {
+  width: 100%; padding: 0.85rem;
+  font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.9rem;
+  background: var(--green); color: #fff;
+  border: none; border-radius: 10px; cursor: pointer;
+  transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.generate-btn:hover { background: var(--green2); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(16,185,129,0.3); }
+.generate-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-spinner {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
+  animation: spin 0.7s linear infinite; display: none;
+}
+.btn-spinner.show { display: block; }
+
+/* ── MAIN ── */
+.main {
+  margin-left: var(--sidebar);
+  flex: 1;
+  padding: 2rem 2.5rem 4rem;
+  min-height: 100vh;
+}
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 70vh; text-align: center; gap: 1rem;
+}
+.empty-icon {
+  width: 72px; height: 72px; border-radius: 20px;
+  background: var(--green-bg); border: 1px solid rgba(16,185,129,0.2);
+  display: flex; align-items: center; justify-content: center; font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+.empty-state h2 { font-size: 1.5rem; font-weight: 600; }
+.empty-state p { color: var(--muted); max-width: 400px; font-size: 0.9rem; }
+.empty-steps {
+  display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; justify-content: center;
+}
+.empty-step {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.75rem 1.25rem;
+  font-size: 0.82rem; color: var(--muted2);
+}
+.step-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--green-bg); color: var(--green);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 700; flex-shrink: 0;
+}
+
+/* ── RESULTS ── */
+#results { display: none; }
+
+.results-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;
+}
+.results-title { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.5px; }
+.results-title span { color: var(--green); }
+
+.summary-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.pill {
+  font-size: 0.72rem; font-family: 'Space Mono', monospace;
+  padding: 4px 12px; border-radius: 20px; border: 1px solid;
+}
+.pill-green { background: var(--green-bg); border-color: rgba(16,185,129,0.3); color: var(--green); }
+.pill-amber { background: var(--amber-bg); border-color: rgba(245,158,11,0.3); color: var(--amber); }
+.pill-blue  { background: var(--blue-bg);  border-color: rgba(59,130,246,0.3);  color: var(--blue);  }
+.pill-red   { background: var(--red-bg);   border-color: rgba(239,68,68,0.3);   color: var(--red);   }
+
+/* ── STATS ROW ── */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.75rem; }
+.stat-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1rem 1.25rem;
+}
+.stat-label { font-size: 0.7rem; font-family: 'Space Mono', monospace; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.stat-value { font-size: 1.25rem; font-weight: 700; color: var(--text); }
+.stat-value.green { color: var(--green); }
+.stat-value.amber { color: var(--amber); }
+.stat-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+.tab {
+  padding: 8px 18px; font-size: 0.82rem; font-family: 'DM Sans', sans-serif; font-weight: 500;
+  border: none; background: transparent; color: var(--muted); cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--green); border-bottom-color: var(--green); }
+
+/* ── IDEA CARDS ── */
+.ideas-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.idea-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.25rem;
+  transition: all 0.2s; position: relative; overflow: hidden;
+  cursor: default;
+}
+.idea-card::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  opacity: 0; transition: opacity 0.2s;
+}
+.idea-card.green-card::after { background: linear-gradient(90deg, transparent, var(--green), transparent); }
+.idea-card.amber-card::after { background: linear-gradient(90deg, transparent, var(--amber), transparent); }
+.idea-card.red-card::after   { background: linear-gradient(90deg, transparent, var(--red), transparent); }
+.idea-card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.35); }
+.idea-card:hover::after { opacity: 1; }
+
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
+.card-name { font-size: 0.92rem; font-weight: 600; line-height: 1.3; }
+.card-badge {
+  font-size: 0.6rem; font-family: 'Space Mono', monospace;
+  padding: 3px 8px; border-radius: 20px; white-space: nowrap;
+  flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.badge-low  { background: var(--green-bg); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
+.badge-mod  { background: var(--amber-bg); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+.badge-high { background: var(--red-bg);   color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+
+.card-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.card-ticker { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--green); letter-spacing: 1px; }
+.card-category { font-size: 0.68rem; color: var(--muted); font-family: 'Space Mono', monospace; }
+.card-sep { color: var(--border2); }
+
+.card-desc { font-size: 0.8rem; color: var(--muted2); line-height: 1.6; margin-bottom: 10px; }
+.card-upside {
+  font-size: 0.72rem; color: var(--green); font-family: 'Space Mono', monospace;
+  background: var(--green-bg); border: 1px solid rgba(16,185,129,0.15);
+  border-radius: 6px; padding: 4px 8px; margin-bottom: 10px; display: inline-block;
+}
+.card-footer { display: flex; justify-content: space-between; align-items: center; }
+.card-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.card-tag {
+  font-size: 0.62rem; padding: 2px 7px;
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 4px;
+  color: var(--muted); font-family: 'DM Sans', sans-serif;
+}
+.card-alloc { font-family: 'Space Mono', monospace; font-size: 0.85rem; font-weight: 700; color: var(--amber); }
+
+/* ── ALLOCATION CHART VIEW ── */
+.alloc-view { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+.donut-wrap {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem;
+  display: flex; flex-direction: column; align-items: center; gap: 1rem;
+}
+.donut-title { font-size: 0.72rem; font-family: 'Space Mono', monospace; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; align-self: flex-start; }
+.donut-svg { width: 200px; height: 200px; }
+.donut-legend { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.legend-item { display: flex; align-items: center; gap: 10px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.legend-name { font-size: 0.82rem; color: var(--muted2); flex: 1; }
+.legend-pct { font-family: 'Space Mono', monospace; font-size: 0.78rem; color: var(--text); }
+
+.category-view {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem;
+  display: flex; flex-direction: column; gap: 1rem;
+}
+.cat-title { font-size: 0.72rem; font-family: 'Space Mono', monospace; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.cat-bar-item { display: flex; flex-direction: column; gap: 4px; }
+.cat-bar-label { display: flex; justify-content: space-between; align-items: center; }
+.cat-bar-name { font-size: 0.82rem; color: var(--muted2); }
+.cat-bar-pct { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--text); }
+.cat-bar-track { height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.cat-bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
+
+/* ── ANALYSIS ── */
+.analysis-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 2rem;
+  font-size: 0.9rem; line-height: 1.85; color: var(--muted2); white-space: pre-wrap;
+}
+
+/* ── CHAT ── */
+.chat-wrap { display: flex; flex-direction: column; gap: 1rem; }
+.chat-thread {
+  display: flex; flex-direction: column; gap: 12px;
+  max-height: 480px; overflow-y: auto;
+  padding: 1px;
+}
+.chat-thread::-webkit-scrollbar { width: 3px; }
+.chat-thread::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.chat-msg { border-radius: 12px; padding: 1rem 1.25rem; }
+.chat-msg.user {
+  background: var(--green-bg); border: 1px solid rgba(16,185,129,0.2);
+  align-self: flex-end; max-width: 85%;
+}
+.chat-msg.ai {
+  background: var(--bg2); border: 1px solid var(--border);
+  max-width: 100%;
+}
+.chat-role { font-size: 0.65rem; font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+.chat-role.user-role { color: var(--green); }
+.chat-role.ai-role { color: var(--muted); }
+.chat-text { font-size: 0.88rem; line-height: 1.7; white-space: pre-wrap; }
+.typing-dots { display: inline-flex; gap: 4px; }
+.typing-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--muted);
+  animation: typingBounce 1.2s ease infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce { 0%,60%,100% { transform:translateY(0); opacity:.4; } 30% { transform:translateY(-5px); opacity:1; } }
+
+.chat-input-area {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 1rem;
+}
+.chat-row { display: flex; gap: 10px; margin-bottom: 10px; }
+.chat-input {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 0.7rem 1rem;
+  font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: var(--text);
+  outline: none; transition: border-color 0.2s;
+}
+.chat-input:focus { border-color: var(--green); }
+.chat-input::placeholder { color: var(--muted); }
+.chat-send {
+  padding: 0.7rem 1.25rem;
+  background: var(--green); color: #fff;
+  border: none; border-radius: 10px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.85rem;
+  transition: all 0.15s; white-space: nowrap;
+}
+.chat-send:hover { background: var(--green2); }
+.chat-send:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.quick-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  font-size: 0.72rem; padding: 5px 12px;
+  background: var(--bg3); border: 1px solid var(--border2); border-radius: 20px;
+  color: var(--muted); cursor: pointer; transition: all 0.15s;
+}
+.chip:hover { border-color: rgba(16,185,129,0.4); color: var(--green); }
+
+/* ── ERROR ── */
+.error-banner {
+  display: none;
+  background: var(--red-bg); border: 1px solid rgba(239,68,68,0.25);
+  border-radius: 10px; padding: 0.85rem 1rem;
+  font-size: 0.82rem; color: #fca5a5; margin-bottom: 1rem;
+  font-family: 'Space Mono', monospace;
+}
+
+/* ── MOBILE HAMBURGER ── */
+.hamburger {
+  display: none;
+  position: fixed; top: 1rem; left: 1rem; z-index: 200;
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--bg2); border: 1px solid var(--border2);
+  cursor: pointer; align-items: center; justify-content: center;
+  flex-direction: column; gap: 5px; padding: 10px;
+}
+.hamburger span { display: block; width: 100%; height: 2px; background: var(--text); border-radius: 1px; transition: all 0.3s; }
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 40;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+.fade-in { animation: fadeIn 0.4s ease forwards; }
+.idea-card { opacity: 0; }
+.idea-card.revealed { opacity: 1; animation: fadeIn 0.4s ease forwards; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  :root { --sidebar: 100%; }
+  .sidebar { transform: translateX(-100%); width: 85vw; }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main { margin-left: 0; padding: 4rem 1.25rem 3rem; }
+  .hamburger { display: flex; }
+  .ideas-grid { grid-template-columns: 1fr 1fr; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .alloc-view { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+  .ideas-grid { grid-template-columns: 1fr; }
+  .tabs { overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- Mobile hamburger -->
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">↗</div>
+        <div class="logo-name">Invest<span>AI</span></div>
+      </div>
+      <div class="sidebar-tagline">// AI Investment Research Agent</div>
+    </div>
+
+    <div class="sidebar-body">
+
+      <div class="form-group">
+        <label class="form-label">Investment Amount</label>
+        <div class="amount-row">
+          <input type="text" id="amount" value="10,000" placeholder="10,000">
+          <div class="currency-badge">USD</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Time Horizon</label>
+        <select id="horizon">
+          <option value="short">Short-term · 0–1 year</option>
+          <option value="medium" selected>Medium-term · 1–5 years</option>
+          <option value="long">Long-term · 5+ years</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Risk Tolerance</label>
+        <select id="risk">
+          <option value="conservative">Conservative — Preserve capital</option>
+          <option value="moderate" selected>Moderate — Balanced growth</option>
+          <option value="aggressive">Aggressive — Max returns</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Investment Style</label>
+        <select id="style">
+          <option value="growth">Growth</option>
+          <option value="value" selected>Value</option>
+          <option value="dividend">Dividend / Income</option>
+          <option value="index">Index / Passive</option>
+          <option value="thematic">Thematic / Trend</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Sectors — tap to select</label>
+        <div class="sector-grid" id="sectors">
+          <button class="sector-btn" onclick="toggleSector(this)">Technology</button>
+          <button class="sector-btn" onclick="toggleSector(this)">Healthcare</button>
+          <button class="sector-btn" onclick="toggleSector(this)">Energy</button>
+          <button class="sector-btn" onclick="toggleSector(this)">Financials</button>
+          <button class="sector-btn" onclick="toggleSector(this)">Real Estate</button>
+          <button class="sector-btn" onclick="toggleSector(this)">Consumer</button>
+          <button class="sector-btn" onclick="toggleSector(this)">AI &amp; Robotics</button>
+          <button class="sector-btn" onclick="toggleSector(this)">Clean Energy</button>
+          <button class="sector-btn" onclick="toggleSector(this)">Crypto &amp; Web3</button>
+          <button class="sector-btn" onclick="toggleSector(this)">Commodities</button>
+          <button class="sector-btn" onclick="toggleSector(this)">International</button>
+          <button class="sector-btn" onclick="toggleSector(this)">Bonds / Fixed Income</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Context (optional)</label>
+        <textarea id="context" placeholder="e.g. saving for retirement in 20 years, already hold S&P 500, interested in ESG, avoid tobacco..."></textarea>
+      </div>
+
+      <div class="error-banner" id="sidebarError"></div>
+
+      <button class="generate-btn" id="generateBtn" onclick="generate()">
+        <div class="btn-spinner" id="btnSpinner"></div>
+        <span id="btnText">Generate Ideas ↗</span>
+      </button>
+
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- EMPTY STATE -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">↗</div>
+      <h2>Your AI Investment Analyst</h2>
+      <p>Configure your investor profile on the left, then generate personalized, research-backed investment ideas powered by Claude AI.</p>
+      <div class="empty-steps">
+        <div class="empty-step"><div class="step-num">1</div> Set your profile</div>
+        <div class="empty-step"><div class="step-num">2</div> Pick sectors</div>
+        <div class="empty-step"><div class="step-num">3</div> Get AI ideas</div>
+        <div class="empty-step"><div class="step-num">4</div> Chat &amp; explore</div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="results">
+
+      <div class="results-topbar">
+        <div class="results-title">Investment <span>Ideas</span></div>
+        <div class="summary-pills" id="summaryPills"></div>
+      </div>
+
+      <!-- STATS ROW -->
+      <div class="stats-row" id="statsRow">
+        <div class="stat-card">
+          <div class="stat-label">Amount</div>
+          <div class="stat-value green" id="statAmount">—</div>
+          <div class="stat-sub">USD</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Expected Return</div>
+          <div class="stat-value" id="statReturn">—</div>
+          <div class="stat-sub">estimated</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Overall Risk</div>
+          <div class="stat-value" id="statRisk">—</div>
+          <div class="stat-sub">profile</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Top Pick</div>
+          <div class="stat-value" id="statTopPick" style="font-size:0.9rem;">—</div>
+          <div class="stat-sub">highest conviction</div>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab active" id="tab-ideas"    onclick="switchTab('ideas')">Ideas</button>
+        <button class="tab"        id="tab-alloc"    onclick="switchTab('alloc')">Allocation</button>
+        <button class="tab"        id="tab-analysis" onclick="switchTab('analysis')">Analysis</button>
+        <button class="tab"        id="tab-chat"     onclick="switchTab('chat')">Chat</button>
+      </div>
+
+      <!-- IDEAS VIEW -->
+      <div id="view-ideas">
+        <div class="ideas-grid" id="ideasGrid"></div>
+      </div>
+
+      <!-- ALLOCATION VIEW -->
+      <div id="view-alloc" style="display:none">
+        <div class="alloc-view">
+          <div class="donut-wrap">
+            <div class="donut-title">Portfolio breakdown</div>
+            <svg class="donut-svg" viewBox="0 0 200 200" id="donutSvg"></svg>
+            <div class="donut-legend" id="donutLegend"></div>
+          </div>
+          <div class="category-view">
+            <div class="cat-title">By asset category</div>
+            <div id="catBars"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANALYSIS VIEW -->
+      <div id="view-analysis" style="display:none">
+        <div class="analysis-card" id="analysisText"></div>
+      </div>
+
+      <!-- CHAT VIEW -->
+      <div id="view-chat" style="display:none">
+        <div class="chat-wrap">
+          <div class="chat-thread" id="chatThread"></div>
+          <div class="chat-input-area">
+            <div class="chat-row">
+              <input class="chat-input" id="chatInput" type="text"
+                placeholder="Ask about risks, compare ideas, request ETF alternatives..."
+                onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); sendChat(); }">
+              <button class="chat-send" id="chatSend" onclick="sendChat()">Send ↗</button>
+            </div>
+            <div class="quick-chips">
+              <span class="chip" onclick="askChip(this)">Which is safest for a beginner?</span>
+              <span class="chip" onclick="askChip(this)">Suggest ETFs for each theme</span>
+              <span class="chip" onclick="askChip(this)">How to split $10k across these?</span>
+              <span class="chip" onclick="askChip(this)">Risks in a market downturn?</span>
+              <span class="chip" onclick="askChip(this)">Which pay dividends?</span>
+              <span class="chip" onclick="askChip(this)">What to research first?</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /results -->
+
+  </main>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────────
+var selectedSectors = [];
+var conversationHistory = [];
+var currentIdeas = [];
+var isGenerating = false;
+var isChatting = false;
+
+// ── Sidebar mobile ─────────────────────────────────────────────────────────────
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+// ── Sectors ────────────────────────────────────────────────────────────────────
+function toggleSector(btn) {
+  btn.classList.toggle('active');
+  selectedSectors = Array.from(document.querySelectorAll('.sector-btn.active')).map(function(b){ return b.textContent; });
+}
+
+// ── Tabs ───────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  ['ideas','alloc','analysis','chat'].forEach(function(t) {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('view-' + t).style.display = t === tab ? '' : 'none';
+  });
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function riskBadge(risk) {
+  if (!risk) return '';
+  var r = risk.toLowerCase();
+  var cls = r.includes('low') ? 'badge-low' : r.includes('high') ? 'badge-high' : 'badge-mod';
+  var label = r.includes('low') ? 'Low' : r.includes('high') ? 'High' : 'Medium';
+  return '<span class="card-badge ' + cls + '">' + label + '</span>';
+}
+
+function cardColorClass(risk) {
+  if (!risk) return 'green-card';
+  var r = risk.toLowerCase();
+  return r.includes('low') ? 'green-card' : r.includes('high') ? 'red-card' : 'amber-card';
+}
+
+// ── Render idea cards ──────────────────────────────────────────────────────────
+function renderCards(ideas) {
+  var grid = document.getElementById('ideasGrid');
+  grid.innerHTML = '';
+  ideas.forEach(function(idea, i) {
+    var tags = (idea.tags || []).map(function(t){ return '<span class="card-tag">' + esc(t) + '</span>'; }).join('');
+    var card = document.createElement('div');
+    card.className = 'idea-card ' + cardColorClass(idea.risk);
+    card.innerHTML =
+      '<div class="card-top">' +
+        '<span class="card-name">' + esc(idea.name || '') + '</span>' +
+        riskBadge(idea.risk) +
+      '</div>' +
+      '<div class="card-meta">' +
+        (idea.ticker ? '<span class="card-ticker">' + esc(idea.ticker) + '</span><span class="card-sep">·</span>' : '') +
+        '<span class="card-category">' + esc(idea.category || '') + '</span>' +
+      '</div>' +
+      '<div class="card-desc">' + esc(idea.description || '') + '</div>' +
+      (idea.upside ? '<div class="card-upside">↑ ' + esc(idea.upside) + '</div>' : '') +
+      '<div class="card-footer">' +
+        '<div class="card-tags">' + tags + '</div>' +
+        '<div class="card-alloc">' + (idea.allocation || 0) + '%</div>' +
+      '</div>';
+    grid.appendChild(card);
+    // Staggered reveal
+    setTimeout(function() { card.classList.add('revealed'); }, i * 80);
+  });
+}
+
+// ── Donut chart ────────────────────────────────────────────────────────────────
+var DONUT_COLORS = ['#10b981','#3b82f6','#f59e0b','#8b5cf6','#ef4444','#06b6d4'];
+
+function renderDonut(ideas) {
+  var svg = document.getElementById('donutSvg');
+  var legend = document.getElementById('donutLegend');
+  svg.innerHTML = '';
+  legend.innerHTML = '';
+
+  var total = ideas.reduce(function(s,i){ return s + (i.allocation || 0); }, 0);
+  var cx = 100, cy = 100, r = 75, innerR = 48;
+  var startAngle = -Math.PI / 2;
+
+  ideas.forEach(function(idea, i) {
+    var pct = (idea.allocation || 0) / total;
+    var sweep = pct * 2 * Math.PI;
+    var endAngle = startAngle + sweep;
+    var x1 = cx + r * Math.cos(startAngle);
+    var y1 = cy + r * Math.sin(startAngle);
+    var x2 = cx + r * Math.cos(endAngle);
+    var y2 = cy + r * Math.sin(endAngle);
+    var ix1 = cx + innerR * Math.cos(endAngle);
+    var iy1 = cy + innerR * Math.sin(endAngle);
+    var ix2 = cx + innerR * Math.cos(startAngle);
+    var iy2 = cy + innerR * Math.sin(startAngle);
+    var large = sweep > Math.PI ? 1 : 0;
+    var color = DONUT_COLORS[i % DONUT_COLORS.length];
+
+    var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d',
+      'M ' + x1 + ' ' + y1 +
+      ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + x2 + ' ' + y2 +
+      ' L ' + ix1 + ' ' + iy1 +
+      ' A ' + innerR + ' ' + innerR + ' 0 ' + large + ' 0 ' + ix2 + ' ' + iy2 +
+      ' Z'
+    );
+    path.setAttribute('fill', color);
+    path.setAttribute('stroke', '#0c0e17');
+    path.setAttribute('stroke-width', '2');
+    svg.appendChild(path);
+
+    // Legend
+    var li = document.createElement('div');
+    li.className = 'legend-item';
+    li.innerHTML =
+      '<div class="legend-dot" style="background:' + color + '"></div>' +
+      '<span class="legend-name">' + esc(idea.name) + '</span>' +
+      '<span class="legend-pct">' + (idea.allocation || 0) + '%</span>';
+    legend.appendChild(li);
+
+    startAngle = endAngle;
+  });
+
+  // Center label
+  var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  text.setAttribute('x', cx); text.setAttribute('y', cy - 6);
+  text.setAttribute('text-anchor', 'middle'); text.setAttribute('fill', '#dde1f0');
+  text.setAttribute('font-size', '13'); text.setAttribute('font-family', 'DM Sans, sans-serif');
+  text.textContent = '6 Ideas';
+  svg.appendChild(text);
+
+  var sub = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  sub.setAttribute('x', cx); sub.setAttribute('y', cy + 12);
+  sub.setAttribute('text-anchor', 'middle'); sub.setAttribute('fill', '#6b7280');
+  sub.setAttribute('font-size', '11'); sub.setAttribute('font-family', 'Space Mono, monospace');
+  sub.textContent = '100% allocated';
+  svg.appendChild(sub);
+}
+
+// ── Category bars ──────────────────────────────────────────────────────────────
+function renderCategoryBars(ideas) {
+  var cats = {};
+  ideas.forEach(function(idea) {
+    var cat = idea.category || 'Other';
+    cats[cat] = (cats[cat] || 0) + (idea.allocation || 0);
+  });
+
+  var container = document.getElementById('catBars');
+  container.innerHTML = '';
+  var sorted = Object.entries(cats).sort(function(a,b){ return b[1]-a[1]; });
+  sorted.forEach(function(entry, i) {
+    var name = entry[0], pct = entry[1];
+    var color = DONUT_COLORS[i % DONUT_COLORS.length];
+    var div = document.createElement('div');
+    div.className = 'cat-bar-item';
+    div.innerHTML =
+      '<div class="cat-bar-label">' +
+        '<span class="cat-bar-name">' + esc(name) + '</span>' +
+        '<span class="cat-bar-pct">' + pct + '%</span>' +
+      '</div>' +
+      '<div class="cat-bar-track">' +
+        '<div class="cat-bar-fill" style="width:0%;background:' + color + '" data-target="' + pct + '"></div>' +
+      '</div>';
+    container.appendChild(div);
+  });
+
+  // Animate bars after render
+  setTimeout(function() {
+    document.querySelectorAll('.cat-bar-fill').forEach(function(bar) {
+      bar.style.width = bar.dataset.target + '%';
+    });
+  }, 100);
+}
+
+// ── Stats row ──────────────────────────────────────────────────────────────────
+function renderStats(data, amount) {
+  document.getElementById('statAmount').textContent = '$' + Number(amount.replace(/[^0-9.]/g,'')).toLocaleString();
+  document.getElementById('statReturn').textContent = data.summary.expected_return || '—';
+  document.getElementById('statRisk').textContent = data.summary.overall_risk || '—';
+  document.getElementById('statTopPick').textContent = data.summary.top_pick || '—';
+
+  var pills = document.getElementById('summaryPills');
+  pills.innerHTML = '';
+  var riskClass = { Conservative: 'pill-green', Moderate: 'pill-amber', Aggressive: 'pill-red' };
+  var r = data.summary.overall_risk || 'Moderate';
+  pills.innerHTML =
+    '<span class="pill ' + (riskClass[r] || 'pill-amber') + '">' + esc(r) + '</span>' +
+    '<span class="pill pill-blue">' + esc(data.summary.expected_return || '') + '</span>';
+}
+
+// ── GENERATE ───────────────────────────────────────────────────────────────────
+async function generate() {
+  if (isGenerating) return;
+
+  var amount  = document.getElementById('amount').value.trim() || '10,000';
+  var horizon = document.getElementById('horizon').value;
+  var risk    = document.getElementById('risk').value;
+  var style   = document.getElementById('style').value;
+  var context = document.getElementById('context').value.trim();
+
+  document.getElementById('sidebarError').style.display = 'none';
+  isGenerating = true;
+
+  var btn = document.getElementById('generateBtn');
+  var spinner = document.getElementById('btnSpinner');
+  var btnText = document.getElementById('btnText');
+  btn.disabled = true;
+  spinner.classList.add('show');
+  btnText.textContent = 'Analyzing...';
+
+  closeSidebar();
+
+  try {
+    var resp = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: '$' + amount,
+        horizon, risk, style,
+        sectors: selectedSectors,
+        context
+      })
+    });
+
+    var json = await resp.json();
+
+    if (!resp.ok || !json.success) {
+      throw new Error(json.error || 'Failed to generate ideas.');
+    }
+
+    var data = json.data;
+    currentIdeas = data.ideas || [];
+    conversationHistory = [
+      { role: 'user', content: 'Generate investment ideas for: amount=$' + amount + ', horizon=' + horizon + ', risk=' + risk + ', style=' + style + ', sectors=' + (selectedSectors.join(', ') || 'any') + (context ? ', context=' + context : '') },
+      { role: 'assistant', content: JSON.stringify(data) }
+    ];
+
+    // Render everything
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results').classList.add('fade-in');
+
+    renderStats(data, amount);
+    renderCards(currentIdeas);
+    renderDonut(currentIdeas);
+    renderCategoryBars(currentIdeas);
+    document.getElementById('analysisText').textContent = data.analysis || '';
+    document.getElementById('chatThread').innerHTML = '';
+    switchTab('ideas');
+
+  } catch (err) {
+    var eb = document.getElementById('sidebarError');
+    eb.style.display = 'block';
+    eb.textContent = '⚠ ' + err.message;
+    // Show sidebar again on mobile so user can see error
+    if (window.innerWidth <= 900) toggleSidebar();
+  } finally {
+    isGenerating = false;
+    btn.disabled = false;
+    spinner.classList.remove('show');
+    btnText.textContent = 'Generate Ideas ↗';
+  }
+}
+
+// ── CHAT ───────────────────────────────────────────────────────────────────────
+async function sendChat() {
+  if (isChatting) return;
+  var input = document.getElementById('chatInput');
+  var question = input.value.trim();
+  if (!question) return;
+  if (conversationHistory.length === 0) {
+    alert('Please generate investment ideas first.');
+    return;
+  }
+
+  input.value = '';
+  isChatting = true;
+  document.getElementById('chatSend').disabled = true;
+  switchTab('chat');
+
+  var thread = document.getElementById('chatThread');
+
+  // User bubble
+  var uDiv = document.createElement('div');
+  uDiv.className = 'chat-msg user';
+  uDiv.innerHTML = '<div class="chat-role user-role">You</div><div class="chat-text">' + esc(question) + '</div>';
+  thread.appendChild(uDiv);
+  thread.scrollTop = thread.scrollHeight;
+
+  // AI bubble (typing)
+  var aiDiv = document.createElement('div');
+  aiDiv.className = 'chat-msg ai';
+  aiDiv.innerHTML = '<div class="chat-role ai-role">Agent</div><div class="chat-text"><div class="typing-dots"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div></div>';
+  thread.appendChild(aiDiv);
+  thread.scrollTop = thread.scrollHeight;
+
+  var aiText = aiDiv.querySelector('.chat-text');
+  var fullAnswer = '';
+
+  try {
+    var resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: conversationHistory,
+        question: question,
+        profileSummary: 'The investor has these 6 ideas: ' + currentIdeas.map(function(i){ return i.name; }).join(', ')
+      })
+    });
+
+    if (!resp.ok) {
+      var errData = await resp.json().catch(function(){ return {}; });
+      throw new Error(errData.error || 'Chat error ' + resp.status);
+    }
+
+    var reader = resp.body.getReader();
+    var decoder = new TextDecoder();
+    aiText.textContent = '';
+
+    while (true) {
+      var result = await reader.read();
+      if (result.done) break;
+
+      var chunk = decoder.decode(result.value, { stream: true });
+      var lines = chunk.split('\n');
+
+      for (var j = 0; j < lines.length; j++) {
+        var line = lines[j].trim();
+        if (!line.startsWith('data: ')) continue;
+        try {
+          var parsed = JSON.parse(line.slice(6));
+          if (parsed.text) {
+            fullAnswer += parsed.text;
+            aiText.textContent = fullAnswer;
+            thread.scrollTop = thread.scrollHeight;
+          }
+          if (parsed.error) throw new Error(parsed.error);
+        } catch (e) {
+          if (e.message !== 'Unexpected end of JSON input') throw e;
+        }
+      }
+    }
+
+    conversationHistory.push({ role: 'user', content: question });
+    conversationHistory.push({ role: 'assistant', content: fullAnswer });
+
+  } catch (err) {
+    aiText.textContent = '⚠ Error: ' + err.message;
+  } finally {
+    isChatting = false;
+    document.getElementById('chatSend').disabled = false;
+    thread.scrollTop = thread.scrollHeight;
+  }
+}
+
+function askChip(el) {
+  document.getElementById('chatInput').value = el.textContent;
+  sendChat();
+}
+</script>
+</body>
+</html>

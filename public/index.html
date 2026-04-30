@@ -346,6 +346,104 @@ textarea{resize:vertical;min-height:62px;line-height:1.5}
   .compare-scenarios{grid-template-columns:1fr}
   .dd-grid{grid-template-columns:1fr}
 }
+
+/* ── Portfolio Tab ─────────────────────────────────────────────────── */
+.port-connect{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:1.5rem;text-align:center}
+.port-connect-icon{width:72px;height:72px;border-radius:20px;background:var(--green-bg);border:1px solid var(--green-border);display:flex;align-items:center;justify-content:center;font-size:2rem}
+.port-connect h3{font-size:1.25rem;font-weight:700}
+.port-connect p{color:var(--muted);font-size:.88rem;max-width:420px;line-height:1.7}
+.connect-form{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.75rem;width:100%;max-width:420px;text-align:left}
+.cf-title{font-size:.72rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem}
+.cf-field{display:flex;flex-direction:column;gap:5px;margin-bottom:.85rem}
+.cf-label{font-size:.72rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.cf-input{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.62rem .9rem;font-family:"DM Sans",sans-serif;font-size:.88rem;color:var(--text);outline:none;transition:border-color .2s;width:100%}
+.cf-input:focus{border-color:var(--green)}
+.cf-btn{width:100%;padding:.85rem;font-family:"DM Sans",sans-serif;font-weight:700;font-size:.88rem;background:var(--green);color:#fff;border:none;border-radius:9px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:.5rem}
+.cf-btn:hover{background:var(--green2);transform:translateY(-1px)}
+.cf-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.cf-disclaimer{font-size:.68rem;color:var(--muted);line-height:1.6;margin-top:1rem;padding:.65rem .85rem;background:var(--bg3);border-radius:7px;border:1px solid var(--border)}
+.cf-disclaimer strong{color:var(--amber)}
+.mfa-section{display:none;flex-direction:column;gap:.85rem}
+.mfa-section.show{display:flex}
+.port-loaded{display:none}
+.port-loaded.show{display:block}
+
+/* Portfolio summary cards */
+.port-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:1.5rem}
+.psc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem 1.1rem}
+.psc-label{font-size:.65rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.psc-value{font-size:1.2rem;font-weight:700}
+.psc-sub{font-size:.68rem;color:var(--muted);margin-top:2px}
+.pos-change{font-size:.82rem;font-weight:600}
+.pos-change.up{color:var(--green)}
+.pos-change.down{color:var(--red)}
+
+/* Holdings table */
+.holdings-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:1.5rem}
+.ht-head{display:grid;grid-template-columns:80px 1fr 80px 90px 90px 90px 90px;gap:0;background:var(--bg3);padding:.6rem 1.1rem;border-bottom:1px solid var(--border)}
+.hth{font-size:.65rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+.hth.right{text-align:right}
+.ht-row{display:grid;grid-template-columns:80px 1fr 80px 90px 90px 90px 90px;gap:0;padding:.6rem 1.1rem;border-bottom:1px solid var(--border);align-items:center;transition:background .15s}
+.ht-row:last-child{border-bottom:none}
+.ht-row:hover{background:rgba(255,255,255,.02)}
+.ht-sym{font-family:"Space Mono",monospace;font-size:.8rem;font-weight:700;color:var(--green)}
+.ht-name{font-size:.78rem;color:var(--muted2)}
+.ht-qty{font-size:.78rem;color:var(--muted);text-align:right}
+.ht-val{font-size:.8rem;font-weight:600;text-align:right}
+.ht-pl{font-size:.78rem;font-weight:600;text-align:right}
+.ht-pl.up{color:var(--green)}.ht-pl.down{color:var(--red)}
+.ht-avg,.ht-cur{font-size:.75rem;color:var(--muted);text-align:right;font-family:"Space Mono",monospace}
+.ht-pct{font-size:.72rem;text-align:right;font-family:"Space Mono",monospace}
+.ht-pct.up{color:var(--green)}.ht-pct.down{color:var(--red)}
+
+/* Portfolio AI analysis */
+.port-analysis-wrap{display:flex;flex-direction:column;gap:1.25rem}
+.pa-header{display:flex;align-items:flex-start;gap:1.5rem;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.5rem;flex-wrap:wrap}
+.pa-score-wrap{display:flex;flex-direction:column;align-items:center;gap:.35rem;flex-shrink:0}
+.pa-grade{font-family:"Space Mono",monospace;font-size:.75rem;color:var(--muted)}
+.pa-title-wrap{flex:1;min-width:200px}
+.pa-name{font-size:1.1rem;font-weight:700;margin-bottom:4px}
+.pa-one-liner{font-size:.88rem;color:var(--green);font-style:italic;margin-bottom:.5rem}
+.pa-overview{font-size:.85rem;color:var(--muted2);line-height:1.8}
+.pa-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.pa-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.1rem}
+.pa-card.full{grid-column:1/-1}
+.pa-card-title{font-size:.65rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.75rem}
+.pa-list{list-style:none;display:flex;flex-direction:column;gap:5px}
+.pa-list li{font-size:.78rem;color:var(--muted2);padding-left:1rem;position:relative;line-height:1.55}
+.pa-list li::before{content:"";position:absolute;left:0;top:.55em;width:5px;height:5px;border-radius:50%}
+.pa-green li::before{background:var(--green)}.pa-red li::before{background:var(--red)}.pa-amber li::before{background:var(--amber)}.pa-muted li::before{background:var(--muted)}
+.action-row{display:flex;flex-direction:column;gap:.6rem}
+.action-item{display:flex;align-items:flex-start;gap:.75rem;padding:.75rem;background:var(--bg3);border-radius:9px;border:1px solid var(--border)}
+.action-priority{font-size:.6rem;font-family:"Space Mono",monospace;padding:2px 7px;border-radius:20px;flex-shrink:0;text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
+.ap-high{background:var(--red-bg);color:#f87171;border:1px solid var(--red-border)}
+.ap-medium{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.ap-low{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.action-body{flex:1}
+.action-type{font-size:.68rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.action-text{font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:3px}
+.action-reason{font-size:.75rem;color:var(--muted2);line-height:1.55}
+.sector-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.55rem}
+.sector-name{font-size:.78rem;color:var(--muted2);width:110px;flex-shrink:0}
+.sector-bar-track{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.sector-bar-fill{height:100%;border-radius:3px;background:var(--green)}
+.sector-pct{font-size:.72rem;font-family:"Space Mono",monospace;color:var(--text);width:35px;text-align:right}
+.sector-status{font-size:.6rem;font-family:"Space Mono",monospace;padding:2px 6px;border-radius:3px}
+.ss-ov{background:var(--red-bg);color:#f87171}.ss-ok{background:var(--green-bg);color:var(--green)}.ss-uw{background:var(--amber-bg);color:var(--amber)}
+.port-analyze-btn{width:100%;padding:.85rem;font-family:"DM Sans",sans-serif;font-weight:700;font-size:.88rem;background:var(--green);color:#fff;border:none;border-radius:10px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.port-analyze-btn:hover{background:var(--green2);transform:translateY(-1px);box-shadow:0 6px 24px rgba(16,185,129,.3)}
+.port-analyze-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.disconnect-btn{font-size:.72rem;font-family:"Space Mono",monospace;color:var(--muted);background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;transition:all .15s}
+.disconnect-btn:hover{color:var(--red);border-color:var(--red-border)}
+.port-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem}
+.port-topbar-left{display:flex;align-items:center;gap:.75rem}
+.port-status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse2 2s infinite}
+.port-connected-label{font-size:.78rem;font-family:"Space Mono",monospace;color:var(--muted2)}
+.use-in-ideas-btn{display:flex;align-items:center;gap:5px;padding:.45rem .9rem;font-size:.75rem;font-family:"DM Sans",sans-serif;font-weight:600;background:var(--green-bg);border:1px solid var(--green-border);border-radius:8px;color:var(--green);cursor:pointer;transition:all .15s}
+.use-in-ideas-btn:hover{background:var(--green);color:#fff}
+@media(max-width:900px){.port-summary{grid-template-columns:1fr 1fr}.ht-head,.ht-row{grid-template-columns:70px 1fr 80px 80px 80px}.ht-avg,.ht-cur{display:none}.pa-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.port-summary{grid-template-columns:1fr 1fr}.ht-head,.ht-row{grid-template-columns:60px 1fr 80px 80px}.ht-qty,.ht-avg,.ht-cur{display:none}.pa-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -536,6 +634,7 @@ textarea{resize:vertical;min-height:62px;line-height:1.5}
         <button class="tab" id="tab-analysis" type="button">&#128196; Analysis</button>
         <button class="tab" id="tab-chat" type="button">&#128172; Chat</button>
         <button class="tab" id="tab-history" type="button">&#128337; History</button>
+        <button class="tab" id="tab-portfolio" type="button">&#128202; Portfolio</button>
       </div>
 
       <!-- IDEAS TAB -->
@@ -619,6 +718,93 @@ textarea{resize:vertical;min-height:62px;line-height:1.5}
         </div>
       </div>
 
+      <!-- PORTFOLIO TAB -->
+      <div id="view-portfolio" style="display:none">
+
+        <!-- Not connected state -->
+        <div class="port-connect" id="portConnectSection">
+          <div class="port-connect-icon">&#128202;</div>
+          <h3>Connect Your Robinhood Account</h3>
+          <p>Import your real portfolio for AI-powered analysis. Get specific recommendations on what to buy, sell, rebalance, and what to do with your cash.</p>
+
+          <div class="connect-form" id="connectForm">
+            <div class="cf-title">Robinhood Credentials</div>
+            <div class="cf-field">
+              <label class="cf-label" for="rhEmail">Email</label>
+              <input class="cf-input" type="email" id="rhEmail" placeholder="your@email.com" autocomplete="email">
+            </div>
+            <div class="cf-field">
+              <label class="cf-label" for="rhPass">Password</label>
+              <input class="cf-input" type="password" id="rhPass" placeholder="Your Robinhood password" autocomplete="current-password">
+            </div>
+            <button class="cf-btn" id="rhLoginBtn" type="button">
+              <span class="spin" id="rhSpin"></span>
+              <span id="rhBtnTxt">&#128202; Connect Account</span>
+            </button>
+
+            <!-- MFA step (hidden by default) -->
+            <div class="mfa-section" id="mfaSection">
+              <div style="font-size:.82rem;color:var(--muted2);margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)">
+                &#128273; Enter the verification code sent to your phone or email:
+              </div>
+              <div class="cf-field" style="margin-bottom:0">
+                <label class="cf-label" for="rhMfa">Verification Code</label>
+                <input class="cf-input" type="text" id="rhMfa" placeholder="123456" maxlength="8" autocomplete="one-time-code">
+              </div>
+              <button class="cf-btn" id="rhVerifyBtn" type="button">
+                <span class="spin" id="rhVerSpin"></span>
+                <span id="rhVerTxt">&#10003; Verify &amp; Connect</span>
+              </button>
+            </div>
+
+            <div class="cf-disclaimer">
+              <strong>Security:</strong> Your credentials are sent <strong>directly to Robinhood</strong> over HTTPS and are <strong>never stored</strong> on our servers. We only read your positions &mdash; we cannot place trades. You can disconnect at any time.
+            </div>
+          </div>
+        </div>
+
+        <!-- Connected state (hidden until loaded) -->
+        <div class="port-loaded" id="portLoadedSection">
+          <div class="port-topbar">
+            <div class="port-topbar-left">
+              <div class="port-status-dot"></div>
+              <span class="port-connected-label">Robinhood connected</span>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="use-in-ideas-btn" id="useInIdeasBtn" type="button">&#8599; Use Portfolio Context in Ideas</button>
+              <button class="disconnect-btn" id="disconnectBtn" type="button">Disconnect</button>
+            </div>
+          </div>
+
+          <!-- Summary cards -->
+          <div class="port-summary" id="portSummaryCards"></div>
+
+          <!-- Holdings table -->
+          <div class="holdings-wrap" id="holdingsWrap">
+            <div class="ht-head">
+              <span class="hth">Symbol</span>
+              <span class="hth">Name</span>
+              <span class="hth right">Shares</span>
+              <span class="hth right">Avg Cost</span>
+              <span class="hth right">Price</span>
+              <span class="hth right">Value</span>
+              <span class="hth right">P &amp; L</span>
+            </div>
+            <div id="holdingsBody"></div>
+          </div>
+
+          <!-- Analyze button -->
+          <button class="port-analyze-btn" id="portAnalyzeBtn" type="button">
+            <span class="spin" id="paSpin"></span>
+            <span id="paBtnTxt">&#128269; Analyze My Portfolio with AI</span>
+          </button>
+
+          <!-- Analysis results -->
+          <div id="portAnalysisResult" style="margin-top:1.5rem;display:none"></div>
+        </div>
+
+      </div>
+
     </div><!-- /results -->
   </main>
 </div>
@@ -667,6 +853,7 @@ function wireEvents() {
   document.addEventListener('keydown', function(e) {
     if(e.key==='Escape') { closeSidebar(); get('wlDrawer').classList.remove('open'); }
   });
+  wirePortfolioEvents();
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -723,7 +910,7 @@ function closeSidebar() {
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 function switchTab(t) {
-  ['ideas','alloc','compare','analysis','chat','history'].forEach(function(n) {
+  ['ideas','alloc','compare','analysis','chat','history','portfolio'].forEach(function(n) {
     get('tab-'+n).classList.toggle('active', n===t);
     get('view-'+n).style.display = n===t ? '' : 'none';
   });
@@ -1033,7 +1220,7 @@ function generate() {
   fetch('/api/generate', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({amount:'$'+amount, horizon:horizon, risk:risk, style:style, sectors:S.sectors, context:context})
+    body: JSON.stringify({amount:'$'+amount, horizon:horizon, risk:risk, style:style, sectors:S.sectors, context:context, portfolioContext: buildPortfolioContext()})
   })
   .then(function(r) {
     return r.json().then(function(j) {
@@ -1418,6 +1605,385 @@ function newAnalysis() {
     get('sidebar').classList.add('open');
     get('overlay').classList.add('on');
   }
+}
+
+
+
+// ── Portfolio State ────────────────────────────────────────────────────────────
+var P = {
+  token: null,
+  deviceToken: null,
+  challengeId: null,
+  email: null,
+  password: null,
+  data: null,
+  analysis: null,
+  useInIdeas: false
+};
+
+// ── Wire portfolio events (add to wireEvents) ──────────────────────────────────
+function wirePortfolioEvents() {
+  get('tab-portfolio').addEventListener('click', function() { switchTab('portfolio'); });
+  get('rhLoginBtn').addEventListener('click', rhLogin);
+  get('rhVerifyBtn').addEventListener('click', rhVerify);
+  get('portAnalyzeBtn').addEventListener('click', portAnalyze);
+  get('disconnectBtn').addEventListener('click', rhDisconnect);
+  get('useInIdeasBtn').addEventListener('click', function() {
+    P.useInIdeas = !P.useInIdeas;
+    var btn = get('useInIdeasBtn');
+    if (P.useInIdeas) {
+      btn.textContent = '\u2714 Portfolio Context Active';
+      btn.style.background = 'var(--green)';
+      btn.style.color = '#fff';
+      toast('Portfolio context will shape your next ideas', 'ok');
+    } else {
+      btn.innerHTML = '&#8599; Use Portfolio Context in Ideas';
+      btn.style.background = '';
+      btn.style.color = '';
+    }
+  });
+  get('rhEmail').addEventListener('keydown', function(e){ if(e.key==='Enter') rhLogin(); });
+  get('rhPass').addEventListener('keydown', function(e){ if(e.key==='Enter') rhLogin(); });
+  get('rhMfa').addEventListener('keydown', function(e){ if(e.key==='Enter') rhVerify(); });
+}
+
+// ── Robinhood Login ────────────────────────────────────────────────────────────
+function rhLogin() {
+  var email    = get('rhEmail').value.trim();
+  var password = get('rhPass').value;
+  if (!email || !password) { toast('Enter your Robinhood email and password', 'info'); return; }
+
+  P.email = email; P.password = password;
+  setRhBtn(true, 'Connecting...');
+
+  fetch('/api/robinhood/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, password: password })
+  })
+  .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw new Error(j.error||'Login failed.'); return j; }); })
+  .then(function(j) {
+    P.deviceToken = j.deviceToken;
+    if (j.success && j.token) {
+      P.token = j.token;
+      fetchPortfolio();
+    } else if (j.mfa_required || j.challenge_required) {
+      P.challengeId = j.challengeId || null;
+      get('mfaSection').classList.add('show');
+      get('rhMfa').focus();
+      toast(j.challenge_required ? 'A code was sent to your phone/email' : 'Enter your authenticator code', 'info');
+      setRhBtn(false, '\u{1F4F2} Connect Account');
+    }
+  })
+  .catch(function(e) { toast(e.message, 'err'); setRhBtn(false, '\u{1F4F2} Connect Account'); });
+}
+
+// ── MFA Verify ────────────────────────────────────────────────────────────────
+function rhVerify() {
+  var code = get('rhMfa').value.trim();
+  if (!code) { toast('Enter your verification code', 'info'); return; }
+
+  get('rhVerSpin').classList.add('on');
+  get('rhVerTxt').textContent = 'Verifying...';
+  get('rhVerifyBtn').disabled = true;
+
+  fetch('/api/robinhood/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: P.email, password: P.password, code: code, deviceToken: P.deviceToken, challengeId: P.challengeId })
+  })
+  .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw new Error(j.error||'Verification failed.'); return j; }); })
+  .then(function(j) {
+    if (j.success && j.token) {
+      P.token = j.token;
+      fetchPortfolio();
+    } else {
+      throw new Error('Could not get token. Try again.');
+    }
+  })
+  .catch(function(e) {
+    toast(e.message, 'err');
+    get('rhVerSpin').classList.remove('on');
+    get('rhVerTxt').textContent = '\u2713 Verify & Connect';
+    get('rhVerifyBtn').disabled = false;
+  });
+}
+
+// ── Fetch Portfolio ────────────────────────────────────────────────────────────
+function fetchPortfolio() {
+  setRhBtn(true, 'Loading portfolio...');
+  toast('Fetching your Robinhood portfolio...', 'info');
+
+  fetch('/api/robinhood/portfolio', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: P.token })
+  })
+  .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw new Error(j.error||'Portfolio fetch failed.'); return j; }); })
+  .then(function(j) {
+    P.data = j.data;
+    get('portConnectSection').style.display = 'none';
+    get('portLoadedSection').classList.add('show');
+    renderPortfolioSummary(j.data.summary);
+    renderHoldings(j.data.positions);
+    toast('Portfolio loaded — ' + j.data.summary.totalPositions + ' positions', 'ok');
+    setRhBtn(false, '\u{1F4F2} Connect Account');
+    // Also show portfolio tab as active
+    switchTab('portfolio');
+  })
+  .catch(function(e) {
+    toast(e.message, 'err');
+    setRhBtn(false, '\u{1F4F2} Connect Account');
+  });
+}
+
+// ── Render Portfolio Summary ───────────────────────────────────────────────────
+function renderPortfolioSummary(s) {
+  var cards = get('portSummaryCards');
+  var dayUp = s.dayChange >= 0;
+  var daySign = dayUp ? '+' : '';
+  cards.innerHTML = [
+    makePsc('Total Value', '$' + (s.totalEquity||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}), 'var(--green)', 'Equity'),
+    makePsc('Today', daySign+'$'+(Math.abs(s.dayChange||0)).toFixed(2), dayUp?'var(--green)':'var(--red)', daySign+(s.dayChangePct||0).toFixed(2)+'%'),
+    makePsc('Cash', '$'+(s.cash||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}), 'var(--amber)', 'Buying Power'),
+    makePsc('Positions', String(s.totalPositions||0), 'var(--blue)', 'Holdings')
+  ].join('');
+}
+
+function makePsc(label, value, color, sub) {
+  return [
+    '<div class="psc">',
+      '<div class="psc-label">'+esc(label)+'</div>',
+      '<div class="psc-value" style="color:'+color+'">'+esc(value)+'</div>',
+      '<div class="psc-sub">'+esc(sub)+'</div>',
+    '</div>'
+  ].join('');
+}
+
+// ── Render Holdings Table ──────────────────────────────────────────────────────
+function renderHoldings(positions) {
+  var body = get('holdingsBody');
+  if (!positions.length) { body.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--muted);font-size:.82rem">No positions found.</div>'; return; }
+
+  var totalValue = positions.reduce(function(s,p){ return s+(p.marketValue||0); }, 0);
+
+  body.innerHTML = positions.map(function(p) {
+    var up = p.plDollar >= 0;
+    var plSign = up ? '+' : '';
+    var pct = totalValue > 0 ? (p.marketValue/totalValue*100).toFixed(1) : '0.0';
+    return [
+      '<div class="ht-row">',
+        '<span class="ht-sym">'+esc(p.symbol)+'</span>',
+        '<div>',
+          '<div class="ht-name">'+esc(p.name)+'</div>',
+          '<div style="font-size:.62rem;color:var(--muted);font-family:Space Mono,monospace">'+pct+'% of port</div>',
+        '</div>',
+        '<span class="ht-qty">'+(p.quantity||0).toFixed(p.quantity<1?4:2)+'</span>',
+        '<span class="ht-avg">$'+(p.avgCost||0).toFixed(2)+'</span>',
+        '<span class="ht-cur">$'+(p.currentPrice||0).toFixed(2)+'</span>',
+        '<span class="ht-val">$'+(p.marketValue||0).toFixed(2)+'</span>',
+        '<div style="text-align:right">',
+          '<div class="ht-pl '+(up?'up':'down')+'">'+plSign+'$'+(Math.abs(p.plDollar||0)).toFixed(2)+'</div>',
+          '<div class="ht-pct '+(up?'up':'down')+'">'+plSign+(p.plPct||0).toFixed(1)+'%</div>',
+        '</div>',
+      '</div>'
+    ].join('');
+  }).join('');
+}
+
+// ── Portfolio AI Analysis ──────────────────────────────────────────────────────
+function portAnalyze() {
+  if (!P.data) return;
+  var btn = get('portAnalyzeBtn'), sp = get('paSpin'), bt = get('paBtnTxt');
+  btn.disabled = true; sp.classList.add('on'); bt.textContent = 'Analyzing with AI...';
+
+  // Build profile from sidebar values
+  var profile = {
+    horizon: get('horizon').value,
+    risk:    get('risk').value,
+    style:   get('style').value,
+    amount:  get('amount').value
+  };
+
+  fetch('/api/portfolio-analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ positions: P.data.positions, summary: P.data.summary, profile: profile })
+  })
+  .then(function(r){ return r.json().then(function(j){ if(!r.ok||!j.success) throw new Error(j.error||'Analysis failed.'); return j; }); })
+  .then(function(j) {
+    P.analysis = j.data;
+    renderPortfolioAnalysis(j.data);
+    toast('Portfolio analysis complete', 'ok');
+  })
+  .catch(function(e) { toast(e.message, 'err'); })
+  .finally(function() {
+    btn.disabled = false; sp.classList.remove('on'); bt.textContent = '\uD83D\uDD0D Analyze My Portfolio with AI';
+  });
+}
+
+function renderPortfolioAnalysis(d) {
+  var wrap = get('portAnalysisResult');
+  wrap.style.display = 'block';
+
+  var score = parseInt(d.diversification_score) || 0;
+  var r = 35, circ = 2*Math.PI*r, dashoff = circ*(1-score/100);
+  var scoreColor = score>=70?'var(--green)':score>=50?'var(--amber)':'var(--red)';
+  var gradeColor = {A:'var(--green)',B:'var(--green)',C:'var(--amber)',D:'var(--red)'}[(d.overall_grade||'B')[0]] || 'var(--amber)';
+
+  var actionsHtml = (d.top_actions||[]).map(function(a) {
+    var priClass = {'High':'ap-high','Medium':'ap-medium','Low':'ap-low'}[a.priority]||'ap-low';
+    return [
+      '<div class="action-item">',
+        '<span class="action-priority '+priClass+'">'+esc(a.priority)+'</span>',
+        '<div class="action-body">',
+          '<div class="action-type">'+esc(a.type||'')+(a.symbol?' • '+esc(a.symbol):'')+'</div>',
+          '<div class="action-text">'+esc(a.action_text||'')+'</div>',
+          '<div class="action-reason">'+esc(a.reasoning||'')+'</div>',
+        '</div>',
+      '</div>'
+    ].join('');
+  }).join('');
+
+  var sectorsHtml = (d.sector_breakdown||[]).map(function(s) {
+    var stClass = {'Overweight':'ss-ov','Good':'ss-ok','Underweight':'ss-uw'}[s.status]||'ss-ok';
+    return [
+      '<div class="sector-row">',
+        '<span class="sector-name">'+esc(s.sector)+'</span>',
+        '<div class="sector-bar-track"><div class="sector-bar-fill" style="width:'+Math.min(s.pct||0,100)+'%"></div></div>',
+        '<span class="sector-pct">'+(s.pct||0).toFixed(0)+'%</span>',
+        '<span class="sector-status '+stClass+'">'+esc(s.status)+'</span>',
+      '</div>'
+    ].join('');
+  }).join('');
+
+  var trimHtml = (d.winners_to_trim||[]).map(function(w){ return '<li>'+esc(w.symbol)+' — '+esc(w.reason)+'</li>'; }).join('');
+  var cutHtml  = (d.losers_to_cut||[]).map(function(w){ return '<li>'+esc(w.symbol)+' — '+esc(w.reason)+'</li>'; }).join('');
+  var missingHtml = (d.missing_exposure||[]).map(function(m){ return '<li>'+esc(m)+'</li>'; }).join('');
+  var bulletsHtml = (d.summary_bullets||[]).map(function(b){ return '<li>'+esc(b)+'</li>'; }).join('');
+
+  wrap.innerHTML = [
+    '<div class="port-analysis-wrap">',
+
+    // Header card
+    '<div class="pa-header">',
+      '<div class="pa-score-wrap">',
+        '<svg viewBox="0 0 90 90" width="90" height="90">',
+          '<circle cx="45" cy="45" r="'+r+'" fill="none" stroke="var(--bg3)" stroke-width="7"/>',
+          '<circle cx="45" cy="45" r="'+r+'" fill="none" stroke="'+scoreColor+'" stroke-width="7" stroke-linecap="round"',
+            ' stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+dashoff.toFixed(1)+'" transform="rotate(-90 45 45)"/>',
+          '<text x="45" y="41" text-anchor="middle" font-size="16" font-weight="700" fill="'+scoreColor+'" font-family="Space Mono,monospace">'+score+'</text>',
+          '<text x="45" y="55" text-anchor="middle" font-size="9" fill="#6b7280" font-family="Space Mono,monospace">Div.</text>',
+        '</svg>',
+        '<div class="pa-grade">Grade: <strong style="color:'+gradeColor+'">'+esc(d.overall_grade||'B')+'</strong></div>',
+      '</div>',
+      '<div class="pa-title-wrap">',
+        '<div class="pa-name">'+esc(d.risk_level||'Moderate')+' Risk Portfolio</div>',
+        d.one_liner ? '<div class="pa-one-liner">\u201c'+esc(d.one_liner)+'\u201d</div>' : '',
+        d.overview  ? '<div class="pa-overview">'+esc(d.overview)+'</div>' : '',
+      '</div>',
+    '</div>',
+
+    // Actions card (full width)
+    '<div class="pa-grid">',
+      '<div class="pa-card full">',
+        '<div class="pa-card-title">\u{1F3AF} Top Actions (AI Recommended)</div>',
+        '<div class="action-row">'+actionsHtml+'</div>',
+      '</div>',
+
+      // Cash recommendation
+      d.cash_recommendation ? [
+        '<div class="pa-card full" style="background:rgba(16,185,129,0.04);border-color:var(--green-border)">',
+          '<div class="pa-card-title" style="color:var(--green)">\uD83D\uDCB0 Cash Recommendation</div>',
+          '<div style="font-size:.85rem;color:var(--muted2);line-height:1.8">'+esc(d.cash_recommendation)+'</div>',
+        '</div>'
+      ].join('') : '',
+
+      // Sector breakdown
+      '<div class="pa-card">',
+        '<div class="pa-card-title">\uD83C\uDF0D Sector Exposure</div>',
+        sectorsHtml || '<div style="color:var(--muted);font-size:.78rem">No sector data</div>',
+      '</div>',
+
+      // Key insights
+      '<div class="pa-card">',
+        '<div class="pa-card-title">\u{1F4A1} Key Insights</div>',
+        '<ul class="pa-list pa-muted">'+( d.key_insights||[]).map(function(i){ return '<li>'+esc(i)+'</li>'; }).join('')+'</ul>',
+      '</div>',
+
+      // Risks
+      '<div class="pa-card">',
+        '<div class="pa-card-title">\u26A0 Biggest Risks</div>',
+        '<ul class="pa-list pa-amber">'+( d.biggest_risks||[]).map(function(r){ return '<li>'+esc(r)+'</li>'; }).join('')+'</ul>',
+      '</div>',
+
+      // Winners to trim / Losers to cut
+      (trimHtml || cutHtml) ? [
+        '<div class="pa-card">',
+          '<div class="pa-card-title">\u2702 Trim / Cut List</div>',
+          trimHtml ? '<div style="font-size:.68rem;font-family:Space Mono,monospace;color:var(--muted);margin-bottom:.35rem">Consider Trimming</div><ul class="pa-list pa-amber">'+trimHtml+'</ul>' : '',
+          cutHtml  ? '<div style="font-size:.68rem;font-family:Space Mono,monospace;color:var(--muted);margin-top:.65rem;margin-bottom:.35rem">Consider Cutting</div><ul class="pa-list pa-red">'+cutHtml+'</ul>' : '',
+        '</div>'
+      ].join('') : '',
+
+      // Missing exposure
+      missingHtml ? [
+        '<div class="pa-card">',
+          '<div class="pa-card-title">\u{1F50D} Missing Exposure</div>',
+          '<ul class="pa-list pa-green">'+missingHtml+'</ul>',
+        '</div>'
+      ].join('') : '',
+
+      // Tax insight
+      d.tax_insight ? [
+        '<div class="pa-card full">',
+          '<div class="pa-card-title">\uD83D\uDCCB Tax Insight</div>',
+          '<div style="font-size:.85rem;color:var(--muted2);line-height:1.8">'+esc(d.tax_insight)+'</div>',
+        '</div>'
+      ].join('') : '',
+
+      // Summary bullets
+      bulletsHtml ? [
+        '<div class="pa-card full">',
+          '<div class="pa-card-title">\u2022 Summary</div>',
+          '<ul class="pa-list pa-muted">'+bulletsHtml+'</ul>',
+        '</div>'
+      ].join('') : '',
+
+    '</div>',  // /pa-grid
+    '</div>'   // /port-analysis-wrap
+  ].join('');
+}
+
+// ── Disconnect ─────────────────────────────────────────────────────────────────
+function rhDisconnect() {
+  P.token = null; P.deviceToken = null; P.data = null; P.analysis = null; P.useInIdeas = false;
+  get('portConnectSection').style.display = '';
+  get('portLoadedSection').classList.remove('show');
+  get('mfaSection').classList.remove('show');
+  get('rhEmail').value = ''; get('rhPass').value = ''; get('rhMfa').value = '';
+  get('portAnalysisResult').style.display = 'none';
+  var uBtn = get('useInIdeasBtn');
+  uBtn.innerHTML = '&#8599; Use Portfolio Context in Ideas';
+  uBtn.style.background = ''; uBtn.style.color = '';
+  toast('Disconnected from Robinhood', 'info');
+}
+
+function setRhBtn(loading, text) {
+  var btn = get('rhLoginBtn'), sp = get('rhSpin'), t = get('rhBtnTxt');
+  btn.disabled = loading;
+  sp.classList.toggle('on', loading);
+  t.textContent = text;
+}
+
+// ── Portfolio Context for Idea Generation ─────────────────────────────────────
+function buildPortfolioContext() {
+  if (!P.useInIdeas || !P.data) return null;
+  var top = P.data.positions.slice(0,10).map(function(p){
+    return p.symbol+'('+p.quantity.toFixed(0)+' shares, $'+(p.marketValue||0).toFixed(0)+')';
+  }).join(', ');
+  var total = P.data.summary.totalEquity || 0;
+  return 'Current holdings: '+top+'. Total equity: $'+(total).toFixed(0)+'. Cash available: $'+(P.data.summary.cash||0).toFixed(0)+'. Avoid duplicating existing large positions.';
 }
 
 </script>

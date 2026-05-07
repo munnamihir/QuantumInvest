@@ -467,17 +467,71 @@ textarea{resize:vertical;min-height:58px;line-height:1.5}
     <div class="hero-badge"><div class="hpulse"></div>ML-KEM-768 (FIPS 203) · Post-Quantum Secure</div>
     <h1>The <em>Quantum-Safe</em><br>Investment Platform</h1>
     <p style="color:var(--muted2);max-width:460px;font-size:.92rem;line-height:1.7">AI investment intelligence where your financial data is protected by post-quantum cryptography — the only investment platform safe from future quantum attacks.</p>
-    <!-- HOMEPAGE ROBINHOOD LOGIN CARD -->
-    <div class="hero-card">
-      <div class="hcc-title">&#128202; Connect Robinhood — Import Your Real Portfolio</div>
-      <div class="hcc-field"><div class="hcc-label">Robinhood Email</div><input type="email" class="hcc-input" id="heroEmail" placeholder="your@email.com" autocomplete="email"></div>
-      <div class="hcc-field"><div class="hcc-label">Password</div><input type="password" class="hcc-input" id="heroPass" placeholder="Your Robinhood password" autocomplete="current-password"></div>
-      <div class="hcc-mfa" id="heroMfaWrap">
-        <div class="hcc-field"><div class="hcc-label">Verification Code</div><input type="text" class="hcc-input" id="heroMfa" placeholder="123456" maxlength="8" autocomplete="one-time-code"><div style="font-size:.66rem;color:var(--muted);margin-top:.3rem">Check your phone or email for the 6-digit code</div></div>
+    <!-- HOMEPAGE PORTFOLIO ENTRY CARD -->
+    <div class="hero-card" id="heroCard">
+
+      <!-- Tab switcher -->
+      <div style="display:flex;gap:4px;margin-bottom:1.1rem;background:var(--bg3);border-radius:10px;padding:4px">
+        <button id="heroTabManual" onclick="heroShowTab('manual')" style="flex:1;padding:.5rem .75rem;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;background:var(--green);color:#fff">
+          &#128203; Manual Entry
+        </button>
+        <button id="heroTabRH" onclick="heroShowTab('rh')" style="flex:1;padding:.5rem .75rem;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:var(--muted)">
+          &#128202; Robinhood <span style="font-size:.6rem;opacity:.7">(local only)</span>
+        </button>
       </div>
-      <button class="hcc-connect-btn" id="heroLoginBtn"><span class="spin" id="heroSpin"></span><span id="heroLoginTxt">&#128202; Connect &amp; Import Portfolio</span></button>
-      <div class="hcc-err" id="heroErr"></div>
-      <div class="hcc-disclaimer"><strong>Quantum-Safe:</strong> Credentials go <strong>directly to Robinhood</strong> — never stored. Session encrypted with AES-256-GCM. We cannot place trades.</div>
+
+      <!-- MANUAL ENTRY (default, always works) -->
+      <div id="heroManualPanel">
+        <div class="hcc-title">&#128203; Enter Your Portfolio — AI Analysis in Seconds</div>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:.75rem" id="heroMeTable">
+          <thead>
+            <tr>
+              <th style="font-size:.6rem;font-family:'Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:.3rem .4rem;text-align:left;border-bottom:1px solid var(--border);width:72px">Symbol</th>
+              <th style="font-size:.6rem;font-family:'Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:.3rem .4rem;text-align:left;border-bottom:1px solid var(--border)">Name</th>
+              <th style="font-size:.6rem;font-family:'Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:.3rem .4rem;text-align:left;border-bottom:1px solid var(--border);width:60px">Shares</th>
+              <th style="font-size:.6rem;font-family:'Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:.3rem .4rem;text-align:left;border-bottom:1px solid var(--border);width:72px">Avg Cost</th>
+              <th style="width:22px;border-bottom:1px solid var(--border)"></th>
+            </tr>
+          </thead>
+          <tbody id="heroMeBody">
+            <tr>
+              <td style="padding:.28rem .3rem"><input class="hcc-input hero-me-sym" type="text" placeholder="AAPL" style="text-transform:uppercase;padding:.36rem .5rem;font-size:.78rem"></td>
+              <td style="padding:.28rem .3rem"><input class="hcc-input hero-me-name" type="text" placeholder="Apple" style="padding:.36rem .5rem;font-size:.78rem"></td>
+              <td style="padding:.28rem .3rem"><input class="hcc-input hero-me-qty" type="number" placeholder="10" min="0" step="any" style="padding:.36rem .5rem;font-size:.78rem"></td>
+              <td style="padding:.28rem .3rem"><input class="hcc-input hero-me-avg" type="number" placeholder="150" min="0" step="any" style="padding:.36rem .5rem;font-size:.78rem"></td>
+              <td style="padding:.28rem .3rem"><button onclick="heroMeRemove(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;padding:2px 4px">&#10005;</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.85rem">
+          <button onclick="heroMeAddRow()" style="font-size:.72rem;color:var(--green);background:none;border:1px solid var(--green-border);border-radius:6px;padding:.32rem .75rem;cursor:pointer;font-family:'DM Sans',sans-serif">+ Add row</button>
+          <span style="font-size:.62rem;color:var(--muted)">Add CASH for buying power</span>
+        </div>
+        <button class="hcc-connect-btn" id="heroAnalyzeBtn" onclick="heroAnalyzeManual()">
+          <span class="spin" id="heroAnalyzeSpin"></span>
+          <span id="heroAnalyzeTxt">&#128269; Analyze Portfolio with AI</span>
+        </button>
+        <div class="hcc-err" id="heroManualErr"></div>
+      </div>
+
+      <!-- ROBINHOOD LOGIN (secondary, works locally) -->
+      <div id="heroRHPanel" style="display:none">
+        <div style="background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:8px;padding:.65rem .85rem;margin-bottom:.9rem;font-size:.7rem;color:var(--amber);line-height:1.6">
+          &#9888; <strong>Cloud server limitation:</strong> Robinhood blocks logins from cloud servers like Render. This works when running QuantumInvest on your own computer.
+        </div>
+        <div class="hcc-field"><div class="hcc-label">Robinhood Email</div><input type="email" class="hcc-input" id="heroEmail" placeholder="your@email.com" autocomplete="email"></div>
+        <div class="hcc-field"><div class="hcc-label">Password</div><input type="password" class="hcc-input" id="heroPass" placeholder="Your Robinhood password" autocomplete="current-password"></div>
+        <div class="hcc-mfa" id="heroMfaWrap">
+          <div class="hcc-field"><div class="hcc-label">Verification Code</div><input type="text" class="hcc-input" id="heroMfa" placeholder="123456" maxlength="8" autocomplete="one-time-code"><div style="font-size:.66rem;color:var(--muted);margin-top:.3rem">Check your phone or email for the 6-digit code</div></div>
+        </div>
+        <button class="hcc-connect-btn" id="heroLoginBtn">
+          <span class="spin" id="heroSpin"></span>
+          <span id="heroLoginTxt">&#128202; Connect &amp; Import Portfolio</span>
+        </button>
+        <div class="hcc-err" id="heroErr"></div>
+        <div class="hcc-disclaimer"><strong>Quantum-Safe:</strong> Credentials go <strong>directly to Robinhood</strong> — never stored. Encrypted with AES-256-GCM.</div>
+      </div>
+
       <div class="hcc-or">or</div>
       <button class="skip-link" id="heroSkip">Skip — just generate investment ideas without portfolio</button>
     </div>
@@ -657,8 +711,8 @@ function wireAll(){
   });
   document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeSidebar();get('wlDrawer').classList.remove('open');}});
   // Hero login
-  get('heroLoginBtn').addEventListener('click',heroLogin);
-  get('heroSkip').addEventListener('click',openSidebarMobile);
+  if(get('heroLoginBtn')) get('heroLoginBtn').addEventListener('click',heroLogin);
+  if(get('heroSkip')) get('heroSkip').addEventListener('click',openSidebarMobile);
   get('heroEmail').addEventListener('keydown',function(e){if(e.key==='Enter')get('heroPass').focus();});
   get('heroPass').addEventListener('keydown',function(e){if(e.key==='Enter')heroLogin();});
   get('heroMfa').addEventListener('keydown',function(e){if(e.key==='Enter')heroVerify();});
@@ -993,6 +1047,75 @@ function exportReport(){
 function newAnalysis(){get('results').style.display='none';get('emptyState').style.display='flex';S.ideas=[];S.convo=[];openSidebarMobile();}
 
 // Hero Robinhood login (homepage card)
+
+// Hero tab switching
+function heroShowTab(tab){
+  var isManual = tab === 'manual';
+  get('heroManualPanel').style.display = isManual ? '' : 'none';
+  get('heroRHPanel').style.display     = isManual ? 'none' : '';
+  get('heroTabManual').style.background = isManual ? 'var(--green)' : 'transparent';
+  get('heroTabManual').style.color      = isManual ? '#fff' : 'var(--muted)';
+  get('heroTabRH').style.background     = isManual ? 'transparent' : 'var(--green)';
+  get('heroTabRH').style.color          = isManual ? 'var(--muted)' : '#fff';
+}
+
+// Hero manual entry
+function heroMeAddRow(){
+  var tbody = get('heroMeBody'), tr = document.createElement('tr');
+  tr.innerHTML = '<td style="padding:.28rem .3rem"><input class="hcc-input hero-me-sym" type="text" placeholder="TSLA" style="text-transform:uppercase;padding:.36rem .5rem;font-size:.78rem"></td><td style="padding:.28rem .3rem"><input class="hcc-input hero-me-name" type="text" placeholder="Tesla" style="padding:.36rem .5rem;font-size:.78rem"></td><td style="padding:.28rem .3rem"><input class="hcc-input hero-me-qty" type="number" placeholder="5" min="0" step="any" style="padding:.36rem .5rem;font-size:.78rem"></td><td style="padding:.28rem .3rem"><input class="hcc-input hero-me-avg" type="number" placeholder="200" min="0" step="any" style="padding:.36rem .5rem;font-size:.78rem"></td><td style="padding:.28rem .3rem"><button onclick="heroMeRemove(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;padding:2px 4px">&#10005;</button></td>';
+  tbody.appendChild(tr);
+  tr.querySelector('.hero-me-sym').focus();
+}
+function heroMeRemove(btn){
+  var tbody = get('heroMeBody');
+  if(tbody.rows.length > 1) btn.closest('tr').remove();
+}
+get('heroMeBody').addEventListener('input', function(e){
+  if(e.target.classList.contains('hero-me-sym')){
+    var pos = e.target.selectionStart;
+    e.target.value = e.target.value.toUpperCase();
+    e.target.setSelectionRange(pos, pos);
+  }
+});
+
+function heroAnalyzeManual(){
+  var rows = Array.from(get('heroMeBody').rows);
+  var holdings = [], errors = [];
+  rows.forEach(function(row, i){
+    var sym = (row.querySelector('.hero-me-sym')?.value || '').trim().toUpperCase();
+    var name = row.querySelector('.hero-me-name')?.value.trim() || '';
+    var qty  = parseFloat(row.querySelector('.hero-me-qty')?.value);
+    var avg  = parseFloat(row.querySelector('.hero-me-avg')?.value);
+    if(!sym) return;
+    if(!qty || qty <= 0){ errors.push('Row '+(i+1)+': shares must be > 0'); return; }
+    if(!avg || avg <= 0){ errors.push('Row '+(i+1)+': avg cost must be > 0'); return; }
+    holdings.push({symbol:sym, name:name||sym, quantity:qty, avgCost:avg, currentPrice:avg});
+  });
+  var errBox = get('heroManualErr');
+  if(!holdings.length){ errBox.style.display='block'; errBox.textContent='Add at least one holding.'; return; }
+  if(errors.length){ errBox.style.display='block'; errBox.textContent=errors[0]; return; }
+  errBox.style.display = 'none';
+
+  var btn = get('heroAnalyzeBtn'), sp = get('heroAnalyzeSpin'), bt = get('heroAnalyzeTxt');
+  btn.disabled = true; sp.classList.add('on'); bt.textContent = 'Analyzing...';
+
+  fetch('/api/portfolio/manual',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({holdings:holdings,profile:{horizon:get('horizon').value,risk:get('risk').value,style:get('style').value}})})
+  .then(function(r){return r.json().then(function(j){if(!r.ok||!j.success)throw new Error(j.error||'Failed.');return j;});})
+  .then(function(j){
+    P.data = j.data; P.encryptedSession = 'manual';
+    get('emptyState').style.display = 'none';
+    var res = get('results'); res.style.display = 'block'; res.classList.add('fi');
+    get('portConnectSection').style.display = 'none';
+    get('portLoadedSection').classList.add('show');
+    renderPortfolioSummary(j.data.summary);
+    renderHoldings(j.data.positions);
+    switchTab('portfolio');
+    toast(j.data.summary.totalPositions+' holdings loaded — AI analysis ready','ok');
+  })
+  .catch(function(e){ errBox.style.display='block'; errBox.textContent=e.message; })
+  .finally(function(){ btn.disabled=false; sp.classList.remove('on'); bt.textContent='&#128269; Analyze Portfolio with AI'; });
+}
+
 function heroLogin(){
   var mfaVisible=get('heroMfaWrap').classList.contains('show');
   if(mfaVisible){heroVerify();return;}

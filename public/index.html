@@ -1313,16 +1313,39 @@ var SIM_MONTHS = 12;
 
 function runSimulator(){
   if(!STATE.portfolioData||!STATE.portfolioData.positions.length) return;
-  // Build optimized weights from Claude's actions (simplified: use analyst targets)
-  var positions = STATE.portfolioData.positions;
-  var optimized = positions.map(function(p){
-    var f = STATE.fundamentalData && STATE.fundamentalData[p.symbol];
-    return {symbol:p.symbol, weight:p.weight, analystTarget:f&&f.analystTarget?f.analystTarget:null, currentPrice:p.currentPrice, historical:p.historical||STATE.technicalData&&STATE.technicalData[p.symbol]};
+
+  // Strip positions down to ONLY what Monte Carlo needs — no candles, no full tech data
+  function slim(p){
+    var tech = STATE.technicalData&&STATE.technicalData[p.symbol];
+    var fund = STATE.fundamentalData&&STATE.fundamentalData[p.symbol];
+    return {
+      symbol:       p.symbol,
+      weight:       p.weight||0,
+      currentPrice: p.currentPrice||0,
+      marketValue:  p.marketValue||0,
+      analystTarget: (fund&&fund.analystTarget)||p.analystTarget||null,
+      historical: tech&&tech.trend ? {trend:{annualVol:tech.trend.annualVol||0.25, perf1y:tech.trend.perf1y||null}} : null,
+    };
+  }
+
+  var slimPositions = STATE.portfolioData.positions.map(slim);
+  var optimizedWeights = slimPositions.map(function(p){
+    return {symbol:p.symbol, weight:p.weight, analystTarget:p.analystTarget, currentPrice:p.currentPrice,
+            historical:p.historical};
   });
-  fetch('/api/simulate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({positions:positions.map(function(p){return Object.assign({},p,{historical:STATE.technicalData&&STATE.technicalData[p.symbol]||null,analystTarget:STATE.fundamentalData&&STATE.fundamentalData[p.symbol]&&STATE.fundamentalData[p.symbol].analystTarget||null});}),optimizedWeights:optimized,months:SIM_MONTHS})})
-  .then(function(r){return r.json();})
+
+  fetch('/api/simulate',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({positions:slimPositions, optimizedWeights:optimizedWeights, months:SIM_MONTHS})
+  })
+  .then(function(r){
+    if(!r.ok) throw new Error('Simulate HTTP '+r.status);
+    return r.json();
+  })
   .then(function(j){
-    if(j.success){STATE.simData=j.data;drawSimChart(SIM_MONTHS);}
+    if(j.success&&j.data){STATE.simData=j.data;drawSimChart(SIM_MONTHS);}
+    else console.warn('Simulator no data:',j.error);
   })
   .catch(function(e){console.warn('Simulator error:',e.message);});
 }

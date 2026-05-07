@@ -438,22 +438,33 @@ Output ONLY a raw JSON object. No markdown, no fences, no explanation. Start wit
   }
 });
 
-// ── Simulate
-app.post("/api/simulate", analyzeLim, async (req, res) => {
+// ── Simulate — accepts slim positions only
+app.post("/api/simulate", analyzeLim, express.json({ limit: "32kb" }), async (req, res) => {
   try {
     const { positions, optimizedWeights, months = 24 } = req.body;
     if (!positions?.length) return res.status(400).json({ error: "positions required." });
-    const total = positions.reduce((s, p) => s + (p.marketValue || 0), 0);
-    positions.forEach(p => { p.weight = total > 0 ? (p.marketValue || 0) / total : 0; });
-    const current  = monteCarlo(positions, months, 600);
-    let optimized  = null;
+    const total = positions.reduce((s, p) => s + (p.marketValue || p.weight || 0), 0);
+    // Normalise weights — accept either marketValue-based or explicit weight
+    const hasWeights = positions.every(p => p.weight != null);
+    if (!hasWeights) positions.forEach(p => { p.weight = total > 0 ? (p.marketValue || 0) / total : 1 / positions.length; });
+    const current = monteCarlo(positions, months, 600);
+    if (!current) return res.status(500).json({ error: "Monte Carlo failed." });
+    let optimized = null;
     if (optimizedWeights?.length) {
-      const opt = optimizedWeights.map(w => ({ ...positions.find(p => p.symbol === w.symbol) || {}, weight: w.weight }));
-      optimized = monteCarlo(opt, months, 600);
+      try {
+        const opt = optimizedWeights.map(w => {
+          const base = positions.find(p => p.symbol === w.symbol) || {};
+          return { ...base, weight: w.weight || base.weight || 0 };
+        });
+        optimized = monteCarlo(opt, months, 600);
+      } catch (_) {}
     }
     stats.simulations++;
     res.json({ success: true, data: { current, optimized, totalEquity: total, months } });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  } catch (e) {
+    console.error("[simulate]", e.message);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // ── Generate gap ideas

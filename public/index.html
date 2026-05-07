@@ -1001,7 +1001,10 @@ function heroLogin(){
   P.rhEmail=email;P.rhPass=pass;
   setHeroBtn(true,'Connecting...');get('heroErr').style.display='none';
   fetch('/api/robinhood/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password:pass})})
-  .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||j.hint||'Login failed.');return j;});})
+  .then(function(r){return r.json().then(function(j){
+    if(!r.ok){var err=new Error(j.error||'Connection failed.');err.hint=j.hint||'';err.status=r.status;throw err;}
+    return j;
+  });})
   .then(function(j){
     P.deviceToken=j.deviceToken;
     if(j.success&&j.encryptedSession){P.encryptedSession=j.encryptedSession;fetchPortfolioAndReveal();}
@@ -1012,7 +1015,22 @@ function heroLogin(){
       toast(j.challenge_required?'Code sent to your phone/email':'Enter your authenticator code','info');
     }
   })
-  .catch(function(e){var box=get('heroErr');box.style.display='block';box.textContent=e.message;setHeroBtn(false,'Connect & Import Portfolio');});
+  .catch(function(e){
+    var box=get('heroErr');
+    box.style.display='block';
+    var hint=e.hint||'';
+    var blocked=(e.status===503)||(e.message.toLowerCase().includes('block'))||(e.message.toLowerCase().includes('server'));
+    if(!hint&&blocked) hint='Use Manual Portfolio Entry in the Portfolio tab — enter your tickers and shares. AI analysis is identical.';
+    box.innerHTML='<strong>'+esc(e.message)+'</strong>'+(hint?'<br><span style="font-size:.68rem;color:var(--muted2);display:block;margin-top:.4rem">'+esc(hint)+'</span>':'');
+    setHeroBtn(false,'Try Again');
+    if(blocked){
+      get('manualEntrySection').classList.add('show');
+      get('manualToggleBtn').textContent='- Hide manual entry';
+      get('rhErrorBox').style.display='block';
+      get('rhErrorMsg').textContent=e.message+(hint?' — '+hint:'');
+      toast('Use Manual Entry in Portfolio tab — works identically','info');
+    }
+  });
 }
 function heroVerify(){
   var code=get('heroMfa').value.trim();if(!code){toast('Enter your verification code','info');return;}
@@ -1020,7 +1038,11 @@ function heroVerify(){
   fetch('/api/robinhood/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:P.rhEmail,password:P.rhPass,code:code,deviceToken:P.deviceToken,challengeId:P.challengeId})})
   .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'Verification failed.');return j;});})
   .then(function(j){if(j.success&&j.encryptedSession){P.encryptedSession=j.encryptedSession;fetchPortfolioAndReveal();}else throw new Error('Could not connect. Try again.');})
-  .catch(function(e){var box=get('heroErr');box.style.display='block';box.textContent=e.message;setHeroBtn(false,'Connect & Import Portfolio');});
+  .catch(function(e){
+    var box=get('heroErr');box.style.display='block';
+    box.innerHTML=esc(e.message)+(e.hint?'<br><br><span style="color:var(--green)">&#8594; '+esc(e.hint)+'</span>':'');
+    setHeroBtn(false,'Connect & Import Portfolio');
+  });
 }
 function fetchPortfolioAndReveal(){
   setHeroBtn(true,'Loading portfolio...');toast('Fetching your Robinhood portfolio...','info');
@@ -1035,7 +1057,11 @@ function fetchPortfolioAndReveal(){
     switchTab('portfolio');toast('Portfolio loaded — '+j.data.summary.totalPositions+' positions','ok');
     setHeroBtn(false,'Connect & Import Portfolio');
   })
-  .catch(function(e){var box=get('heroErr');box.style.display='block';box.textContent=e.message;setHeroBtn(false,'Connect & Import Portfolio');});
+  .catch(function(e){
+    var box=get('heroErr');box.style.display='block';
+    box.innerHTML=esc(e.message)+(e.hint?'<br><br><span style="color:var(--green)">&#8594; '+esc(e.hint)+'</span>':'');
+    setHeroBtn(false,'Connect & Import Portfolio');
+  });
 }
 function setHeroBtn(loading,text){var btn=get('heroLoginBtn'),sp=get('heroSpin'),t=get('heroLoginTxt');btn.disabled=loading;sp.classList.toggle('on',loading);t.textContent=text;}
 
@@ -1052,7 +1078,14 @@ function rhLogin(){
     if(j.success&&j.encryptedSession){P.encryptedSession=j.encryptedSession;fetchPortfolio();}
     else if(j.mfa_required||j.challenge_required){P.challengeId=j.challengeId||null;get('mfaSection').classList.add('show');get('rhMfa').focus();toast(j.challenge_required?'Code sent to your phone':'Enter authenticator code','info');setRhBtn(false,'Connect Account');}
   })
-  .catch(function(e){var box=get('rhErrorBox');box.style.display='block';get('rhErrorMsg').textContent=e.message;get('manualEntrySection').classList.add('show');get('manualToggleBtn').textContent='- Hide manual entry';toast('Connection blocked — manual entry ready below','info');setRhBtn(false,'Try Again');});
+  .catch(function(e){
+    var box=get('rhErrorBox');box.style.display='block';
+    get('rhErrorMsg').textContent=e.message+(e.hint?' — '+e.hint:'');
+    get('manualEntrySection').classList.add('show');
+    get('manualToggleBtn').textContent='- Hide manual entry';
+    toast('Connection blocked — manual entry ready below','info');
+    setRhBtn(false,'Try Again');
+  });
 }
 function rhVerify(){
   var code=get('rhMfa').value.trim();if(!code){toast('Enter verification code','info');return;}

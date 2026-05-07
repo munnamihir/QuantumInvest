@@ -730,15 +730,15 @@ function analyzePortfolio(){
     STATE.portfolioAnalysis = j.data.analysis;
     STATE.technicalData     = j.data.technical;
     STATE.fundamentalData   = j.data.fundamentals;
+    console.log('[analyzePortfolio] success. positions='+j.data.positions.length+' analysis keys='+Object.keys(j.data.analysis||{}).join(','));
     STATE.chatHistory=[
       {role:'user',content:'Portfolio: '+j.data.positions.map(function(p){return p.symbol+'('+p.quantity+'sh @$'+p.avgCost.toFixed(2)+', value $'+p.marketValue.toFixed(0)+')';}).join(', ')},
-      {role:'assistant',content:'Analysis complete. Grade: '+j.data.analysis.overall_grade+'. '+j.data.analysis.overview}
+      {role:'assistant',content:'Analysis complete. Grade: '+(j.data.analysis&&j.data.analysis.overall_grade)+'. '+(j.data.analysis&&j.data.analysis.overview)}
     ];
     renderResults();
     showScreen('results');
-    // Auto-fetch simulator
-    runSimulator();
-    toast('Real analysis complete — live data + technical indicators','ok');
+    setTimeout(function(){ runSimulator(); }, 200);
+    toast('Analysis complete — check console for render details','ok');
   })
   .catch(function(e){ err.style.display='block'; err.textContent=e.message; })
   .finally(function(){ setAnalyzeBtn(false, '&#128269; Analyze My Portfolio with Claude'); });
@@ -753,17 +753,26 @@ function setAnalyzeBtn(loading, text){
 function renderResults(){
   var d = STATE.portfolioAnalysis;
   var pd = STATE.portfolioData;
+  console.log('[renderResults] called. d=', !!d, 'pd=', !!pd);
+  if(!d || !pd){ console.error('[renderResults] missing data!'); toast('Render error: no data','err'); return; }
 
-  renderScoreHero(d);
-  renderStatRow(pd.summary);
-  renderActions(d.top_actions);
-  renderHoldings(pd.positions);
-  renderAnalysisGrid(d);
-  renderCashRec(d.cash_recommendation);
-  renderSectors(d.sector_breakdown);
-  renderDonut(pd.positions);
-  renderProfileDisplay();
-  renderSidebarCards(d);
+  var steps = [
+    ['scoreHero',    function(){ renderScoreHero(d); }],
+    ['statRow',      function(){ renderStatRow(pd.summary); }],
+    ['actionsStack', function(){ renderActions(d.top_actions); }],
+    ['holdingsBody', function(){ renderHoldings(pd.positions); }],
+    ['analysisGrid', function(){ renderAnalysisGrid(d); }],
+    ['cashRec',      function(){ renderCashRec(d.cash_recommendation); }],
+    ['sectorCard',   function(){ renderSectors(d.sector_breakdown); }],
+    ['donut',        function(){ renderDonut(pd.positions); }],
+    ['profile',      function(){ renderProfileDisplay(); }],
+    ['sidebar',      function(){ renderSidebarCards(d); }],
+  ];
+  steps.forEach(function(step){
+    try { step[1](); console.log('[render] ✓', step[0]); }
+    catch(e){ console.error('[render] ✗', step[0], e.message, e.stack); }
+  });
+  console.log('[renderResults] done');
 }
 
 function renderScoreHero(d){
@@ -1109,10 +1118,13 @@ function exportReport(){
 
 // ── Screen switching ───────────────────────────────────────────────────────────
 function showScreen(name){
-  get('entryScreen').style.display = name==='entry' ? '' : 'none';
-  get('resultsScreen').style.display = name==='results' ? '' : 'none';
-  get('ideasOnlyScreen').style.display = name==='ideasOnly' ? '' : 'none';
+  console.log('[showScreen]', name);
+  var es=get('entryScreen'), rs=get('resultsScreen'), ios=get('ideasOnlyScreen');
+  if(es)  es.style.display  = name==='entry'     ? '' : 'none';
+  if(rs)  rs.style.display  = name==='results'   ? '' : 'none';
+  if(ios) ios.style.display = name==='ideasOnly' ? '' : 'none';
   if(name==='results') window.scrollTo(0,0);
+  console.log('[showScreen] resultsScreen display=', rs ? rs.style.display : 'NOT FOUND');
 }
 </script>
 </body>
@@ -1144,7 +1156,7 @@ function mapX(i, len, left, right) {
 function drawCandleChart(canvas, tech) {
   if(!canvas || !tech || !tech.candles || !tech.candles.length) return;
   const dpr = window.devicePixelRatio || 1;
-  const W = canvas.offsetWidth || 600;
+  const W = canvas.offsetWidth || canvas.parentElement?.offsetWidth || 400;
   const H = parseInt(canvas.getAttribute('height')) || 140;
   canvas.width  = W * dpr;
   canvas.height = H * dpr;
@@ -1352,7 +1364,8 @@ function runSimulator(){
 
 function drawSimChart(months){
   var canvas=document.getElementById('simCanvas');
-  if(!canvas||!STATE.simData) return;
+  if(!canvas||!STATE.simData){ console.warn('[simChart] missing canvas or data'); return; }
+  // Show section FIRST, then wait one frame for reflow so offsetWidth is valid
   get('simSection').style.display='';
   var data=STATE.simData;
   var totalEquity=data.totalEquity||10000;
@@ -1361,9 +1374,12 @@ function drawSimChart(months){
     SIM_MONTHS=months;runSimulator();return;
   }
 
+  // Must use requestAnimationFrame so the section is visible before reading offsetWidth
+  requestAnimationFrame(function(){
   var dpr=window.devicePixelRatio||1;
-  var W=canvas.offsetWidth||800;
+  var W=canvas.offsetWidth||canvas.parentElement.offsetWidth||700;
   var H=280;
+  console.log('[simChart] canvas W='+W+' months='+months+' equity=$'+data.totalEquity);
   canvas.width=W*dpr; canvas.height=H*dpr;
   canvas.style.width=W+'px'; canvas.style.height=H+'px';
   var ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
@@ -1466,6 +1482,7 @@ function drawSimChart(months){
 
   // Update title
   get('simTitle').textContent='Portfolio Projection — '+months+'-Month Outlook ('+(opt?'current vs optimized':'current allocation')+')';
+  }); // end requestAnimationFrame
 }
 
 function formatK(val){

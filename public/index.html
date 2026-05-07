@@ -3,1374 +3,1062 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>QuantumInvest — Quantum-Safe AI Investment Intelligence</title>
+<title>QuantumInvest — AI Portfolio Strategy</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2310b981'/><text y='24' x='3' font-size='22' fill='white' font-family='monospace' font-weight='bold'>Q</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#080b14;--bg2:#0d1121;--bg3:#121829;--bg4:#1a2236;
-  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);
+  --bg:#080b14;--bg2:#0d1121;--bg3:#141928;--bg4:#1a2236;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
   --text:#dde1f0;--muted:#5a6478;--muted2:#8b95a8;
-  --green:#10b981;--green2:#059669;--green-bg:rgba(16,185,129,0.08);--green-border:rgba(16,185,129,0.2);
-  --amber:#f59e0b;--amber-bg:rgba(245,158,11,0.08);--amber-border:rgba(245,158,11,0.2);
-  --red:#ef4444;--red-bg:rgba(239,68,68,0.08);--red-border:rgba(239,68,68,0.2);
-  --blue:#3b82f6;--blue-bg:rgba(59,130,246,0.08);--blue-border:rgba(59,130,246,0.2);
-  --purple:#8b5cf6;--purple-bg:rgba(139,92,246,0.08);
-  --sidebar:288px;--radius:12px;
+  --green:#10b981;--green2:#059669;--green-bg:rgba(16,185,129,0.08);--green-border:rgba(16,185,129,0.22);
+  --amber:#f59e0b;--amber-bg:rgba(245,158,11,0.08);--amber-border:rgba(245,158,11,0.22);
+  --red:#ef4444;--red-bg:rgba(239,68,68,0.08);--red-border:rgba(239,68,68,0.22);
+  --blue:#3b82f6;--blue-bg:rgba(59,130,246,0.08);--blue-border:rgba(59,130,246,0.22);
+  --purple:#8b5cf6;--purple-bg:rgba(139,92,246,0.08);--purple-border:rgba(139,92,246,0.22);
+  --radius:12px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(16,185,129,0.06),transparent);pointer-events:none;z-index:0}
-body::after{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(16,185,129,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(16,185,129,0.015) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellipse 70% 40% at 50% -10%,rgba(16,185,129,0.07),transparent);pointer-events:none;z-index:0}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--green2);border-radius:2px}
-.layout{display:flex;min-height:100vh;position:relative;z-index:1}
-.sidebar{width:var(--sidebar);flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:60;transition:transform .3s ease;display:flex;flex-direction:column}
-.sidebar-head{padding:1.25rem 1.5rem 1rem;border-bottom:1px solid var(--border);flex-shrink:0}
-.logo{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.logo-mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;color:#fff;font-family:"Space Mono",monospace;box-shadow:0 4px 16px rgba(16,185,129,0.3)}
-.logo-text{font-size:1.1rem;font-weight:700;letter-spacing:-.4px}
-.logo-text em{color:var(--green);font-style:normal}
-.logo-sub{font-size:.62rem;color:var(--muted);font-family:"Space Mono",monospace;letter-spacing:.5px}
-.qbadge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:20px;font-size:.6rem;font-family:"Space Mono",monospace;color:var(--green);margin-top:6px}
-.qbdot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse2 2s infinite}
-.sidebar-body{padding:1.2rem 1.4rem;flex:1;display:flex;flex-direction:column;gap:1rem;overflow-y:auto}
-.slabel{font-size:.62rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:.5rem}
-.presets-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-.preset-btn{padding:.48rem .6rem;font-size:.7rem;font-weight:600;border:1px solid var(--border2);border-radius:9px;background:var(--bg3);color:var(--muted2);cursor:pointer;transition:all .15s;text-align:left;line-height:1.3}
-.preset-btn:hover{border-color:var(--green-border);color:var(--text);background:var(--green-bg)}
-.preset-btn span{display:block;font-size:.6rem;font-weight:400;color:var(--muted);margin-top:1px}
-.divider{height:1px;background:var(--border)}
-.fl{display:block;font-size:.62rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
-.fg{display:flex;flex-direction:column}
-select,input[type=text],input[type=email],input[type=password],textarea{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.55rem .85rem;font-family:"DM Sans",sans-serif;font-size:.85rem;color:var(--text);outline:none;transition:border-color .2s;width:100%;-webkit-appearance:none}
-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a6478' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .8rem center;padding-right:2.2rem;cursor:pointer}
-select:focus,input:focus,textarea:focus{border-color:var(--green)}
-select option{background:var(--bg2)}
-textarea{resize:vertical;min-height:58px;line-height:1.5}
 ::placeholder{color:var(--muted)}
-.amount-row{display:flex;gap:6px}
-.amount-row input{flex:1}
-.curr{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.55rem .7rem;font-family:"Space Mono",monospace;font-size:.7rem;color:var(--green);display:flex;align-items:center;flex-shrink:0}
-.sector-grid{display:flex;flex-wrap:wrap;gap:4px}
-.sector-btn{padding:3px 9px;font-size:.66rem;border:1px solid var(--border2);border-radius:20px;background:var(--bg3);color:var(--muted);cursor:pointer;transition:all .15s}
-.sector-btn:hover{border-color:var(--green-border);color:var(--text)}
-.sector-btn.active{background:var(--green-bg);border-color:var(--green);color:var(--green)}
-.gen-btn{width:100%;padding:.88rem;font-family:"DM Sans",sans-serif;font-weight:700;font-size:.88rem;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border:none;border-radius:10px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:.25rem}
-.gen-btn:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(16,185,129,.35)}
-.gen-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
-.spin{width:15px;height:15px;border-radius:50%;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;animation:spin .7s linear infinite;display:none}
+
+/* ── Inputs */
+input,select,textarea{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.55rem .85rem;font-family:"DM Sans",sans-serif;font-size:.85rem;color:var(--text);outline:none;transition:border-color .2s;width:100%;-webkit-appearance:none}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a6478' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .8rem center;padding-right:2.2rem;cursor:pointer}
+select option{background:var(--bg2)}
+input:focus,select:focus,textarea:focus{border-color:var(--green)}
+textarea{resize:vertical;min-height:58px;line-height:1.5}
+
+/* ── Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:.7rem 1.4rem;font-family:"DM Sans",sans-serif;font-weight:600;font-size:.86rem;border:none;border-radius:10px;cursor:pointer;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(16,185,129,.35)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--muted2)}
+.btn-ghost:hover{border-color:var(--green-border);color:var(--green);background:var(--green-bg)}
+.btn-sm{padding:.42rem .9rem;font-size:.78rem;border-radius:8px}
+
+/* ── Spinner */
+.spin{width:15px;height:15px;border-radius:50%;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;animation:spin .7s linear infinite;display:none;flex-shrink:0}
 .spin.on{display:block}
-.err-box{display:none;background:var(--red-bg);border:1px solid var(--red-border);border-radius:8px;padding:.65rem .9rem;font-size:.76rem;color:#fca5a5;font-family:"Space Mono",monospace;line-height:1.5}
-.main{margin-left:var(--sidebar);flex:1;padding:2rem 2.5rem 5rem;min-height:100vh}
-.hero{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:82vh;text-align:center;gap:1.5rem;padding:0 1rem}
-.hero-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:20px;font-size:.68rem;font-family:"Space Mono",monospace;color:var(--green)}
-.hpulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse2 2s infinite}
-.hero h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:800;letter-spacing:-.8px;line-height:1.15;max-width:640px}
-.hero h1 em{color:var(--green);font-style:normal}
-.hero-card{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:1.75rem 2rem;width:100%;max-width:420px;text-align:left;position:relative;overflow:hidden}
-.hero-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),#06b6d4,var(--purple))}
-.hcc-title{font-size:.7rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem}
-.hcc-field{display:flex;flex-direction:column;gap:4px;margin-bottom:.8rem}
-.hcc-label{font-size:.65rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
-.hcc-input{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.58rem .88rem;font-family:"DM Sans",sans-serif;font-size:.86rem;color:var(--text);outline:none;transition:border-color .2s;width:100%}
-.hcc-input:focus{border-color:var(--green)}
-.hcc-mfa{display:none}
-.hcc-mfa.show{display:block;margin-bottom:.8rem}
-.hcc-connect-btn{width:100%;padding:.9rem;font-family:"DM Sans",sans-serif;font-weight:700;font-size:.9rem;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border:none;border-radius:10px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:.25rem}
-.hcc-connect-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(16,185,129,.4)}
-.hcc-connect-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
-.hcc-err{display:none;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:8px;padding:.6rem .85rem;margin-top:.75rem;font-size:.72rem;color:var(--amber);line-height:1.6}
-.hcc-disclaimer{font-size:.63rem;color:var(--muted);line-height:1.6;margin-top:.85rem;padding:.55rem .75rem;background:var(--bg3);border-radius:7px;border:1px solid var(--border)}
-.hcc-disclaimer strong{color:var(--green)}
-.hcc-or{text-align:center;font-size:.7rem;color:var(--muted);margin:.9rem 0;position:relative}
-.hcc-or::before,.hcc-or::after{content:"";position:absolute;top:50%;width:calc(50% - 22px);height:1px;background:var(--border)}
-.hcc-or::before{left:0}.hcc-or::after{right:0}
-.skip-link{font-size:.75rem;color:var(--muted);cursor:pointer;text-decoration:underline;background:none;border:none;display:block;width:100%;text-align:center;transition:color .15s;padding:.2rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse2{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.fi{animation:fadeIn .4s ease forwards}
+
+/* ── Toast */
+.toast-wrap{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:.7rem .95rem;font-size:.8rem;animation:toastIn .3s ease;pointer-events:auto;display:flex;align-items:center;gap:.55rem;min-width:220px;max-width:340px;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.toast.t-ok{border-color:var(--green-border)}.toast.t-err{border-color:var(--red-border);color:#fca5a5}.toast.t-info{border-color:var(--blue-border)}
+
+/* ── Badges / pills */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:.62rem;font-family:"Space Mono",monospace}
+.badge-green{background:var(--green-bg);border:1px solid var(--green-border);color:var(--green)}
+.badge-amber{background:var(--amber-bg);border:1px solid var(--amber-border);color:var(--amber)}
+.badge-red{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red)}
+.badge-blue{background:var(--blue-bg);border:1px solid var(--blue-border);color:var(--blue)}
+.badge-purple{background:var(--purple-bg);border:1px solid var(--purple-border);color:var(--purple)}
+.pulse{width:5px;height:5px;border-radius:50%;background:currentColor;animation:pulse2 2s infinite}
+
+/* ════════════════════════════════════════════
+   ENTRY SCREEN
+════════════════════════════════════════════ */
+#entryScreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem 4rem;position:relative;z-index:1}
+.entry-header{text-align:center;margin-bottom:2.5rem}
+.entry-logo{display:inline-flex;align-items:center;gap:10px;margin-bottom:1.25rem}
+.logo-mark{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.2rem;color:#fff;font-family:"Space Mono",monospace;box-shadow:0 4px 18px rgba(16,185,129,0.35)}
+.logo-name{font-size:1.3rem;font-weight:700;letter-spacing:-.4px}
+.logo-name em{color:var(--green);font-style:normal}
+.entry-header h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:.75rem}
+.entry-header h1 em{color:var(--green);font-style:normal}
+.entry-header p{color:var(--muted2);font-size:1rem;max-width:500px;margin:0 auto 1.25rem}
+
+/* Portfolio entry card */
+.entry-card{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;width:100%;max-width:680px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.4)}
+.entry-card-top{background:linear-gradient(90deg,var(--green),#06b6d4);height:3px}
+.entry-card-body{padding:1.75rem 2rem}
+.entry-card-title{font-size:.72rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:1.25rem}
+
+/* Stock table */
+.stock-table{width:100%;border-collapse:collapse;margin-bottom:.9rem}
+.stock-table th{font-size:.6rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:.35rem .5rem;text-align:left;border-bottom:1px solid var(--border)}
+.stock-table td{padding:.28rem .3rem}
+.st-input{background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:.4rem .6rem;font-family:"DM Sans",sans-serif;font-size:.82rem;color:var(--text);outline:none;width:100%;transition:border-color .2s}
+.st-input:focus{border-color:var(--green)}
+.st-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:3px 6px;border-radius:5px;transition:all .15s;line-height:1}
+.st-del:hover{color:var(--red);background:var(--red-bg)}
+.table-footer{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.add-row-btn{font-size:.75rem;color:var(--green);background:none;border:1px solid var(--green-border);border-radius:7px;padding:.35rem .85rem;cursor:pointer;font-family:"DM Sans",sans-serif;transition:all .15s}
+.add-row-btn:hover{background:var(--green-bg)}
+.table-hint{font-size:.65rem;color:var(--muted)}
+
+/* Profile row */
+.profile-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-bottom:1.25rem}
+.profile-field label{display:block;font-size:.62rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+
+/* Analyze button */
+.analyze-btn{width:100%;padding:1rem;font-family:"DM Sans",sans-serif;font-weight:700;font-size:.95rem;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border:none;border-radius:11px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:9px}
+.analyze-btn:hover{transform:translateY(-1px);box-shadow:0 10px 32px rgba(16,185,129,.4)}
+.analyze-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.entry-err{display:none;background:var(--red-bg);border:1px solid var(--red-border);border-radius:8px;padding:.65rem .9rem;font-size:.78rem;color:#fca5a5;margin-top:.75rem;font-family:"Space Mono",monospace}
+
+/* Skip link */
+.skip-row{text-align:center;margin-top:1.25rem}
+.skip-link{font-size:.78rem;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline;transition:color .15s}
 .skip-link:hover{color:var(--muted2)}
-.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:620px}
-.fc{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:.88rem 1rem;text-align:left;transition:border-color .2s}
-.fc:hover{border-color:var(--border2)}
-.fc-icon{font-size:1.2rem;margin-bottom:.3rem}
-.fc-title{font-size:.78rem;font-weight:600;margin-bottom:.2rem}
-.fc-desc{font-size:.68rem;color:var(--muted);line-height:1.5}
-.stats-mini{display:flex;align-items:center;gap:.6rem;font-size:.7rem;color:var(--muted);font-family:"Space Mono",monospace;flex-wrap:wrap;justify-content:center}
-.stats-mini strong{color:var(--green)}
-#results{display:none}
-.results-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;gap:1rem;flex-wrap:wrap}
-.results-title{font-size:1.3rem;font-weight:700;letter-spacing:-.5px;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
-.results-title em{color:var(--green);font-style:normal}
-.qprotect{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:20px;font-size:.6rem;font-family:"Space Mono",monospace;color:var(--green)}
-.topbar-actions{display:flex;gap:7px;flex-wrap:wrap}
-.action-btn{display:flex;align-items:center;gap:5px;padding:.42rem .85rem;font-size:.74rem;font-family:"DM Sans",sans-serif;font-weight:500;border:1px solid var(--border2);border-radius:8px;background:transparent;color:var(--muted2);cursor:pointer;transition:all .15s}
-.action-btn:hover{border-color:var(--green-border);color:var(--green);background:var(--green-bg)}
-.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.2rem}
-.pill{font-size:.66rem;font-family:"Space Mono",monospace;padding:3px 10px;border-radius:20px;border:1px solid}
-.pill-g{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
-.pill-a{background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber)}
-.pill-b{background:var(--blue-bg);border-color:var(--blue-border);color:var(--blue)}
-.pill-r{background:var(--red-bg);border-color:var(--red-border);color:var(--red)}
-.stats-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem}
-.sc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:.88rem 1.1rem;transition:border-color .2s}
-.sc:hover{border-color:var(--border2)}
-.sl{font-size:.62rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
-.sv{font-size:1.15rem;font-weight:700}
-.sv.g{color:var(--green)}.sv.a{color:var(--amber)}
-.ss{font-size:.66rem;color:var(--muted);margin-top:2px}
-.tabs{display:flex;gap:1px;margin-bottom:1.5rem;border-bottom:1px solid var(--border);overflow-x:auto}
-.tab{padding:8px 15px;font-size:.78rem;font-weight:500;border:none;background:transparent;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:5px}
-.tab:hover{color:var(--text)}.tab.active{color:var(--green);border-bottom-color:var(--green)}
-.tab-badge{font-size:.57rem;background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);border-radius:20px;padding:1px 5px;font-family:"Space Mono",monospace}
-.ideas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+
+/* ════════════════════════════════════════════
+   RESULTS SCREEN
+════════════════════════════════════════════ */
+#resultsScreen{display:none;position:relative;z-index:1}
+
+/* Topnav */
+.topnav{background:var(--bg2);border-bottom:1px solid var(--border);padding:.85rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:1rem;flex-wrap:wrap}
+.topnav-logo{display:flex;align-items:center;gap:9px}
+.topnav-logo .logo-mark{width:32px;height:32px;font-size:.95rem;border-radius:9px}
+.topnav-logo .logo-name{font-size:.95rem}
+.topnav-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* Main layout */
+.results-layout{display:grid;grid-template-columns:1fr 340px;gap:0;min-height:calc(100vh - 60px)}
+.results-main{padding:2rem 2.5rem;border-right:1px solid var(--border)}
+.results-sidebar{padding:1.75rem 1.5rem;display:flex;flex-direction:column;gap:1.25rem}
+
+/* ── Section headers */
+.section-label{font-size:.65rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:.85rem}
+.section-divider{height:1px;background:var(--border);margin:1.75rem 0}
+
+/* ── Score hero */
+.score-hero{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border2);border-radius:16px;padding:1.75rem;display:flex;align-items:center;gap:1.75rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.score-hero::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),#06b6d4)}
+.score-ring-wrap{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:.35rem}
+.score-grade{font-size:.7rem;font-family:"Space Mono",monospace;color:var(--muted)}
+.score-info{flex:1}
+.score-title{font-size:1.35rem;font-weight:700;margin-bottom:.3rem}
+.score-subtitle{font-size:.88rem;color:var(--green);font-style:italic;margin-bottom:.6rem}
+.score-overview{font-size:.84rem;color:var(--muted2);line-height:1.75}
+.score-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:.75rem}
+
+/* ── Stat cards row */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem}
+.stat-label{font-size:.6rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.stat-value{font-size:1.1rem;font-weight:700}
+.stat-sub{font-size:.65rem;color:var(--muted);margin-top:2px}
+.g{color:var(--green)}.a{color:var(--amber)}.r{color:var(--red)}.b{color:var(--blue)}
+
+/* ── Action cards */
+.actions-stack{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.5rem}
+.action-card{display:flex;align-items:flex-start;gap:.9rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;transition:border-color .2s}
+.action-card:hover{border-color:var(--border2)}
+.action-card.high{border-left:3px solid var(--red)}
+.action-card.medium{border-left:3px solid var(--amber)}
+.action-card.low{border-left:3px solid var(--green)}
+.action-priority{font-size:.58rem;font-family:"Space Mono",monospace;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0;margin-top:2px}
+.ap-high{background:var(--red-bg);color:#f87171;border:1px solid var(--red-border)}
+.ap-medium{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.ap-low{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.action-body{flex:1}
+.action-type{font-size:.63rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.action-text{font-size:.88rem;font-weight:600;color:var(--text);margin-bottom:.25rem}
+.action-reason{font-size:.78rem;color:var(--muted2);line-height:1.55}
+
+/* ── Holdings table */
+.holdings-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1.5rem}
+.ht-head{display:grid;grid-template-columns:72px 1fr 70px 80px 80px 80px;background:var(--bg3);padding:.55rem 1rem;border-bottom:1px solid var(--border)}
+.hth{font-size:.6rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+.hth.r{text-align:right}
+.ht-row{display:grid;grid-template-columns:72px 1fr 70px 80px 80px 80px;padding:.55rem 1rem;border-bottom:1px solid var(--border);align-items:center;transition:background .15s}
+.ht-row:last-child{border-bottom:none}
+.ht-row:hover{background:rgba(255,255,255,.02)}
+.ht-sym{font-family:"Space Mono",monospace;font-size:.78rem;font-weight:700;color:var(--green)}
+.ht-name{font-size:.75rem;color:var(--muted2)}
+.ht-num{font-size:.75rem;text-align:right;font-family:"Space Mono",monospace}
+.ht-val{font-size:.78rem;font-weight:600;text-align:right}
+.ht-pl{font-size:.75rem;font-weight:600;text-align:right}
+.ht-pl.up{color:var(--green)}.ht-pl.down{color:var(--red)}
+.ht-pct{font-size:.7rem;text-align:right;font-family:"Space Mono",monospace}
+.ht-pct.up{color:var(--green)}.ht-pct.down{color:var(--red)}
+
+/* ── Two-col grid for analysis cards */
+.analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}
+.analysis-grid.three{grid-template-columns:1fr 1fr 1fr}
+.analysis-grid.full{grid-template-columns:1fr}
+.acard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem}
+.acard-title{font-size:.63rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.7rem}
+.alist{list-style:none;display:flex;flex-direction:column;gap:5px}
+.alist li{font-size:.8rem;color:var(--muted2);padding-left:1rem;position:relative;line-height:1.55}
+.alist li::before{content:"";position:absolute;left:0;top:.58em;width:5px;height:5px;border-radius:50%}
+.al-green li::before{background:var(--green)}.al-red li::before{background:var(--red)}
+.al-amber li::before{background:var(--amber)}.al-muted li::before{background:var(--muted)}
+
+/* ── Sector bars */
+.sector-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.55rem}
+.sector-name{font-size:.78rem;color:var(--muted2);width:105px;flex-shrink:0}
+.sector-track{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.sector-fill{height:100%;border-radius:3px;background:var(--green);transition:width .8s cubic-bezier(.4,0,.2,1)}
+.sector-pct{font-size:.7rem;font-family:"Space Mono",monospace;color:var(--text);width:32px;text-align:right;flex-shrink:0}
+.sector-status{font-size:.58rem;font-family:"Space Mono",monospace;padding:2px 6px;border-radius:3px;flex-shrink:0}
+.ss-ov{background:var(--red-bg);color:#f87171}.ss-ok{background:var(--green-bg);color:var(--green)}.ss-uw{background:var(--amber-bg);color:var(--amber)}
+
+/* ── Donut */
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:1rem}
+.donut-legend{width:100%;display:flex;flex-direction:column;gap:6px}
+.leg-item{display:flex;align-items:center;gap:8px}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.leg-name{font-size:.78rem;color:var(--muted2);flex:1}
+.leg-pct{font-family:"Space Mono",monospace;font-size:.72rem}
+
+/* ── Sidebar widgets */
+.sidebar-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem}
+.sidebar-card-title{font-size:.65rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.85rem}
+
+/* Ideas section */
+.ideas-section{margin-top:2rem}
+.ideas-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .idea-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.1rem;transition:all .2s;position:relative;overflow:hidden;opacity:0}
 .idea-card::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity .2s}
 .idea-card.gc::after{background:linear-gradient(90deg,transparent,var(--green),transparent)}
 .idea-card.ac::after{background:linear-gradient(90deg,transparent,var(--amber),transparent)}
 .idea-card.rc::after{background:linear-gradient(90deg,transparent,var(--red),transparent)}
-.idea-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 10px 35px rgba(0,0,0,.4)}
+.idea-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,0,0,.4)}
 .idea-card:hover::after{opacity:1}
 .idea-card.revealed{opacity:1;animation:fadeUp .35s ease forwards}
-.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:4px}
-.card-name{font-size:.86rem;font-weight:600;line-height:1.3}
-.cbadge{font-size:.56rem;font-family:"Space Mono",monospace;padding:2px 7px;border-radius:20px;white-space:nowrap;flex-shrink:0;text-transform:uppercase;letter-spacing:.5px}
-.b-low{background:var(--green-bg);color:#34d399;border:1px solid var(--green-border)}
-.b-mod{background:var(--amber-bg);color:#fbbf24;border:1px solid var(--amber-border)}
-.b-high{background:var(--red-bg);color:#f87171;border:1px solid var(--red-border)}
-.card-meta{display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap}
-.card-ticker{font-family:"Space Mono",monospace;font-size:.66rem;color:var(--green);letter-spacing:1px}
-.card-cat{font-size:.63rem;color:var(--muted);font-family:"Space Mono",monospace}
-.card-desc{font-size:.76rem;color:var(--muted2);line-height:1.6;margin-bottom:7px}
-.card-upside{font-size:.66rem;color:var(--green);font-family:"Space Mono",monospace;background:var(--green-bg);border:1px solid var(--green-border);border-radius:5px;padding:2px 7px;margin-bottom:8px;display:inline-block}
-.card-why{font-size:.67rem;color:var(--muted);font-style:italic;margin-bottom:8px;line-height:1.5}
-.card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
-.card-tags{display:flex;gap:3px;flex-wrap:wrap}
-.ctag{font-size:.59rem;padding:2px 6px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--muted)}
-.card-alloc{font-family:"Space Mono",monospace;font-size:.8rem;font-weight:700;color:var(--amber)}
-.card-actions{display:flex;gap:5px;margin-top:8px}
-.card-action-btn{flex:1;padding:5px;font-size:.67rem;font-family:"DM Sans",sans-serif;border:1px solid var(--border);border-radius:7px;background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:3px;text-decoration:none}
-.card-action-btn:hover{border-color:var(--green-border);color:var(--green);background:var(--green-bg)}
-.card-action-btn.watchlisted{border-color:var(--amber-border);color:var(--amber);background:var(--amber-bg)}
-.alloc-view{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start}
-.alloc-card,.cat-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.4rem}
-.alloc-card{display:flex;flex-direction:column;align-items:center;gap:1rem}
-.cat-card{display:flex;flex-direction:column;gap:.8rem}
-.alloc-title{font-size:.65rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;align-self:flex-start}
-.donut-svg{width:180px;height:180px}
-.donut-legend{width:100%;display:flex;flex-direction:column;gap:6px}
-.leg-item{display:flex;align-items:center;gap:9px}
-.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.leg-name{font-size:.78rem;color:var(--muted2);flex:1}
-.leg-pct{font-family:"Space Mono",monospace;font-size:.72rem}
-.cat-item{display:flex;flex-direction:column;gap:4px}
-.cat-row{display:flex;justify-content:space-between}
-.cat-name{font-size:.78rem;color:var(--muted2)}.cat-pct{font-family:"Space Mono",monospace;font-size:.7rem}
-.cat-track{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
-.cat-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)}
-.analysis-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.75rem;font-size:.88rem;line-height:1.9;color:var(--muted2);white-space:pre-wrap}
-.compare-setup{display:flex;flex-direction:column;align-items:center;gap:1.5rem;padding:2rem 0}
-.compare-selects{display:grid;grid-template-columns:1fr auto 1fr;gap:1.5rem;align-items:center;width:100%}
-.compare-vs{font-family:"Space Mono",monospace;font-size:.85rem;font-weight:700;color:var(--muted);text-align:center}
-.compare-sel-label{font-size:.65rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
-.compare-go-btn{padding:.75rem 2.5rem;font-family:"DM Sans",sans-serif;font-weight:700;font-size:.88rem;background:var(--green);color:#fff;border:none;border-radius:10px;cursor:pointer;transition:all .2s}
-.compare-go-btn:hover{background:var(--green2);transform:translateY(-1px);box-shadow:0 6px 24px rgba(16,185,129,.3)}
-.compare-go-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.compare-result{display:none;margin-top:1.5rem}
-.compare-verdict{text-align:center;margin-bottom:2rem}
-.verdict-badge{display:inline-flex;align-items:center;gap:.5rem;font-size:.74rem;font-family:"Space Mono",monospace;padding:.42rem 1.1rem;border-radius:20px;margin-bottom:.75rem}
-.verdict-text{font-size:.92rem;font-weight:600;color:var(--text)}
-.verdict-reason{font-size:.8rem;color:var(--muted2);max-width:600px;margin:.5rem auto 0}
-.compare-cols{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
-.compare-col{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.4rem}
-.compare-col.winner{border-color:var(--green-border);background:rgba(16,185,129,0.03)}
-.col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
-.col-name{font-size:.92rem;font-weight:600}
-.col-label{font-size:.63rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.4rem}
-.col-list{list-style:none;display:flex;flex-direction:column;gap:4px;margin-bottom:.75rem}
-.col-list li{font-size:.76rem;color:var(--muted2);padding-left:.9rem;position:relative;line-height:1.5}
-.col-list li::before{content:"";position:absolute;left:0;top:.55em;width:4px;height:4px;border-radius:50%}
-.pros li::before{background:var(--green)}.cons li::before{background:var(--red)}
-.compare-metrics{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:1.5rem}
-.metrics-header{display:grid;grid-template-columns:1.5fr 1fr 1fr;background:var(--bg3);padding:.62rem 1.1rem;border-bottom:1px solid var(--border)}
-.mh{font-size:.63rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
-.metric-row{display:grid;grid-template-columns:1.5fr 1fr 1fr;padding:.58rem 1.1rem;border-bottom:1px solid var(--border);align-items:center}
-.metric-row:last-child{border-bottom:none}
-.metric-row:nth-child(odd){background:rgba(255,255,255,.015)}
-.metric-name{font-size:.76rem;color:var(--muted2)}.metric-val{font-size:.76rem;color:var(--text)}
-.metric-val.win{color:var(--green);font-weight:600}
-.compare-scenarios{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
-.scenario-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:.85rem}
-.sc-name{font-size:.64rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.35rem}
-.sc-pick{font-size:.8rem;font-weight:600;margin-bottom:.2rem}.sc-reason{font-size:.68rem;color:var(--muted);line-height:1.5}
-.deep-dive-wrap{display:none;margin-top:1.5rem;position:relative}
-.dd-close{position:absolute;top:1rem;right:1rem;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:4px 10px;font-size:.7rem;color:var(--muted);cursor:pointer;z-index:2}
-.dd-close:hover{color:var(--text)}
-.dd-header{display:flex;align-items:flex-start;gap:1.5rem;margin-bottom:1.75rem;flex-wrap:wrap}
-.score-ring-wrap{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:.5rem}
-.score-grade{font-family:"Space Mono",monospace;font-size:.72rem;color:var(--muted)}
-.dd-title-wrap{flex:1}
-.dd-name{font-size:1.25rem;font-weight:700;margin-bottom:4px}
-.dd-one-liner{font-size:.86rem;color:var(--green);font-style:italic;margin-bottom:.5rem}
-.dd-sentiment{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;font-family:"Space Mono",monospace;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
-.sent-bull{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
-.sent-neut,.sent-caut{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
-.sent-bear{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
-.dd-overview{font-size:.84rem;color:var(--muted2);line-height:1.8;margin-top:.75rem}
-.dd-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:1.5rem}
-.dd-section{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1rem}
-.dd-section.full-width{grid-column:1/-1}
-.dd-sec-title{font-size:.63rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.6rem}
-.dd-list{list-style:none;display:flex;flex-direction:column;gap:5px}
-.dd-list li{font-size:.76rem;line-height:1.55;padding-left:1rem;position:relative}
-.dd-list li::before{content:"";position:absolute;left:0;top:.55em;width:5px;height:5px;border-radius:50%}
-.dd-pros li::before{background:var(--green)}.dd-cons li::before{background:var(--red)}
-.dd-risks li::before{background:var(--amber)}.dd-neutral li::before{background:var(--muted)}
-.dd-strat-label{font-size:.63rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:.65rem;margin-bottom:.2rem}
-.dd-strat-label:first-child{margin-top:0}
-.dd-strat-value{font-size:.8rem;color:var(--muted2);line-height:1.6;margin-top:.2rem}
-.dd-alts{display:flex;flex-direction:column;gap:.55rem}
-.alt-item{display:flex;align-items:flex-start;gap:.6rem;padding:.58rem;background:var(--bg3);border-radius:8px}
-.alt-ticker{font-family:"Space Mono",monospace;font-size:.68rem;color:var(--green);width:46px;flex-shrink:0;margin-top:1px}
-.alt-name{font-size:.76rem;font-weight:500}.alt-why{font-size:.68rem;color:var(--muted);line-height:1.4;margin-top:2px}
-.dd-links{display:flex;gap:7px;margin-top:1rem;flex-wrap:wrap}
-.ext-link{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;font-family:"Space Mono",monospace;color:var(--muted2);padding:.38rem .85rem;border:1px solid var(--border2);border-radius:7px;text-decoration:none;transition:all .15s}
-.ext-link:hover{border-color:var(--green-border);color:var(--green)}
-.chat-wrap{display:flex;flex-direction:column;gap:1rem}
-.chat-thread{display:flex;flex-direction:column;gap:10px;max-height:440px;overflow-y:auto;padding:2px}
-.cmsg{border-radius:12px;padding:.85rem 1rem}
+.ic-top{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:4px}
+.ic-name{font-size:.88rem;font-weight:600;line-height:1.3}
+.ic-badge{font-size:.56rem;font-family:"Space Mono",monospace;padding:2px 7px;border-radius:20px;white-space:nowrap;flex-shrink:0;text-transform:uppercase;letter-spacing:.5px}
+.ic-b-low{background:var(--green-bg);color:#34d399;border:1px solid var(--green-border)}
+.ic-b-mod{background:var(--amber-bg);color:#fbbf24;border:1px solid var(--amber-border)}
+.ic-b-high{background:var(--red-bg);color:#f87171;border:1px solid var(--red-border)}
+.ic-meta{display:flex;gap:6px;margin-bottom:5px;flex-wrap:wrap;align-items:center}
+.ic-ticker{font-family:"Space Mono",monospace;font-size:.66rem;color:var(--green)}
+.ic-cat{font-size:.63rem;color:var(--muted);font-family:"Space Mono",monospace}
+.ic-desc{font-size:.78rem;color:var(--muted2);line-height:1.6;margin-bottom:6px}
+.ic-why{font-size:.68rem;color:var(--muted);font-style:italic;margin-bottom:7px;line-height:1.5}
+.ic-upside{font-size:.66rem;color:var(--green);font-family:"Space Mono",monospace;background:var(--green-bg);border:1px solid var(--green-border);border-radius:5px;padding:2px 7px;display:inline-block;margin-bottom:8px}
+.ic-footer{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--border)}
+.ic-alloc{font-family:"Space Mono",monospace;font-size:.82rem;font-weight:700;color:var(--amber)}
+.ic-link{font-size:.68rem;color:var(--muted2);text-decoration:none;border:1px solid var(--border2);border-radius:6px;padding:3px 8px;transition:all .15s}
+.ic-link:hover{border-color:var(--green-border);color:var(--green)}
+
+/* Chat */
+.chat-section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.chat-thread{display:flex;flex-direction:column;gap:10px;max-height:380px;overflow-y:auto;padding:1rem}
+.cmsg{border-radius:10px;padding:.8rem 1rem}
 .cmsg.user{background:var(--green-bg);border:1px solid var(--green-border);align-self:flex-end;max-width:85%}
-.cmsg.ai{background:var(--bg2);border:1px solid var(--border);max-width:100%}
-.cmsg-role{font-size:.58rem;font-family:"Space Mono",monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-.user-role{color:var(--green)}.ai-role{color:var(--muted)}
+.cmsg.ai{background:var(--bg3);border:1px solid var(--border);max-width:100%}
+.cmsg-role{font-size:.58rem;font-family:"Space Mono",monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;color:var(--muted)}
+.cmsg.user .cmsg-role{color:var(--green)}
 .cmsg-text{font-size:.84rem;line-height:1.7;white-space:pre-wrap}
 .typing-dots{display:inline-flex;gap:4px}
 .tdot{width:5px;height:5px;border-radius:50%;background:var(--muted);animation:bounce 1.2s ease infinite}
 .tdot:nth-child(2){animation-delay:.2s}.tdot:nth-child(3){animation-delay:.4s}
-.chat-input-area{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:.85rem}
+.chat-input-wrap{border-top:1px solid var(--border);padding:.85rem}
 .chat-row{display:flex;gap:7px;margin-bottom:7px}
-.chat-in{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:.62rem .88rem;font-family:"DM Sans",sans-serif;font-size:.84rem;color:var(--text);outline:none;transition:border-color .2s}
+.chat-in{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:.6rem .88rem;font-family:"DM Sans",sans-serif;font-size:.84rem;color:var(--text);outline:none;transition:border-color .2s}
 .chat-in:focus{border-color:var(--green)}
-.chat-send{padding:.62rem 1.1rem;background:var(--green);color:#fff;border:none;border-radius:9px;cursor:pointer;font-family:"DM Sans",sans-serif;font-weight:600;font-size:.8rem;transition:all .15s}
+.chat-send{padding:.6rem 1.1rem;background:var(--green);color:#fff;border:none;border-radius:9px;cursor:pointer;font-family:"DM Sans",sans-serif;font-weight:600;font-size:.8rem;transition:all .15s;flex-shrink:0}
 .chat-send:hover{background:var(--green2)}.chat-send:disabled{opacity:.4;cursor:not-allowed}
-.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chat-chips{display:flex;flex-wrap:wrap;gap:5px}
 .chip{font-size:.66rem;padding:3px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;color:var(--muted);cursor:pointer;transition:all .15s}
 .chip:hover{border-color:var(--green-border);color:var(--green)}
-.wl-drawer{position:fixed;top:0;right:0;bottom:0;width:300px;background:var(--bg2);border-left:1px solid var(--border);z-index:90;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;display:flex;flex-direction:column}
-.wl-drawer.open{transform:translateX(0)}
-.wl-head{padding:1.2rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.wl-title{font-size:.88rem;font-weight:600}
-.wl-close{background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:4px}
-.wl-body{padding:1.2rem 1.4rem;flex:1;display:flex;flex-direction:column;gap:.7rem}
-.wl-empty{text-align:center;color:var(--muted);font-size:.8rem;padding:2rem 0}
-.wl-item{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:.8rem .95rem;position:relative}
-.wl-item-name{font-size:.83rem;font-weight:600;margin-bottom:2px}
-.wl-item-ticker{font-family:"Space Mono",monospace;font-size:.66rem;color:var(--green);margin-bottom:.3rem}
-.wl-item-desc{font-size:.7rem;color:var(--muted);line-height:1.5}
-.wl-remove{position:absolute;top:.6rem;right:.7rem;background:none;border:none;color:var(--muted);cursor:pointer;font-size:.82rem}
-.wl-remove:hover{color:var(--red)}
-.wl-date{font-size:.6rem;color:var(--muted);font-family:"Space Mono",monospace;margin-top:.35rem}
-.history-panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.4rem}
-.hp-title{font-size:.68rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.9rem}
-.hist-grid{display:flex;flex-direction:column;gap:.6rem}
-.hist-item{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:.75rem .95rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.7rem}
-.hist-item:hover{border-color:var(--green-border);background:var(--green-bg)}
-.hi-title{font-size:.78rem;font-weight:500}.hi-sub{font-size:.66rem;color:var(--muted)}
-.hist-date{font-size:.6rem;color:var(--muted);font-family:"Space Mono",monospace;margin-left:auto;flex-shrink:0}
-.port-connect{display:flex;flex-direction:column;align-items:center;gap:1.5rem;text-align:center;padding:2rem 0}
-.port-connect-icon{width:68px;height:68px;border-radius:18px;background:var(--green-bg);border:1px solid var(--green-border);display:flex;align-items:center;justify-content:center;font-size:1.8rem}
-.connect-form{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:1.6rem;width:100%;max-width:400px;text-align:left;position:relative;overflow:hidden}
-.connect-form::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),#06b6d4)}
-.cf-title{font-size:.68rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.9rem}
-.cf-field{display:flex;flex-direction:column;gap:4px;margin-bottom:.8rem}
-.cf-label{font-size:.68rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
-.cf-input{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.58rem .88rem;font-family:"DM Sans",sans-serif;font-size:.86rem;color:var(--text);outline:none;transition:border-color .2s;width:100%}
-.cf-input:focus{border-color:var(--green)}
-.cf-btn{width:100%;padding:.85rem;font-family:"DM Sans",sans-serif;font-weight:700;font-size:.86rem;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border:none;border-radius:9px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:.25rem}
-.cf-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(16,185,129,.3)}
-.cf-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.cf-disclaimer{font-size:.66rem;color:var(--muted);line-height:1.6;margin-top:.9rem;padding:.6rem .8rem;background:var(--bg3);border-radius:7px;border:1px solid var(--border)}
-.cf-disclaimer strong{color:var(--amber)}
-.mfa-section{display:none;flex-direction:column;gap:.8rem;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)}
-.mfa-section.show{display:flex}
-.port-loaded{display:none}.port-loaded.show{display:block}
-.port-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem}
-.psc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem}
-.psc-label{font-size:.62rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-.psc-value{font-size:1.15rem;font-weight:700}.psc-sub{font-size:.66rem;color:var(--muted);margin-top:2px}
-.holdings-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:1.5rem}
-.ht-head{display:grid;grid-template-columns:80px 1fr 80px 88px 88px 88px 88px;background:var(--bg3);padding:.58rem 1rem;border-bottom:1px solid var(--border)}
-.hth{font-size:.62rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
-.hth.right{text-align:right}
-.ht-row{display:grid;grid-template-columns:80px 1fr 80px 88px 88px 88px 88px;padding:.58rem 1rem;border-bottom:1px solid var(--border);align-items:center;transition:background .15s}
-.ht-row:last-child{border-bottom:none}.ht-row:hover{background:rgba(255,255,255,.02)}
-.ht-sym{font-family:"Space Mono",monospace;font-size:.78rem;font-weight:700;color:var(--green)}
-.ht-name{font-size:.76rem;color:var(--muted2)}
-.ht-qty,.ht-avg,.ht-cur{font-size:.74rem;color:var(--muted);text-align:right;font-family:"Space Mono",monospace}
-.ht-val{font-size:.78rem;font-weight:600;text-align:right}
-.ht-pl{font-size:.76rem;font-weight:600;text-align:right}
-.ht-pl.up{color:var(--green)}.ht-pl.down{color:var(--red)}
-.ht-pct{font-size:.7rem;text-align:right;font-family:"Space Mono",monospace}
-.ht-pct.up{color:var(--green)}.ht-pct.down{color:var(--red)}
-.port-analyze-btn{width:100%;padding:.85rem;font-family:"DM Sans",sans-serif;font-weight:700;font-size:.86rem;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border:none;border-radius:10px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
-.port-analyze-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(16,185,129,.3)}
-.port-analyze-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.port-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:.75rem}
-.port-topbar-left{display:flex;align-items:center;gap:.75rem}
-.port-status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse2 2s infinite}
-.port-connected-label{font-size:.76rem;font-family:"Space Mono",monospace;color:var(--muted2)}
-.use-in-ideas-btn{display:flex;align-items:center;gap:5px;padding:.42rem .85rem;font-size:.73rem;font-family:"DM Sans",sans-serif;font-weight:600;background:var(--green-bg);border:1px solid var(--green-border);border-radius:8px;color:var(--green);cursor:pointer;transition:all .15s}
-.use-in-ideas-btn:hover,.use-in-ideas-btn.active{background:var(--green);color:#fff}
-.disconnect-btn{font-size:.7rem;font-family:"Space Mono",monospace;color:var(--muted);background:none;border:1px solid var(--border);border-radius:6px;padding:3px 9px;cursor:pointer;transition:all .15s}
-.disconnect-btn:hover{color:var(--red);border-color:var(--red-border)}
-.rh-error-box{display:none;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:10px;padding:.85rem 1rem;margin-top:1rem}
-.rh-error-title{font-size:.76rem;font-weight:600;color:var(--amber);margin-bottom:.25rem}
-.rh-error-msg{font-size:.73rem;color:var(--muted2);line-height:1.6}
-.rh-error-hint{font-size:.7rem;color:var(--muted);margin-top:.4rem;font-style:italic}
-.manual-toggle{font-size:.76rem;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;margin-top:.5rem;display:block;transition:color .15s}
-.manual-toggle:hover{color:var(--text)}
-.manual-entry-section{display:none;margin-top:1.2rem;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.4rem}
-.manual-entry-section.show{display:block}
-.me-title{font-size:.68rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.9rem}
-.me-table{width:100%;border-collapse:collapse;margin-bottom:.9rem}
-.me-table th{font-size:.6rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:.35rem .5rem;text-align:left;border-bottom:1px solid var(--border)}
-.me-table td{padding:.28rem .38rem}
-.me-input{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:.38rem .58rem;font-family:"DM Sans",sans-serif;font-size:.76rem;color:var(--text);outline:none;width:100%;transition:border-color .2s}
-.me-input:focus{border-color:var(--green)}
-.me-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.88rem;padding:2px 5px;border-radius:4px;transition:all .15s}
-.me-del:hover{color:var(--red);background:var(--red-bg)}
-.me-add-row{font-size:.73rem;color:var(--green);background:none;border:1px solid var(--green-border);border-radius:7px;padding:.38rem .85rem;cursor:pointer;transition:all .15s}
-.me-add-row:hover{background:var(--green-bg)}
-.me-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.7rem;margin-top:.4rem}
-.me-submit-btn{padding:.72rem 1.4rem;background:var(--green);color:#fff;border:none;border-radius:9px;cursor:pointer;font-family:"DM Sans",sans-serif;font-weight:600;font-size:.83rem;transition:all .2s;display:flex;align-items:center;gap:7px}
-.me-submit-btn:hover{background:var(--green2);transform:translateY(-1px)}
-.port-analysis-wrap{display:flex;flex-direction:column;gap:1.2rem}
-.pa-header{display:flex;align-items:flex-start;gap:1.4rem;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.4rem;flex-wrap:wrap}
-.pa-score-wrap{display:flex;flex-direction:column;align-items:center;gap:.3rem;flex-shrink:0}
-.pa-grade{font-family:"Space Mono",monospace;font-size:.72rem;color:var(--muted)}
-.pa-title-wrap{flex:1;min-width:200px}
-.pa-name{font-size:1.05rem;font-weight:700;margin-bottom:4px}
-.pa-one-liner{font-size:.86rem;color:var(--green);font-style:italic;margin-bottom:.4rem}
-.pa-overview{font-size:.83rem;color:var(--muted2);line-height:1.8}
-.pa-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
-.pa-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1rem}
-.pa-card.full{grid-column:1/-1}
-.pa-card-title{font-size:.63rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.7rem}
-.pa-list{list-style:none;display:flex;flex-direction:column;gap:4px}
-.pa-list li{font-size:.76rem;color:var(--muted2);padding-left:.95rem;position:relative;line-height:1.55}
-.pa-list li::before{content:"";position:absolute;left:0;top:.55em;width:5px;height:5px;border-radius:50%}
-.pa-green li::before{background:var(--green)}.pa-red li::before{background:var(--red)}
-.pa-amber li::before{background:var(--amber)}.pa-muted li::before{background:var(--muted)}
-.action-row{display:flex;flex-direction:column;gap:.55rem}
-.action-item{display:flex;align-items:flex-start;gap:.7rem;padding:.7rem;background:var(--bg3);border-radius:9px;border:1px solid var(--border)}
-.action-priority{font-size:.58rem;font-family:"Space Mono",monospace;padding:2px 7px;border-radius:20px;flex-shrink:0;text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
-.ap-high{background:var(--red-bg);color:#f87171;border:1px solid var(--red-border)}
-.ap-medium{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
-.ap-low{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
-.action-body{flex:1}
-.action-type{font-size:.66rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
-.action-text{font-size:.8rem;font-weight:600;color:var(--text);margin-bottom:3px}
-.action-reason{font-size:.73rem;color:var(--muted2);line-height:1.55}
-.sector-row{display:flex;align-items:center;gap:.7rem;margin-bottom:.5rem}
-.sector-name{font-size:.76rem;color:var(--muted2);width:100px;flex-shrink:0}
-.sector-bar-track{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
-.sector-bar-fill{height:100%;border-radius:3px;background:var(--green)}
-.sector-pct{font-size:.7rem;font-family:"Space Mono",monospace;color:var(--text);width:32px;text-align:right}
-.sector-status{font-size:.58rem;font-family:"Space Mono",monospace;padding:2px 5px;border-radius:3px}
-.ss-ov{background:var(--red-bg);color:#f87171}.ss-ok{background:var(--green-bg);color:var(--green)}.ss-uw{background:var(--amber-bg);color:var(--amber)}
-.toast-wrap{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;display:flex;flex-direction:column;gap:7px;pointer-events:none}
-.toast{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:.7rem .95rem;font-size:.8rem;animation:toastIn .3s ease;pointer-events:auto;display:flex;align-items:center;gap:.55rem;min-width:220px;max-width:320px;box-shadow:0 8px 30px rgba(0,0,0,.4)}
-.toast.t-ok{border-color:var(--green-border)}.toast.t-err{border-color:var(--red-border);color:#fca5a5}.toast.t-info{border-color:var(--blue-border)}
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:55}
-.overlay.on{display:block}
-.hburg{display:none;position:fixed;top:1rem;left:1rem;z-index:200;width:38px;height:38px;border-radius:9px;background:var(--bg2);border:1px solid var(--border2);cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px}
-.hburg span{display:block;width:100%;height:2px;background:var(--text);border-radius:1px;transition:all .3s}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse2{0%,100%{opacity:1}50%{opacity:.3}}
-@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
-@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.fi{animation:fadeIn .35s ease forwards}
-@media(max-width:900px){
-  :root{--sidebar:100%}
-  .sidebar{transform:translateX(-100%);width:86vw}
-  .sidebar.open{transform:translateX(0)}
-  .main{margin-left:0;padding:4rem 1.25rem 3rem}
-  .hburg{display:flex}
-  .ideas-grid,.stats-cards{grid-template-columns:1fr 1fr}
-  .alloc-view,.compare-cols{grid-template-columns:1fr}
-  .compare-scenarios{grid-template-columns:1fr 1fr}
-  .dd-grid,.pa-grid{grid-template-columns:1fr 1fr}
-  .features-grid{grid-template-columns:1fr 1fr}
-  .wl-drawer{width:88vw}
+
+/* Sidebar — profile */
+.profile-display{display:flex;flex-direction:column;gap:.6rem}
+.pd-row{display:flex;justify-content:space-between;align-items:center;font-size:.82rem}
+.pd-label{color:var(--muted);font-size:.72rem}
+.pd-value{font-weight:600}
+
+/* Generate ideas CTA */
+.ideas-cta{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--green-border);border-radius:var(--radius);padding:1.25rem;text-align:center}
+.ideas-cta-title{font-size:.9rem;font-weight:700;margin-bottom:.4rem}
+.ideas-cta-sub{font-size:.78rem;color:var(--muted2);margin-bottom:1rem;line-height:1.5}
+
+/* Cash recommendation */
+.cash-rec{background:rgba(16,185,129,.04);border:1px solid var(--green-border);border-radius:var(--radius);padding:1.1rem;margin-bottom:1.5rem}
+.cash-rec-title{font-size:.63rem;font-family:"Space Mono",monospace;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem}
+.cash-rec-text{font-size:.84rem;color:var(--muted2);line-height:1.7}
+
+/* Responsive */
+@media(max-width:960px){
+  .results-layout{grid-template-columns:1fr}
+  .results-sidebar{display:none}
+  .stat-row{grid-template-columns:1fr 1fr}
+  .analysis-grid.three{grid-template-columns:1fr 1fr}
+  .ideas-grid{grid-template-columns:1fr}
 }
-@media(max-width:560px){
-  .ideas-grid,.features-grid,.compare-scenarios,.dd-grid,.pa-grid{grid-template-columns:1fr}
-  .ht-head,.ht-row{grid-template-columns:70px 1fr 80px 80px 80px}
-  .ht-avg,.ht-cur{display:none}
-  .port-summary{grid-template-columns:1fr 1fr}
+@media(max-width:600px){
+  .entry-card-body{padding:1.25rem}
+  .profile-row{grid-template-columns:1fr}
+  .stat-row{grid-template-columns:1fr 1fr}
+  .analysis-grid,.analysis-grid.three{grid-template-columns:1fr}
+  .ht-head,.ht-row{grid-template-columns:70px 1fr 70px 80px 80px}
+  .ht-num{display:none}
+  .results-main{padding:1.25rem}
+  .topnav{padding:.75rem 1.25rem}
 }
 </style>
 </head>
 <body>
-<div class="hburg" id="hburg"><span></span><span></span><span></span></div>
-<div class="overlay" id="overlay"></div>
+
 <div class="toast-wrap" id="toastWrap"></div>
-<div class="wl-drawer" id="wlDrawer">
-  <div class="wl-head"><span class="wl-title">&#9825; Watchlist</span><button class="wl-close" id="wlClose">&#10005;</button></div>
-  <div class="wl-body" id="wlBody"></div>
+
+<!-- ════════════════════════════════════════════
+     ENTRY SCREEN
+════════════════════════════════════════════ -->
+<div id="entryScreen">
+  <div class="entry-header">
+    <div class="entry-logo">
+      <div class="logo-mark">Q</div>
+      <div class="logo-name">Quantum<em>Invest</em></div>
+    </div>
+    <div class="badge badge-green" style="margin-bottom:1rem"><span class="pulse"></span>ML-KEM-768 (FIPS 203) · Post-Quantum Secure</div>
+    <h1>Tell us what<br>you <em>already hold</em></h1>
+    <p>Enter your portfolio and Claude will analyse it, score every position, and give you a ranked action plan — buy more, trim, rebalance, or diversify.</p>
+  </div>
+
+  <div class="entry-card">
+    <div class="entry-card-top"></div>
+    <div class="entry-card-body">
+      <div class="entry-card-title">&#128203; Your Holdings</div>
+
+      <table class="stock-table" id="stockTable">
+        <thead>
+          <tr>
+            <th style="width:80px">Symbol</th>
+            <th>Company Name</th>
+            <th style="width:70px">Shares</th>
+            <th style="width:90px">Avg Cost $</th>
+            <th style="width:90px">Curr. Price $</th>
+            <th style="width:26px"></th>
+          </tr>
+        </thead>
+        <tbody id="stockBody">
+          <tr>
+            <td><input class="st-input stock-sym" type="text" placeholder="AAPL" style="text-transform:uppercase"></td>
+            <td><input class="st-input stock-name" type="text" placeholder="Apple Inc."></td>
+            <td><input class="st-input stock-qty" type="number" placeholder="10" min="0" step="any"></td>
+            <td><input class="st-input stock-avg" type="number" placeholder="150.00" min="0" step="any"></td>
+            <td><input class="st-input stock-cur" type="number" placeholder="185.00" min="0" step="any"></td>
+            <td><button class="st-del stock-del">&#10005;</button></td>
+          </tr>
+          <tr>
+            <td><input class="st-input stock-sym" type="text" placeholder="NVDA" style="text-transform:uppercase"></td>
+            <td><input class="st-input stock-name" type="text" placeholder="NVIDIA Corp."></td>
+            <td><input class="st-input stock-qty" type="number" placeholder="5" min="0" step="any"></td>
+            <td><input class="st-input stock-avg" type="number" placeholder="400.00" min="0" step="any"></td>
+            <td><input class="st-input stock-cur" type="number" placeholder="875.00" min="0" step="any"></td>
+            <td><button class="st-del stock-del">&#10005;</button></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="table-footer">
+        <button class="add-row-btn" id="addRowBtn">+ Add holding</button>
+        <span class="table-hint">Add a row with symbol CASH for buying power</span>
+      </div>
+
+      <div class="profile-row">
+        <div class="profile-field">
+          <label for="profHorizon">Time Horizon</label>
+          <select id="profHorizon">
+            <option value="short">Short — 0-1 year</option>
+            <option value="medium" selected>Medium — 1-5 years</option>
+            <option value="long">Long — 5+ years</option>
+          </select>
+        </div>
+        <div class="profile-field">
+          <label for="profRisk">Risk Tolerance</label>
+          <select id="profRisk">
+            <option value="conservative">Conservative</option>
+            <option value="moderate" selected>Moderate</option>
+            <option value="aggressive">Aggressive</option>
+          </select>
+        </div>
+        <div class="profile-field">
+          <label for="profGoal">Primary Goal</label>
+          <select id="profGoal">
+            <option value="growth">Capital Growth</option>
+            <option value="income">Dividend Income</option>
+            <option value="preservation">Preservation</option>
+            <option value="balanced" selected>Balanced</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="analyze-btn" id="analyzeBtn">
+        <span class="spin" id="analyzeSpin"></span>
+        <span id="analyzeTxt">&#128269; Analyze My Portfolio with Claude</span>
+      </button>
+      <div class="entry-err" id="entryErr"></div>
+
+      <div class="skip-row">
+        <button class="skip-link" id="skipToIdeas">Skip — just generate investment ideas →</button>
+      </div>
+    </div>
+  </div>
 </div>
-<div class="layout">
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-head">
-    <div class="logo"><div class="logo-mark">Q</div><div><div class="logo-text">Quantum<em>Invest</em></div></div></div>
-    <div class="logo-sub">// Post-Quantum AI Investment Intelligence</div>
-    <div class="qbadge"><div class="qbdot"></div>ML-KEM-768 Protected</div>
-  </div>
-  <div class="sidebar-body">
-    <div>
-      <div class="slabel">Quick strategies</div>
-      <div class="presets-grid" id="presetGrid">
-        <button class="preset-btn" data-preset="retire">&#127958; Retirement<span>Long · Conservative</span></button>
-        <button class="preset-btn" data-preset="growth">&#128200; Growth<span>Medium · Aggressive</span></button>
-        <button class="preset-btn" data-preset="income">&#128176; Income<span>Long · Dividend</span></button>
-        <button class="preset-btn" data-preset="tech">&#128640; Tech &amp; AI<span>Medium · Thematic</span></button>
-        <button class="preset-btn" data-preset="safe">&#128737; Capital Safe<span>Short · Conservative</span></button>
-        <button class="preset-btn" data-preset="esg">&#127807; ESG First<span>Long · Clean Energy</span></button>
-      </div>
-    </div>
-    <div class="divider"></div>
-    <div class="fg"><label class="fl" for="amount">Investment Amount</label><div class="amount-row"><input type="text" id="amount" value="10,000"><div class="curr">USD</div></div></div>
-    <div class="fg"><label class="fl" for="horizon">Time Horizon</label>
-      <select id="horizon"><option value="short">Short-term — 0-1 year</option><option value="medium" selected>Medium-term — 1-5 years</option><option value="long">Long-term — 5+ years</option></select></div>
-    <div class="fg"><label class="fl" for="risk">Risk Tolerance</label>
-      <select id="risk"><option value="conservative">Conservative — Preserve capital</option><option value="moderate" selected>Moderate — Balanced growth</option><option value="aggressive">Aggressive — Max returns</option></select></div>
-    <div class="fg"><label class="fl" for="style">Investment Style</label>
-      <select id="style"><option value="growth">Growth</option><option value="value" selected>Value</option><option value="dividend">Dividend / Income</option><option value="index">Index / Passive</option><option value="thematic">Thematic / Trend</option></select></div>
-    <div class="fg"><label class="fl">Sectors</label>
-      <div class="sector-grid" id="sectors">
-        <button class="sector-btn">Technology</button><button class="sector-btn">Healthcare</button>
-        <button class="sector-btn">Energy</button><button class="sector-btn">Financials</button>
-        <button class="sector-btn">Real Estate</button><button class="sector-btn">Consumer</button>
-        <button class="sector-btn">AI &amp; Robotics</button><button class="sector-btn">Clean Energy</button>
-        <button class="sector-btn">Crypto &amp; Web3</button><button class="sector-btn">Commodities</button>
-        <button class="sector-btn">International</button><button class="sector-btn">Bonds</button>
-      </div>
-    </div>
-    <div class="fg"><label class="fl" for="context">Context (optional)</label><textarea id="context" placeholder="e.g. saving for house in 3 years, already hold S&amp;P 500..."></textarea></div>
-    <div class="err-box" id="errBox"></div>
-    <button class="gen-btn" id="genBtn"><div class="spin" id="spin"></div><span id="genTxt">&#8599; Generate Ideas</span></button>
-  </div>
-</aside>
-<main class="main">
-  <!-- HERO WITH HOMEPAGE ROBINHOOD LOGIN -->
-  <div class="hero" id="emptyState">
-    <div class="hero-badge"><div class="hpulse"></div>ML-KEM-768 (FIPS 203) · Post-Quantum Secure</div>
-    <h1>The <em>Quantum-Safe</em><br>Investment Platform</h1>
-    <p style="color:var(--muted2);max-width:460px;font-size:.92rem;line-height:1.7">AI investment intelligence where your financial data is protected by post-quantum cryptography — the only investment platform safe from future quantum attacks.</p>
-    <!-- HOMEPAGE PORTFOLIO ENTRY CARD -->
-    <div class="hero-card" id="heroCard">
 
-      <!-- Tab switcher -->
-      <div style="display:flex;gap:4px;margin-bottom:1.1rem;background:var(--bg3);border-radius:10px;padding:4px">
-        <button id="heroTabManual" style="flex:1;padding:.5rem .75rem;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;background:var(--green);color:#fff">
-          &#128203; Manual Entry
-        </button>
-        <button id="heroTabRH" style="flex:1;padding:.5rem .75rem;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:var(--muted)">
-          &#128202; Robinhood <span style="font-size:.6rem;opacity:.7">(local only)</span>
-        </button>
-      </div>
+<!-- ════════════════════════════════════════════
+     RESULTS SCREEN
+════════════════════════════════════════════ -->
+<div id="resultsScreen">
 
-      <!-- MANUAL ENTRY (default, always works) -->
-      <div id="heroManualPanel">
-        <div class="hcc-title">&#128203; Enter Your Portfolio — AI Analysis in Seconds</div>
-        <table style="width:100%;border-collapse:collapse;margin-bottom:.75rem" id="heroMeTable">
-          <thead>
-            <tr>
-              <th style="font-size:.6rem;font-family:'Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:.3rem .4rem;text-align:left;border-bottom:1px solid var(--border);width:72px">Symbol</th>
-              <th style="font-size:.6rem;font-family:'Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:.3rem .4rem;text-align:left;border-bottom:1px solid var(--border)">Name</th>
-              <th style="font-size:.6rem;font-family:'Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:.3rem .4rem;text-align:left;border-bottom:1px solid var(--border);width:60px">Shares</th>
-              <th style="font-size:.6rem;font-family:'Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:.3rem .4rem;text-align:left;border-bottom:1px solid var(--border);width:72px">Avg Cost</th>
-              <th style="width:22px;border-bottom:1px solid var(--border)"></th>
-            </tr>
-          </thead>
-          <tbody id="heroMeBody">
-            <tr>
-              <td style="padding:.28rem .3rem"><input class="hcc-input hero-me-sym" type="text" placeholder="AAPL" style="text-transform:uppercase;padding:.36rem .5rem;font-size:.78rem"></td>
-              <td style="padding:.28rem .3rem"><input class="hcc-input hero-me-name" type="text" placeholder="Apple" style="padding:.36rem .5rem;font-size:.78rem"></td>
-              <td style="padding:.28rem .3rem"><input class="hcc-input hero-me-qty" type="number" placeholder="10" min="0" step="any" style="padding:.36rem .5rem;font-size:.78rem"></td>
-              <td style="padding:.28rem .3rem"><input class="hcc-input hero-me-avg" type="number" placeholder="150" min="0" step="any" style="padding:.36rem .5rem;font-size:.78rem"></td>
-              <td style="padding:.28rem .3rem"><button class="hero-me-del" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;padding:2px 4px">&#10005;</button></td>
-            </tr>
-          </tbody>
-        </table>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.85rem">
-          <button id="heroMeAddRowBtn" style="font-size:.72rem;color:var(--green);background:none;border:1px solid var(--green-border);border-radius:6px;padding:.32rem .75rem;cursor:pointer;font-family:'DM Sans',sans-serif">+ Add row</button>
-          <span style="font-size:.62rem;color:var(--muted)">Add CASH for buying power</span>
+  <!-- Top nav -->
+  <nav class="topnav">
+    <div class="topnav-logo">
+      <div class="logo-mark">Q</div>
+      <div class="logo-name">Quantum<em>Invest</em></div>
+    </div>
+    <div class="topnav-actions">
+      <div class="badge badge-green"><span class="pulse"></span>ML-KEM Protected</div>
+      <button class="btn btn-ghost btn-sm" id="backBtn">&#8592; Edit Portfolio</button>
+      <button class="btn btn-ghost btn-sm" id="exportBtn">&#128203; Export</button>
+    </div>
+  </nav>
+
+  <div class="results-layout">
+
+    <!-- MAIN -->
+    <div class="results-main">
+
+      <!-- Score hero -->
+      <div class="score-hero" id="scoreHero"></div>
+
+      <!-- Stats row -->
+      <div class="stat-row" id="statRow"></div>
+
+      <!-- Top Actions from Claude -->
+      <div class="section-label">&#127919; Claude's Ranked Action Plan</div>
+      <div class="actions-stack" id="actionsStack"></div>
+
+      <!-- Holdings table -->
+      <div class="section-label">&#128202; Your Positions</div>
+      <div class="holdings-card">
+        <div class="ht-head">
+          <span class="hth">Symbol</span><span class="hth">Name</span>
+          <span class="hth r">Shares</span><span class="hth r">Value</span>
+          <span class="hth r">P&amp;L</span><span class="hth r">%</span>
         </div>
-        <button class="hcc-connect-btn" id="heroAnalyzeBtn">
-          <span class="spin" id="heroAnalyzeSpin"></span>
-          <span id="heroAnalyzeTxt">&#128269; Analyze Portfolio with AI</span>
-        </button>
-        <div class="hcc-err" id="heroManualErr"></div>
+        <div id="holdingsBody"></div>
       </div>
 
-      <!-- ROBINHOOD LOGIN (secondary, works locally) -->
-      <div id="heroRHPanel" style="display:none">
-        <div style="background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:8px;padding:.65rem .85rem;margin-bottom:.9rem;font-size:.7rem;color:var(--amber);line-height:1.6">
-          &#9888; <strong>Cloud server limitation:</strong> Robinhood blocks logins from cloud servers like Render. This works when running QuantumInvest on your own computer.
-        </div>
-        <div class="hcc-field"><div class="hcc-label">Robinhood Email</div><input type="email" class="hcc-input" id="heroEmail" placeholder="your@email.com" autocomplete="email"></div>
-        <div class="hcc-field"><div class="hcc-label">Password</div><input type="password" class="hcc-input" id="heroPass" placeholder="Your Robinhood password" autocomplete="current-password"></div>
-        <div class="hcc-mfa" id="heroMfaWrap">
-          <div class="hcc-field"><div class="hcc-label">Verification Code</div><input type="text" class="hcc-input" id="heroMfa" placeholder="123456" maxlength="8" autocomplete="one-time-code"><div style="font-size:.66rem;color:var(--muted);margin-top:.3rem">Check your phone or email for the 6-digit code</div></div>
-        </div>
-        <button class="hcc-connect-btn" id="heroLoginBtn">
-          <span class="spin" id="heroSpin"></span>
-          <span id="heroLoginTxt">&#128202; Connect &amp; Import Portfolio</span>
-        </button>
-        <div class="hcc-err" id="heroErr"></div>
-        <div class="hcc-disclaimer"><strong>Quantum-Safe:</strong> Credentials go <strong>directly to Robinhood</strong> — never stored. Encrypted with AES-256-GCM.</div>
+      <!-- Analysis grid -->
+      <div class="analysis-grid" id="analysisGrid"></div>
+
+      <!-- Cash recommendation -->
+      <div id="cashRec" style="display:none"></div>
+
+      <!-- Sector exposure -->
+      <div class="section-label">&#127757; Sector Exposure</div>
+      <div class="acard" style="margin-bottom:1.5rem" id="sectorCard"></div>
+
+      <!-- Fill the gaps — ideas section -->
+      <div class="section-divider"></div>
+      <div class="ideas-section" id="ideasSection" style="display:none">
+        <div class="section-label">&#128161; Fill the Gaps — Targeted Ideas</div>
+        <div class="ideas-grid" id="ideasGrid"></div>
+        <div class="section-divider"></div>
       </div>
 
-      <div class="hcc-or">or</div>
-      <button class="skip-link" id="heroSkip">Skip — just generate investment ideas without portfolio</button>
-    </div>
-    <div class="stats-mini" id="statsTicker">
-      <div class="hpulse"></div>
-      <span><strong id="genCountDisplay">0</strong> analyses generated</span>
-      &nbsp;·&nbsp;<span><strong id="compareCountDisplay">0</strong> comparisons</span>
-      &nbsp;·&nbsp;<span style="color:var(--green)">ML-KEM-768 active</span>
-    </div>
-    <div class="features-grid">
-      <div class="fc"><div class="fc-icon">&#128209;</div><div class="fc-title">6 Tailored Ideas</div><div class="fc-desc">Risk-adjusted picks with allocation percentages</div></div>
-      <div class="fc"><div class="fc-icon">&#9878;</div><div class="fc-title">Head-to-Head Compare</div><div class="fc-desc">8 metrics · 4 market scenarios · winner verdict</div></div>
-      <div class="fc"><div class="fc-icon">&#128269;</div><div class="fc-title">Deep Dive</div><div class="fc-desc">Score, entry/exit, catalysts, alternatives</div></div>
-      <div class="fc"><div class="fc-icon">&#128202;</div><div class="fc-title">Portfolio Analysis</div><div class="fc-desc">AI analysis of your real Robinhood holdings</div></div>
-      <div class="fc"><div class="fc-icon">&#128172;</div><div class="fc-title">Live Chat</div><div class="fc-desc">Streaming AI answers to follow-up questions</div></div>
-      <div class="fc"><div class="fc-icon">&#128274;</div><div class="fc-title">Quantum-Safe</div><div class="fc-desc">ML-KEM FIPS 203 — safe from quantum computers</div></div>
-    </div>
-  </div>
-  <!-- RESULTS -->
-  <div id="results">
-    <div class="results-topbar">
-      <div class="results-title">Investment <em>Ideas</em> <div class="qprotect"><div class="qbdot"></div>ML-KEM Protected</div></div>
-      <div class="topbar-actions">
-        <button class="action-btn" id="watchlistBtn">&#9825; Watchlist <span id="wlCount"></span></button>
-        <button class="action-btn" id="exportBtn">&#128203; Export</button>
-        <button class="action-btn" id="newAnalysisBtn">&#8635; New</button>
-      </div>
-    </div>
-    <div class="pills" id="pills"></div>
-    <div class="stats-cards">
-      <div class="sc"><div class="sl">Amount</div><div class="sv g" id="svAmount">—</div><div class="ss">USD invested</div></div>
-      <div class="sc"><div class="sl">Expected Return</div><div class="sv" id="svReturn">—</div><div class="ss">estimated annually</div></div>
-      <div class="sc"><div class="sl">Portfolio Risk</div><div class="sv" id="svRisk">—</div><div class="ss">overall profile</div></div>
-      <div class="sc"><div class="sl">Top Pick</div><div class="sv" id="svTop" style="font-size:.85rem">—</div><div class="ss">highest conviction</div></div>
-    </div>
-    <div class="tabs">
-      <button class="tab active" id="tab-ideas">&#128209; Ideas</button>
-      <button class="tab" id="tab-alloc">&#9685; Allocation</button>
-      <button class="tab" id="tab-compare">&#9878; Compare <span class="tab-badge" id="cmpBadge" style="display:none">NEW</span></button>
-      <button class="tab" id="tab-analysis">&#128196; Analysis</button>
-      <button class="tab" id="tab-chat">&#128172; Chat</button>
-      <button class="tab" id="tab-history">&#128337; History</button>
-      <button class="tab" id="tab-portfolio">&#128202; Portfolio</button>
-    </div>
-    <div id="view-ideas"><div class="ideas-grid" id="ideasGrid"></div><div class="deep-dive-wrap" id="deepDiveWrap"><button class="dd-close" id="ddClose">&#10005; Close</button><div id="deepDiveContent"></div></div></div>
-    <div id="view-alloc" style="display:none"><div class="alloc-view"><div class="alloc-card"><div class="alloc-title">Portfolio breakdown</div><svg class="donut-svg" viewBox="0 0 180 180" id="donutSvg"></svg><div class="donut-legend" id="donutLegend"></div></div><div class="cat-card"><div class="alloc-title">By category</div><div id="catBars"></div></div></div></div>
-    <div id="view-compare" style="display:none">
-      <div class="compare-setup" id="compareSetup">
-        <div style="font-size:.8rem;color:var(--muted2)">Select two ideas to compare head-to-head</div>
-        <div class="compare-selects"><div><div class="compare-sel-label">Idea A</div><select id="compareSelA"></select></div><div class="compare-vs">VS</div><div><div class="compare-sel-label">Idea B</div><select id="compareSelB"></select></div></div>
-        <button class="compare-go-btn" id="compareGoBtn">Compare These Ideas &#8599;</button>
-      </div>
-      <div class="compare-result" id="compareResult"></div>
-    </div>
-    <div id="view-analysis" style="display:none"><div class="analysis-wrap" id="analysisText"></div></div>
-    <div id="view-chat" style="display:none">
-      <div class="chat-wrap">
+      <!-- Chat -->
+      <div class="section-label">&#128172; Ask Claude About Your Portfolio</div>
+      <div class="chat-section">
         <div class="chat-thread" id="chatThread"></div>
-        <div class="chat-input-area">
-          <div class="chat-row"><input class="chat-in" id="chatIn" type="text" placeholder="Ask about risks, compare ideas, ETF suggestions..."><button class="chat-send" id="chatSend">Send &#8599;</button></div>
-          <div class="chips" id="chips">
-            <button class="chip">Which is safest for a beginner?</button><button class="chip">Suggest ETFs for each theme</button>
-            <button class="chip">How to split $10k?</button><button class="chip">Risks in a recession?</button><button class="chip">Which pay dividends?</button>
+        <div class="chat-input-wrap">
+          <div class="chat-row">
+            <input class="chat-in" id="chatIn" type="text" placeholder="Should I rebalance? What are my biggest risks? What should I sell first?">
+            <button class="chat-send" id="chatSend">Send &#8599;</button>
+          </div>
+          <div class="chat-chips" id="chatChips">
+            <button class="chip">What should I sell first?</button>
+            <button class="chip">Am I too concentrated?</button>
+            <button class="chip">How to improve my Sharpe ratio?</button>
+            <button class="chip">Best ETFs to diversify?</button>
+            <button class="chip">Tax loss harvesting opportunities?</button>
           </div>
         </div>
       </div>
+
     </div>
-    <div id="view-history" style="display:none"><div class="history-panel"><div class="hp-title">Recent sessions</div><div class="hist-grid" id="histGrid"></div></div></div>
-    <!-- PORTFOLIO TAB -->
-    <div id="view-portfolio" style="display:none">
-      <div class="port-connect" id="portConnectSection">
-        <div class="port-connect-icon">&#128202;</div>
-        <h3>Connect Robinhood</h3>
-        <p style="color:var(--muted);font-size:.86rem;max-width:400px;line-height:1.7">Import your holdings for AI-powered portfolio analysis — AES-256-GCM encrypted session.</p>
-        <div class="connect-form">
-          <div class="cf-title">Robinhood Credentials</div>
-          <div class="cf-field"><label class="cf-label" for="rhEmail">Email</label><input class="cf-input" type="email" id="rhEmail" placeholder="your@email.com" autocomplete="email"></div>
-          <div class="cf-field"><label class="cf-label" for="rhPass">Password</label><input class="cf-input" type="password" id="rhPass" placeholder="Your Robinhood password" autocomplete="current-password"></div>
-          <button class="cf-btn" id="rhLoginBtn"><span class="spin" id="rhSpin"></span><span id="rhBtnTxt">&#128202; Connect Account</span></button>
-          <div class="mfa-section" id="mfaSection">
-            <div style="font-size:.8rem;color:var(--muted2)">&#128273; Enter code sent to your phone or email:</div>
-            <div class="cf-field" style="margin-bottom:0"><label class="cf-label" for="rhMfa">Verification Code</label><input class="cf-input" type="text" id="rhMfa" placeholder="123456" maxlength="8" autocomplete="one-time-code"></div>
-            <button class="cf-btn" id="rhVerifyBtn"><span class="spin" id="rhVerSpin"></span><span id="rhVerTxt">&#10003; Verify &amp; Connect</span></button>
-          </div>
-          <div class="cf-disclaimer"><strong>Security:</strong> Credentials go <strong>directly to Robinhood</strong> — never stored. Encrypted with <strong>AES-256-GCM</strong>. We cannot place trades.</div>
-        </div>
-        <div class="rh-error-box" id="rhErrorBox"><div class="rh-error-title">&#9888; Connection Blocked</div><div class="rh-error-msg" id="rhErrorMsg"></div><div class="rh-error-hint">Use Manual Entry below — AI analysis works exactly the same.</div></div>
-        <button class="manual-toggle" id="manualToggleBtn">+ Enter portfolio manually instead</button>
-        <div class="manual-entry-section" id="manualEntrySection">
-          <div class="me-title">Manual Portfolio Entry</div>
-          <table class="me-table"><thead><tr><th style="width:72px">Symbol</th><th>Name</th><th style="width:68px">Shares</th><th style="width:80px">Avg Cost</th><th style="width:80px">Cur. Price</th><th style="width:24px"></th></tr></thead>
-          <tbody id="meTableBody"><tr><td><input class="me-input me-sym" type="text" placeholder="AAPL" style="text-transform:uppercase"></td><td><input class="me-input me-name" type="text" placeholder="Apple Inc."></td><td><input class="me-input me-qty" type="number" placeholder="10" min="0" step="any"></td><td><input class="me-input me-avg" type="number" placeholder="150.00" min="0" step="any"></td><td><input class="me-input me-cur" type="number" placeholder="175.00" min="0" step="any"></td><td><button class="me-del">&#10005;</button></td></tr></tbody></table>
-          <div class="me-footer"><button class="me-add-row" id="meAddRow">+ Add row</button><button class="me-submit-btn" id="meSubmitBtn"><span class="spin" id="meSpin"></span><span id="meBtnTxt">&#128202; Analyze Portfolio</span></button></div>
-          <div style="font-size:.64rem;color:var(--muted);margin-top:.6rem;line-height:1.6">Add a row with symbol <strong>CASH</strong> to include buying power.</div>
+
+    <!-- SIDEBAR -->
+    <div class="results-sidebar">
+
+      <!-- Allocation donut -->
+      <div class="sidebar-card">
+        <div class="sidebar-card-title">Portfolio Allocation</div>
+        <div class="donut-wrap">
+          <svg viewBox="0 0 160 160" width="160" height="160" id="donutSvg"></svg>
+          <div class="donut-legend" id="donutLegend"></div>
         </div>
       </div>
-      <div class="port-loaded" id="portLoadedSection">
-        <div class="port-topbar">
-          <div class="port-topbar-left"><div class="port-status-dot"></div><span class="port-connected-label">Robinhood connected · AES-256-GCM encrypted</span></div>
-          <div style="display:flex;gap:7px;flex-wrap:wrap">
-            <button class="use-in-ideas-btn" id="useInIdeasBtn">&#8599; Use Portfolio Context</button>
-            <button class="disconnect-btn" id="disconnectBtn">Disconnect</button>
-          </div>
-        </div>
-        <div class="port-summary" id="portSummaryCards"></div>
-        <div class="holdings-wrap" id="holdingsWrap">
-          <div class="ht-head"><span class="hth">Symbol</span><span class="hth">Name</span><span class="hth right">Shares</span><span class="hth right">Avg Cost</span><span class="hth right">Price</span><span class="hth right">Value</span><span class="hth right">P &amp; L</span></div>
-          <div id="holdingsBody"></div>
-        </div>
-        <button class="port-analyze-btn" id="portAnalyzeBtn"><span class="spin" id="paSpin"></span><span id="paBtnTxt">&#128269; Analyze My Portfolio with AI</span></button>
-        <div id="portAnalysisResult" style="margin-top:1.5rem;display:none"></div>
+
+      <!-- Investor profile -->
+      <div class="sidebar-card">
+        <div class="sidebar-card-title">Your Profile</div>
+        <div class="profile-display" id="profileDisplay"></div>
       </div>
+
+      <!-- Generate ideas CTA -->
+      <div class="ideas-cta" id="ideaCtaCard">
+        <div class="ideas-cta-title">&#128161; Get Targeted Ideas</div>
+        <div class="ideas-cta-sub">Claude will generate investment ideas specifically to fill the gaps in your portfolio.</div>
+        <button class="btn btn-primary" style="width:100%" id="genIdeasBtn">
+          <span class="spin" id="genSpin"></span>
+          <span id="genTxt">Generate Ideas for My Gaps</span>
+        </button>
+      </div>
+
+      <!-- Key insights -->
+      <div class="sidebar-card" id="insightsCard" style="display:none">
+        <div class="sidebar-card-title">&#128161; Key Insights</div>
+        <ul class="alist al-muted" id="insightsList"></ul>
+      </div>
+
+      <!-- Biggest risks -->
+      <div class="sidebar-card" id="risksCard" style="display:none">
+        <div class="sidebar-card-title">&#9888; Biggest Risks</div>
+        <ul class="alist al-amber" id="risksList"></ul>
+      </div>
+
+      <!-- Tax insight -->
+      <div class="sidebar-card" id="taxCard" style="display:none">
+        <div class="sidebar-card-title">&#128203; Tax Insight</div>
+        <div id="taxText" style="font-size:.82rem;color:var(--muted2);line-height:1.7"></div>
+      </div>
+
     </div>
   </div>
-</main>
 </div>
+
+<!-- Ideas-only screen (skip flow) -->
+<div id="ideasOnlyScreen" style="display:none;position:relative;z-index:1">
+  <nav class="topnav">
+    <div class="topnav-logo"><div class="logo-mark">Q</div><div class="logo-name">Quantum<em>Invest</em></div></div>
+    <div class="topnav-actions">
+      <div class="badge badge-green"><span class="pulse"></span>ML-KEM Protected</div>
+      <button class="btn btn-ghost btn-sm" id="backToEntryBtn">&#8592; Back</button>
+    </div>
+  </nav>
+  <div style="padding:2rem 2.5rem">
+    <!-- Profile selector inline -->
+    <div style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:1.5rem">
+      <div style="flex:1;min-width:160px"><label style="display:block;font-size:.62rem;font-family:Space Mono,monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Amount</label><div style="display:flex;gap:6px"><input type="text" id="ideaAmount" value="10,000" style="flex:1"><span style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.55rem .7rem;font-family:Space Mono,monospace;font-size:.7rem;color:var(--green);display:flex;align-items:center;flex-shrink:0">USD</span></div></div>
+      <div style="flex:1;min-width:140px"><label style="display:block;font-size:.62rem;font-family:Space Mono,monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Horizon</label><select id="ideaHorizon"><option value="short">Short</option><option value="medium" selected>Medium</option><option value="long">Long</option></select></div>
+      <div style="flex:1;min-width:140px"><label style="display:block;font-size:.62rem;font-family:Space Mono,monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Risk</label><select id="ideaRisk"><option value="conservative">Conservative</option><option value="moderate" selected>Moderate</option><option value="aggressive">Aggressive</option></select></div>
+      <div style="flex:1;min-width:140px"><label style="display:block;font-size:.62rem;font-family:Space Mono,monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Style</label><select id="ideaStyle"><option value="growth">Growth</option><option value="value" selected>Value</option><option value="dividend">Dividend</option><option value="index">Index</option><option value="thematic">Thematic</option></select></div>
+      <button class="btn btn-primary" id="genIdeasOnlyBtn" style="flex-shrink:0;padding:.75rem 1.5rem">
+        <span class="spin" id="genOnlySpin"></span>
+        <span id="genOnlyTxt">&#8599; Generate Ideas</span>
+      </button>
+    </div>
+    <div class="ideas-grid" id="ideasOnlyGrid" style="grid-template-columns:repeat(3,1fr)"></div>
+  </div>
+</div>
+
 <script>
-var S={ideas:[],convo:[],profile:{},sectors:[],watchlist:[],history:[],isGen:false,isChat:false,isCmp:false,isDive:false};
-var P={encryptedSession:null,challengeId:null,deviceToken:null,rhEmail:null,rhPass:null,data:null,useInIdeas:false};
-var COLORS=['#10b981','#3b82f6','#f59e0b','#8b5cf6','#ef4444','#06b6d4'];
-var PRESETS={
-  retire:{horizon:'long',risk:'conservative',style:'dividend',sectors:['Real Estate','Bonds'],context:'Planning retirement 20+ years away, steady income and capital preservation.'},
-  growth:{horizon:'medium',risk:'aggressive',style:'growth',sectors:['Technology','Healthcare'],context:'Focused on maximum growth, comfortable with high volatility.'},
-  income:{horizon:'long',risk:'conservative',style:'dividend',sectors:['Real Estate','Consumer'],context:'Need regular dividend income, yield is a priority.'},
-  tech:{horizon:'medium',risk:'aggressive',style:'thematic',sectors:['Technology','AI & Robotics'],context:'Bullish on AI and tech transformation.'},
-  safe:{horizon:'short',risk:'conservative',style:'index',sectors:['Bonds'],context:'Capital preservation, short time horizon, minimal risk.'},
-  esg:{horizon:'long',risk:'moderate',style:'thematic',sectors:['Clean Energy','International'],context:'ESG-focused, no fossil fuels, sustainable investing.'}
+// ── State ──────────────────────────────────────────────────────────────────────
+var STATE = {
+  holdings: [],
+  profile: {},
+  portfolioData: null,
+  portfolioAnalysis: null,
+  chatHistory: [],
+  ideas: [],
+  isAnalyzing: false,
+  isChat: false,
+  isGenIdeas: false
 };
+var COLORS = ['#10b981','#3b82f6','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#f97316','#ec4899'];
 
-function get(id){return document.getElementById(id);}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function rC(r){if(!r)return'b-mod';var v=r.toLowerCase();return v.includes('low')?'b-low':v.includes('high')?'b-high':'b-mod';}
-function cC(r){if(!r)return'gc';var v=r.toLowerCase();return v.includes('low')?'gc':v.includes('high')?'rc':'ac';}
-function rL(r){if(!r)return'Med';var v=r.toLowerCase();return v.includes('low')?'Low':v.includes('high')?'High':'Med';}
+function get(id){ return document.getElementById(id); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function toast(msg,type){
-  var wrap=get('toastWrap'),t=document.createElement('div');
+function toast(msg, type){
+  var wrap=get('toastWrap'), t=document.createElement('div');
   t.className='toast t-'+(type||'info');
-  var icon=type==='ok'?'&#10003;':type==='err'?'&#9888;':'&#8505;';
-  t.innerHTML=icon+' '+esc(msg);wrap.appendChild(t);
-  setTimeout(function(){t.style.transition='opacity .4s';t.style.opacity='0';setTimeout(function(){t.parentNode&&t.parentNode.removeChild(t);},420);},3200);
-}
-function showErr(msg){var e=get('errBox');e.textContent='&#9888; '+msg;e.style.display='block';}
-function hideErr(){get('errBox').style.display='none';}
-function toggleSidebar(){get('sidebar').classList.toggle('open');get('overlay').classList.toggle('on');}
-function closeSidebar(){get('sidebar').classList.remove('open');get('overlay').classList.remove('on');}
-function openSidebarMobile(){if(window.innerWidth<=900){get('sidebar').classList.add('open');get('overlay').classList.add('on');}}
-
-function switchTab(t){
-  ['ideas','alloc','compare','analysis','chat','history','portfolio'].forEach(function(n){
-    get('tab-'+n).classList.toggle('active',n===t);
-    get('view-'+n).style.display=n===t?'':'none';
-  });
+  t.innerHTML=({ok:'&#10003;',err:'&#9888;',info:'&#8505;'}[type]||'&#8505;')+' '+esc(msg);
+  wrap.appendChild(t);
+  setTimeout(function(){ t.style.transition='opacity .4s'; t.style.opacity='0'; setTimeout(function(){ t.parentNode&&t.parentNode.removeChild(t); },420); }, 3200);
 }
 
-document.addEventListener('DOMContentLoaded',function(){
-  loadWatchlist();loadHistory();loadProfile();fetchStats();wireAll();
+// ── Entry screen — stock table ─────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function(){
+  wireEntry();
+  wireResults();
 });
 
-function wireAll(){
-  get('hburg').addEventListener('click',toggleSidebar);
-  get('overlay').addEventListener('click',closeSidebar);
-  get('genBtn').addEventListener('click',generate);
-  get('sectors').addEventListener('click',function(e){var b=e.target.closest('.sector-btn');if(b)toggleSector(b);});
-  get('presetGrid').addEventListener('click',function(e){var b=e.target.closest('.preset-btn');if(b)applyPreset(b.dataset.preset);});
-  get('watchlistBtn').addEventListener('click',function(){get('wlDrawer').classList.add('open');});
-  get('wlClose').addEventListener('click',function(){get('wlDrawer').classList.remove('open');});
-  get('exportBtn').addEventListener('click',exportReport);
-  get('newAnalysisBtn').addEventListener('click',newAnalysis);
-  get('chatSend').addEventListener('click',sendChat);
-  get('chatIn').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}});
-  get('chips').addEventListener('click',function(e){var c=e.target.closest('.chip');if(c){get('chatIn').value=c.textContent.trim();sendChat();}});
-  get('compareGoBtn').addEventListener('click',runCompare);
-  get('ddClose').addEventListener('click',closeDeepDive);
-  ['ideas','alloc','compare','analysis','chat','history','portfolio'].forEach(function(t){
-    get('tab-'+t).addEventListener('click',function(){switchTab(t);});
+function wireEntry(){
+  get('addRowBtn').addEventListener('click', addStockRow);
+  get('analyzeBtn').addEventListener('click', analyzePortfolio);
+  get('skipToIdeas').addEventListener('click', function(){ showScreen('ideasOnly'); });
+  get('stockBody').addEventListener('click', function(e){
+    var btn = e.target.closest('.stock-del');
+    if(btn && get('stockBody').rows.length > 1) btn.closest('tr').remove();
   });
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeSidebar();get('wlDrawer').classList.remove('open');}});
-  // Hero login
-  if(get('heroLoginBtn')) get('heroLoginBtn').addEventListener('click',heroLogin);
-  // Hero card tab buttons and manual entry
-  if(get('heroTabManual')) get('heroTabManual').addEventListener('click', function(){ heroShowTab('manual'); });
-  if(get('heroTabRH'))     get('heroTabRH').addEventListener('click',     function(){ heroShowTab('rh'); });
-  if(get('heroMeAddRowBtn')) get('heroMeAddRowBtn').addEventListener('click', heroMeAddRow);
-  if(get('heroAnalyzeBtn'))  get('heroAnalyzeBtn').addEventListener('click', heroAnalyzeManual);
-  // Event delegation for static delete buttons in hero table
-  var heroMeBody = get('heroMeBody');
-  if(heroMeBody) heroMeBody.addEventListener('click', function(e){
-    var btn = e.target.closest('.hero-me-del');
-    if(btn && get('heroMeBody').rows.length > 1) btn.closest('tr').remove();
-  });
-  if(get('heroSkip')) get('heroSkip').addEventListener('click',openSidebarMobile);
-  get('heroEmail').addEventListener('keydown',function(e){if(e.key==='Enter')get('heroPass').focus();});
-  get('heroPass').addEventListener('keydown',function(e){if(e.key==='Enter')heroLogin();});
-  get('heroMfa').addEventListener('keydown',function(e){if(e.key==='Enter')heroVerify();});
-  // Portfolio tab
-  get('rhLoginBtn').addEventListener('click',rhLogin);
-  get('rhVerifyBtn').addEventListener('click',rhVerify);
-  get('portAnalyzeBtn').addEventListener('click',portAnalyze);
-  get('disconnectBtn').addEventListener('click',rhDisconnect);
-  get('useInIdeasBtn').addEventListener('click',toggleUseInIdeas);
-  get('rhEmail').addEventListener('keydown',function(e){if(e.key==='Enter')get('rhPass').focus();});
-  get('rhPass').addEventListener('keydown',function(e){if(e.key==='Enter')rhLogin();});
-  get('rhMfa').addEventListener('keydown',function(e){if(e.key==='Enter')rhVerify();});
-  wireManualEntry();
-}
-
-function toggleSector(btn){
-  btn.classList.toggle('active');
-  S.sectors=Array.from(document.querySelectorAll('.sector-btn.active')).map(function(b){return b.textContent;});
-}
-function applyPreset(key){
-  var p=PRESETS[key];if(!p)return;
-  get('horizon').value=p.horizon;get('risk').value=p.risk;get('style').value=p.style;get('context').value=p.context||'';
-  document.querySelectorAll('.sector-btn').forEach(function(b){b.classList.toggle('active',p.sectors.includes(b.textContent));});
-  S.sectors=p.sectors;toast('Strategy preset applied','ok');
-}
-function fetchStats(){
-  fetch('/api/stats').then(function(r){return r.json();}).then(function(d){
-    var gc=get('genCountDisplay'),cc=get('compareCountDisplay');
-    if(gc)gc.textContent=(d.generations||0).toLocaleString();
-    if(cc)cc.textContent=(d.comparisons||0).toLocaleString();
-  }).catch(function(){});
-}
-function saveProfile(){try{localStorage.setItem('qi_profile',JSON.stringify({horizon:get('horizon').value,risk:get('risk').value,style:get('style').value,amount:get('amount').value}));}catch(e){}}
-function loadProfile(){try{var p=JSON.parse(localStorage.getItem('qi_profile')||'{}');if(p.horizon)get('horizon').value=p.horizon;if(p.risk)get('risk').value=p.risk;if(p.style)get('style').value=p.style;if(p.amount)get('amount').value=p.amount;}catch(e){}}
-
-// Watchlist
-function loadWatchlist(){try{S.watchlist=JSON.parse(localStorage.getItem('qi_wl')||'[]');}catch(e){S.watchlist=[];}renderWatchlist();}
-function saveWatchlist(){try{localStorage.setItem('qi_wl',JSON.stringify(S.watchlist));}catch(e){}}
-function isWatchlisted(name){return S.watchlist.some(function(w){return w.name===name;});}
-function toggleWatchlist(idea){
-  var idx=S.watchlist.findIndex(function(w){return w.name===idea.name;});
-  if(idx>-1){S.watchlist.splice(idx,1);toast('Removed from watchlist','info');}
-  else{S.watchlist.push(Object.assign({},idea,{savedAt:new Date().toLocaleDateString()}));toast('Saved to watchlist','ok');}
-  saveWatchlist();renderWatchlist();refreshCardBtns();
-  var c=get('wlCount');if(c)c.textContent=S.watchlist.length?'('+S.watchlist.length+')':'';
-}
-function renderWatchlist(){
-  var body=get('wlBody');if(!body)return;
-  var c=get('wlCount');if(c)c.textContent=S.watchlist.length?'('+S.watchlist.length+')':'';
-  if(!S.watchlist.length){body.innerHTML='<div class="wl-empty">&#9825; No saved ideas yet.<br>Click Save on any card.</div>';return;}
-  body.innerHTML='';
-  S.watchlist.slice().reverse().forEach(function(w,ri){
-    var realIdx=S.watchlist.length-1-ri,div=document.createElement('div');div.className='wl-item';
-    div.innerHTML='<div class="wl-item-name">'+esc(w.name)+'</div>'+(w.ticker?'<div class="wl-item-ticker">'+esc(w.ticker)+'</div>':'')+'<div class="wl-item-desc">'+esc((w.description||'').substring(0,90))+'...</div><div class="wl-date">Saved '+esc(w.savedAt||'')+'</div><button class="wl-remove" data-idx="'+realIdx+'">&#10005;</button>';
-    body.appendChild(div);
-  });
-  body.querySelectorAll('.wl-remove').forEach(function(btn){btn.addEventListener('click',function(){S.watchlist.splice(parseInt(btn.dataset.idx),1);saveWatchlist();renderWatchlist();refreshCardBtns();});});
-}
-function refreshCardBtns(){
-  S.ideas.forEach(function(idea,i){
-    var btn=document.querySelector('[data-wl-idx="'+i+'"]');if(!btn)return;
-    var wled=isWatchlisted(idea.name);btn.className='card-action-btn'+(wled?' watchlisted':'');
-    btn.innerHTML=wled?'&#9829; Saved':'&#9825; Save';
+  get('stockBody').addEventListener('input', function(e){
+    if(e.target.classList.contains('stock-sym')){
+      var pos = e.target.selectionStart;
+      e.target.value = e.target.value.toUpperCase();
+      e.target.setSelectionRange(pos, pos);
+    }
   });
 }
 
-// History
-function loadHistory(){try{S.history=JSON.parse(localStorage.getItem('qi_hist')||'[]');}catch(e){S.history=[];}renderHistory();}
-function saveToHistory(amount,horizon,risk,style,topPick){
-  S.history.unshift({amount:amount,horizon:horizon,risk:risk,style:style,topPick:topPick,date:new Date().toLocaleDateString()});
-  if(S.history.length>5)S.history=S.history.slice(0,5);
-  try{localStorage.setItem('qi_hist',JSON.stringify(S.history));}catch(e){}
-  renderHistory();
-}
-function renderHistory(){
-  var g=get('histGrid');if(!g)return;
-  if(!S.history.length){g.innerHTML='<div style="color:var(--muted);font-size:.82rem;text-align:center;padding:1rem 0">No history yet. Generate your first analysis.</div>';return;}
-  g.innerHTML='';
-  S.history.forEach(function(h){
-    var div=document.createElement('div');div.className='hist-item';
-    var icon=h.risk==='conservative'?'&#128737;':h.risk==='aggressive'?'&#128200;':'&#9878;';
-    div.innerHTML=icon+'<div class="hist-info"><div class="hi-title">'+esc(h.amount)+' &bull; '+esc(h.style)+' &bull; '+esc(h.risk)+'</div><div class="hi-sub">Top pick: '+esc(h.topPick||'N/A')+'</div></div><div class="hist-date">'+esc(h.date)+'</div>';
-    g.appendChild(div);
-  });
-}
-
-// Render cards
-function renderCards(ideas){
-  var grid=get('ideasGrid');grid.innerHTML='';
-  ideas.forEach(function(idea,i){
-    var wled=isWatchlisted(idea.name),card=document.createElement('div');
-    card.className='idea-card '+cC(idea.risk);
-    var metaHtml='';
-    if(idea.ticker)metaHtml+='<span class="card-ticker">'+esc(idea.ticker)+'</span><span style="color:var(--border2)">&middot;</span>';
-    metaHtml+='<span class="card-cat">'+esc(idea.category||'')+'</span>';
-    var tagsHtml=(idea.tags||[]).map(function(t){return'<span class="ctag">'+esc(t)+'</span>';}).join('');
-    var yh=idea.ticker?'https://finance.yahoo.com/quote/'+encodeURIComponent(idea.ticker):'https://finance.yahoo.com/lookup?s='+encodeURIComponent(idea.name);
-    card.innerHTML=[
-      '<div class="card-top"><span class="card-name">'+esc(idea.name||'')+'</span><span class="cbadge '+rC(idea.risk)+'">'+rL(idea.risk)+'</span></div>',
-      '<div class="card-meta">'+metaHtml+'</div>',
-      '<div class="card-desc">'+esc(idea.description||'')+'</div>',
-      idea.why_now?'<div class="card-why">'+esc(idea.why_now)+'</div>':'',
-      idea.upside?'<div class="card-upside">&#8593; '+esc(idea.upside)+'</div>':'',
-      '<div class="card-footer"><div class="card-tags">'+tagsHtml+'</div><div class="card-alloc">'+(idea.allocation||0)+'%</div></div>',
-      '<div class="card-actions">',
-        '<button class="card-action-btn'+(wled?' watchlisted':'')+'" data-wl-idx="'+i+'">'+(wled?'&#9829; Saved':'&#9825; Save')+'</button>',
-        '<button class="card-action-btn" data-dive-idx="'+i+'">&#128269; Deep Dive</button>',
-        '<a href="'+yh+'" target="_blank" rel="noopener" class="card-action-btn">&#128279; Yahoo</a>',
-      '</div>'
-    ].join('');
-    grid.appendChild(card);
-    setTimeout(function(){card.classList.add('revealed');},i*70);
-  });
-  grid.querySelectorAll('[data-wl-idx]').forEach(function(btn){btn.addEventListener('click',function(){toggleWatchlist(ideas[parseInt(btn.dataset.wlIdx)]);});});
-  grid.querySelectorAll('[data-dive-idx]').forEach(function(btn){btn.addEventListener('click',function(){openDeepDive(parseInt(btn.dataset.diveIdx));});});
-}
-
-function renderDonut(ideas){
-  var svg=get('donutSvg'),leg=get('donutLegend');svg.innerHTML='';leg.innerHTML='';
-  var total=ideas.reduce(function(s,i){return s+(i.allocation||0);},0);if(!total)return;
-  var cx=90,cy=90,R=68,iR=42,ang=-Math.PI/2;
-  ideas.forEach(function(idea,i){
-    var pct=(idea.allocation||0)/total,sweep=pct*2*Math.PI,end=ang+sweep,col=COLORS[i%COLORS.length],lg=sweep>Math.PI?1:0;
-    var x1=cx+R*Math.cos(ang),y1=cy+R*Math.sin(ang),x2=cx+R*Math.cos(end),y2=cy+R*Math.sin(end);
-    var ix1=cx+iR*Math.cos(end),iy1=cy+iR*Math.sin(end),ix2=cx+iR*Math.cos(ang),iy2=cy+iR*Math.sin(ang);
-    var p=document.createElementNS('http://www.w3.org/2000/svg','path');
-    p.setAttribute('d','M '+x1.toFixed(1)+' '+y1.toFixed(1)+' A '+R+' '+R+' 0 '+lg+' 1 '+x2.toFixed(1)+' '+y2.toFixed(1)+' L '+ix1.toFixed(1)+' '+iy1.toFixed(1)+' A '+iR+' '+iR+' 0 '+lg+' 0 '+ix2.toFixed(1)+' '+iy2.toFixed(1)+' Z');
-    p.setAttribute('fill',col);p.setAttribute('stroke','#080b14');p.setAttribute('stroke-width','2');svg.appendChild(p);
-    var li=document.createElement('div');li.className='leg-item';
-    li.innerHTML='<div class="leg-dot" style="background:'+col+'"></div><span class="leg-name">'+esc(idea.name)+'</span><span class="leg-pct" style="color:'+col+'">'+idea.allocation+'%</span>';
-    leg.appendChild(li);ang=end;
-  });
-  ['6 Ideas','100% alloc'].forEach(function(txt,i){
-    var t=document.createElementNS('http://www.w3.org/2000/svg','text');
-    t.setAttribute('x',cx);t.setAttribute('y',i===0?cy-5:cy+11);t.setAttribute('text-anchor','middle');
-    t.setAttribute('fill',i===0?'#dde1f0':'#5a6478');t.setAttribute('font-size',i===0?'12':'9');t.textContent=txt;svg.appendChild(t);
-  });
-}
-
-function renderCatBars(ideas){
-  var cats={};ideas.forEach(function(idea){var c=idea.category||'Other';cats[c]=(cats[c]||0)+(idea.allocation||0);});
-  var container=get('catBars');container.innerHTML='';
-  Object.entries(cats).sort(function(a,b){return b[1]-a[1];}).forEach(function(e,i){
-    var div=document.createElement('div');div.className='cat-item';
-    div.innerHTML='<div class="cat-row"><span class="cat-name">'+esc(e[0])+'</span><span class="cat-pct">'+e[1]+'%</span></div><div class="cat-track"><div class="cat-fill" style="width:0%;background:'+COLORS[i%COLORS.length]+'" data-t="'+e[1]+'"></div></div>';
-    container.appendChild(div);
-  });
-  setTimeout(function(){document.querySelectorAll('.cat-fill').forEach(function(b){b.style.width=b.getAttribute('data-t')+'%';});},80);
-}
-
-function renderStats(data,amount){
-  var n=parseFloat(String(amount).replace(/[^0-9.]/g,''));
-  get('svAmount').textContent='$'+(isNaN(n)?amount:n.toLocaleString());
-  get('svReturn').textContent=(data.summary&&data.summary.expected_return)||'--';
-  get('svRisk').textContent=(data.summary&&data.summary.overall_risk)||'--';
-  get('svTop').textContent=(data.summary&&data.summary.top_pick)||'--';
-  var rc={Conservative:'pill-g',Moderate:'pill-a',Aggressive:'pill-r'};
-  var or=(data.summary&&data.summary.overall_risk)||'Moderate';
-  get('pills').innerHTML='<span class="pill '+(rc[or]||'pill-a')+'">'+esc(or)+'</span><span class="pill pill-b">'+esc((data.summary&&data.summary.expected_return)||'')+'</span><span class="pill pill-g">6 ideas &bull; ML-KEM protected</span>';
-}
-
-function populateCompareSelects(ideas){
-  var a=get('compareSelA'),b=get('compareSelB');a.innerHTML='';b.innerHTML='';
-  ideas.forEach(function(idea,i){
-    var oa=document.createElement('option');oa.value=i;oa.textContent=idea.name;
-    var ob=document.createElement('option');ob.value=i;ob.textContent=idea.name;
-    a.appendChild(oa);b.appendChild(ob);
-  });
-  if(ideas.length>1)b.value='1';
-}
-
-// Generate
-function generate(){
-  if(S.isGen)return;
-  var amount=get('amount').value.trim()||'10,000';
-  var horizon=get('horizon').value,risk=get('risk').value,style=get('style').value,context=get('context').value.trim();
-  saveProfile();hideErr();S.isGen=true;S.convo=[];
-  var btn=get('genBtn'),sp=get('spin'),gt=get('genTxt');
-  btn.disabled=true;sp.classList.add('on');gt.textContent='Analyzing...';closeSidebar();
-  fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:'$'+amount,horizon:horizon,risk:risk,style:style,sectors:S.sectors,context:context,portfolioContext:buildPortfolioContext()})})
-  .then(function(r){return r.json().then(function(j){if(!r.ok||!j.success)throw new Error(j.error||'Generation failed.');return j;});})
-  .then(function(j){
-    var data=j.data;S.ideas=data.ideas||[];
-    S.profile={amount:'$'+amount,horizon:horizon,risk:risk,style:style,sectors:S.sectors};
-    S.convo=[{role:'user',content:'Generated ideas for: '+JSON.stringify(S.profile)},{role:'assistant',content:JSON.stringify(data)}];
-    get('emptyState').style.display='none';
-    var res=get('results');res.style.display='block';res.classList.add('fi');
-    renderStats(data,amount);renderCards(S.ideas);renderDonut(S.ideas);renderCatBars(S.ideas);
-    populateCompareSelects(S.ideas);get('analysisText').textContent=data.analysis||'';
-    get('chatThread').innerHTML='';get('deepDiveWrap').style.display='none';get('compareResult').style.display='none';
-    get('cmpBadge').style.display='';switchTab('ideas');
-    saveToHistory(amount,horizon,risk,style,data.summary&&data.summary.top_pick);
-    fetchStats();renderHistory();toast('6 investment ideas generated','ok');
-  })
-  .catch(function(e){showErr(e.message);openSidebarMobile();})
-  .finally(function(){S.isGen=false;btn.disabled=false;sp.classList.remove('on');gt.textContent='&#8599; Generate Ideas';});
-}
-
-// Deep dive
-function openDeepDive(idx){
-  if(S.isDive)return;var idea=S.ideas[idx];if(!idea)return;S.isDive=true;
-  var wrap=get('deepDiveWrap'),content=get('deepDiveContent');
-  wrap.style.display='block';
-  content.innerHTML='<div style="text-align:center;padding:3rem;color:var(--muted);font-family:Space Mono,monospace;font-size:.8rem">&#128269; Analyzing '+esc(idea.name)+'...</div>';
-  switchTab('ideas');setTimeout(function(){wrap.scrollIntoView({behavior:'smooth',block:'start'});},100);
-  fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idea:idea,profile:S.profile})})
-  .then(function(r){return r.json().then(function(j){if(!r.ok||!j.success)throw new Error(j.error||'Analysis failed.');return j;});})
-  .then(function(j){renderDeepDive(idea,j.data);toast('Deep dive complete','ok');})
-  .catch(function(e){content.innerHTML='<div style="color:#fca5a5;padding:2rem;font-size:.82rem">&#9888; '+esc(e.message)+'</div>';toast(e.message,'err');})
-  .finally(function(){S.isDive=false;});
-}
-function closeDeepDive(){get('deepDiveWrap').style.display='none';}
-
-function renderDeepDive(idea,d){
-  var content=get('deepDiveContent');
-  var sentClass={bullish:'sent-bull',neutral:'sent-neut',cautious:'sent-caut',bearish:'sent-bear'}[d.sentiment]||'sent-neut';
-  var sentEmoji={bullish:'&#128200;',neutral:'&#10134;',cautious:'&#9888;',bearish:'&#128201;'}[d.sentiment]||'&#10134;';
-  var score=parseInt(d.score)||0,r=35,circ=2*Math.PI*r,dashoff=circ*(1-score/100);
-  var scoreColor=score>=70?'var(--green)':score>=50?'var(--amber)':'var(--red)';
-  var mL=function(arr){return(arr||[]).map(function(x){return'<li>'+esc(x)+'</li>';}).join('');};
-  var alts=(d.alternatives||[]).map(function(a){return'<div class="alt-item"><div class="alt-ticker">'+esc(a.ticker||'--')+'</div><div><div class="alt-name">'+esc(a.name||'')+'</div><div class="alt-why">'+esc(a.why||'')+'</div></div></div>';}).join('');
-  var yh=idea.ticker?'https://finance.yahoo.com/quote/'+encodeURIComponent(idea.ticker):'https://finance.yahoo.com/lookup?s='+encodeURIComponent(idea.name);
-  content.innerHTML=[
-    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:2rem;animation:fadeIn .35s ease">',
-    '<div class="dd-header">',
-      '<div class="score-ring-wrap">',
-        '<svg viewBox="0 0 90 90" width="90" height="90">',
-          '<circle cx="45" cy="45" r="'+r+'" fill="none" stroke="var(--bg3)" stroke-width="7"/>',
-          '<circle cx="45" cy="45" r="'+r+'" fill="none" stroke="'+scoreColor+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+dashoff.toFixed(1)+'" transform="rotate(-90 45 45)"/>',
-          '<text x="45" y="41" text-anchor="middle" font-size="16" font-weight="700" fill="'+scoreColor+'" font-family="Space Mono,monospace">'+score+'</text>',
-          '<text x="45" y="55" text-anchor="middle" font-size="9" fill="#5a6478" font-family="Space Mono,monospace">/ 100</text>',
-        '</svg>',
-        '<div class="score-grade">Grade: <strong style="color:'+scoreColor+'">'+esc(d.grade||'B')+'</strong></div>',
-      '</div>',
-      '<div class="dd-title-wrap">',
-        '<div class="dd-name">'+esc(idea.name)+'</div>',
-        d.one_liner?'<div class="dd-one-liner">&ldquo;'+esc(d.one_liner)+'&rdquo;</div>':'',
-        '<span class="dd-sentiment '+sentClass+'">'+sentEmoji+' '+esc(d.sentiment||'neutral')+'</span>',
-        d.overview?'<div class="dd-overview">'+esc(d.overview)+'</div>':'',
-      '</div>',
-    '</div>',
-    '<div class="dd-grid">',
-      '<div class="dd-section"><div class="dd-sec-title">&#10003; Pros</div><ul class="dd-list dd-pros">'+mL(d.pros)+'</ul></div>',
-      '<div class="dd-section"><div class="dd-sec-title">&#10007; Cons</div><ul class="dd-list dd-cons">'+mL(d.cons)+'</ul></div>',
-      '<div class="dd-section"><div class="dd-sec-title">&#9888; Key Risks</div><ul class="dd-list dd-risks">'+mL(d.key_risks)+'</ul></div>',
-      '<div class="dd-section"><div class="dd-sec-title">&#127919; Entry / Exit Strategy</div>',
-        '<div class="dd-strat-label">Entry</div><div class="dd-strat-value">'+esc(d.entry_strategy||'')+'</div>',
-        '<div class="dd-strat-label">Exit</div><div class="dd-strat-value">'+esc(d.exit_strategy||'')+'</div>',
-        '<div class="dd-strat-label">Position Size</div><div class="dd-strat-value">'+esc(d.position_size||'')+'</div>',
-        '<div class="dd-strat-label">Time to Value</div><div class="dd-strat-value">'+esc(d.time_to_value||'')+'</div>',
-      '</div>',
-      '<div class="dd-section"><div class="dd-sec-title">&#128269; Due Diligence</div><ul class="dd-list dd-neutral">'+mL(d.due_diligence)+'</ul>',
-        '<div class="dd-sec-title" style="margin-top:.9rem">&#9889; Catalysts</div><ul class="dd-list dd-pros">'+mL(d.catalysts)+'</ul></div>',
-      '<div class="dd-section"><div class="dd-sec-title">&#128200; Watch Metrics</div><ul class="dd-list dd-neutral">'+mL(d.watch_metrics)+'</ul></div>',
-      '<div class="dd-section full-width"><div class="dd-sec-title">&#8634; Similar Alternatives</div><div class="dd-alts">'+alts+'</div></div>',
-    '</div>',
-    '<div class="dd-links">',
-      '<a href="'+yh+'" target="_blank" rel="noopener" class="ext-link">&#128279; Yahoo Finance</a>',
-      '<a href="https://www.google.com/search?q='+encodeURIComponent((idea.ticker||'')+' '+idea.name+' stock analysis')+'" target="_blank" rel="noopener" class="ext-link">&#128269; Google</a>',
-      idea.ticker?'<a href="https://finance.yahoo.com/quote/'+encodeURIComponent(idea.ticker)+'/news" target="_blank" rel="noopener" class="ext-link">&#128240; News</a>':'',
-    '</div></div>'
-  ].join('');
-}
-
-// Compare
-function runCompare(){
-  if(S.isCmp||S.ideas.length<2)return;
-  var ia=parseInt(get('compareSelA').value),ib=parseInt(get('compareSelB').value);
-  if(ia===ib){toast('Select two different ideas','info');return;}
-  var idea1=S.ideas[ia],idea2=S.ideas[ib];if(!idea1||!idea2)return;
-  S.isCmp=true;var btn=get('compareGoBtn');btn.disabled=true;btn.textContent='Comparing...';
-  var result=get('compareResult');result.style.display='block';
-  result.innerHTML='<div style="text-align:center;padding:3rem;color:var(--muted);font-family:Space Mono,monospace;font-size:.8rem">&#9878; Comparing '+esc(idea1.name)+' vs '+esc(idea2.name)+'...</div>';
-  fetch('/api/compare',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idea1:idea1,idea2:idea2,profile:S.profile})})
-  .then(function(r){return r.json().then(function(j){if(!r.ok||!j.success)throw new Error(j.error||'Compare failed.');return j;});})
-  .then(function(j){renderCompareResult(idea1,idea2,j.data);toast('Comparison complete','ok');})
-  .catch(function(e){result.innerHTML='<div style="color:#fca5a5;padding:2rem;font-size:.82rem">&#9888; '+esc(e.message)+'</div>';toast(e.message,'err');})
-  .finally(function(){S.isCmp=false;btn.disabled=false;btn.textContent='Compare These Ideas &#8599;';});
-}
-
-function renderCompareResult(idea1,idea2,d){
-  var result=get('compareResult');
-  var winA=d.winner==='A',winB=d.winner==='B';
-  var wText=winA?('&#127942; '+esc(idea1.name)+' wins'):winB?('&#127942; '+esc(idea2.name)+' wins'):'&#9632; Tie';
-  var mHtml=(d.metrics||[]).map(function(m){var aW=m.winner==='A',bW=m.winner==='B';return'<div class="metric-row"><span class="metric-name">'+esc(m.metric)+'</span><span class="metric-val'+(aW?' win':'')+'">'+esc(m.A||'')+(aW?' &#10003;':'')+'</span><span class="metric-val'+(bW?' win':'')+'">'+esc(m.B||'')+(bW?' &#10003;':'')+'</span></div>';}).join('');
-  var sHtml=(d.scenarios||[]).map(function(s){var pick=s.pick==='A'?idea1.name:idea2.name;return'<div class="scenario-card"><div class="sc-name">'+esc(s.name)+'</div><div class="sc-pick">'+esc(pick)+'</div><div class="sc-reason">'+esc(s.reason||'')+'</div></div>';}).join('');
-  var mkSide=function(name,winner,best,pros,cons){return'<div class="compare-col'+(winner?' winner':'')+'"><div class="col-header"><span class="col-name">'+esc(name)+'</span>'+(winner?'<span>&#127942;</span>':'')+'</div><div class="col-label">Best for</div><div style="font-size:.8rem;color:var(--muted2);margin-bottom:.75rem">'+esc(best||'')+'</div><div class="col-label">Pros</div><ul class="col-list pros">'+( pros||[]).map(function(p){return'<li>'+esc(p)+'</li>';}).join('')+'</ul><div class="col-label" style="margin-top:.65rem">Cons</div><ul class="col-list cons">'+( cons||[]).map(function(c){return'<li>'+esc(c)+'</li>';}).join('')+'</ul></div>';};
-  result.innerHTML=[
-    '<div class="compare-verdict"><div class="verdict-badge" style="background:var(--green-bg);border:1px solid var(--green-border);color:var(--green)">'+wText+'</div><div class="verdict-text">'+esc(d.verdict||'')+'</div><div class="verdict-reason">'+esc(d.reasoning||'')+'</div></div>',
-    '<div class="compare-cols">'+mkSide(idea1.name,winA,d.best_for_A,d.A_pros,d.A_cons)+mkSide(idea2.name,winB,d.best_for_B,d.B_pros,d.B_cons)+'</div>',
-    '<div class="compare-metrics"><div class="metrics-header"><span class="mh">Metric</span><span class="mh">'+esc((idea1.name||'').split(' ')[0])+'</span><span class="mh">'+esc((idea2.name||'').split(' ')[0])+'</span></div>'+mHtml+'</div>',
-    '<div style="font-size:.7rem;font-family:Space Mono,monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.75rem">Market Scenarios</div>',
-    '<div class="compare-scenarios">'+sHtml+'</div>'
-  ].join('');
-}
-
-// Chat
-function sendChat(){
-  if(S.isChat)return;
-  var input=get('chatIn'),q=input.value.trim();
-  if(!q)return;if(!S.convo.length){toast('Generate ideas first','info');return;}
-  input.value='';S.isChat=true;get('chatSend').disabled=true;switchTab('chat');
-  var thread=get('chatThread');
-  var ud=document.createElement('div');ud.className='cmsg user';ud.innerHTML='<div class="cmsg-role user-role">You</div><div class="cmsg-text">'+esc(q)+'</div>';thread.appendChild(ud);
-  var ad=document.createElement('div');ad.className='cmsg ai';ad.innerHTML='<div class="cmsg-role ai-role">Agent</div><div class="cmsg-text"><div class="typing-dots"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></div></div>';thread.appendChild(ad);thread.scrollTop=thread.scrollHeight;
-  var at=ad.querySelector('.cmsg-text'),full='';
-  fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:S.convo,question:q,profileSummary:'Ideas: '+S.ideas.map(function(i){return i.name;}).join(', ')})})
-  .then(function(r){
-    if(!r.ok)throw new Error('Chat error '+r.status);
-    var reader=r.body.getReader(),dec=new TextDecoder();at.textContent='';
-    function read(){return reader.read().then(function(res){
-      if(res.done)return;
-      dec.decode(res.value,{stream:true}).split('\n').forEach(function(l){
-        l=l.trim();if(!l.startsWith('data: '))return;
-        try{var p=JSON.parse(l.slice(6));if(p.text){full+=p.text;at.textContent=full;thread.scrollTop=thread.scrollHeight;}}catch(e){}
-      });return read();
-    });}return read();
-  })
-  .then(function(){S.convo.push({role:'user',content:q});S.convo.push({role:'assistant',content:full});})
-  .catch(function(e){at.textContent='Error: '+e.message;})
-  .finally(function(){S.isChat=false;get('chatSend').disabled=false;thread.scrollTop=thread.scrollHeight;});
-}
-
-// Export
-function exportReport(){
-  if(!S.ideas.length){toast('Generate ideas first','info');return;}
-  var lines=['QuantumInvest — Investment Analysis Report','='.repeat(50),'Generated: '+new Date().toLocaleString(),'Profile: '+JSON.stringify(S.profile),'Quantum Protection: AES-256-GCM (ML-KEM-768 in production)','','INVESTMENT IDEAS','='.repeat(50)];
-  S.ideas.forEach(function(idea,i){lines.push((i+1)+'. '+idea.name+(idea.ticker?' ('+idea.ticker+')':''));lines.push('   Risk: '+idea.risk+' | Allocation: '+idea.allocation+'% | '+idea.category);lines.push('   '+idea.description);if(idea.upside)lines.push('   Upside: '+idea.upside);lines.push('');});
-  lines.push('FULL ANALYSIS','='.repeat(50),get('analysisText').textContent||'','','DISCLAIMER: For educational purposes only. Not financial advice.');
-  try{navigator.clipboard.writeText(lines.join('\n'));toast('Report copied to clipboard','ok');}catch(e){toast('Could not copy — try a modern browser','err');}
-}
-function newAnalysis(){get('results').style.display='none';get('emptyState').style.display='flex';S.ideas=[];S.convo=[];openSidebarMobile();}
-
-// Hero Robinhood login (homepage card)
-
-// Hero tab switching
-function heroShowTab(tab){
-  var isManual = tab === 'manual';
-  get('heroManualPanel').style.display = isManual ? '' : 'none';
-  get('heroRHPanel').style.display     = isManual ? 'none' : '';
-  get('heroTabManual').style.background = isManual ? 'var(--green)' : 'transparent';
-  get('heroTabManual').style.color      = isManual ? '#fff' : 'var(--muted)';
-  get('heroTabRH').style.background     = isManual ? 'transparent' : 'var(--green)';
-  get('heroTabRH').style.color          = isManual ? 'var(--muted)' : '#fff';
-}
-
-// Hero manual entry
-function heroMeAddRow(){
-  var tbody = get('heroMeBody'), tr = document.createElement('tr');
-  tr.innerHTML = '<td style="padding:.28rem .3rem"><input class="hcc-input hero-me-sym" type="text" placeholder="TSLA" style="text-transform:uppercase;padding:.36rem .5rem;font-size:.78rem"></td><td style="padding:.28rem .3rem"><input class="hcc-input hero-me-name" type="text" placeholder="Tesla" style="padding:.36rem .5rem;font-size:.78rem"></td><td style="padding:.28rem .3rem"><input class="hcc-input hero-me-qty" type="number" placeholder="5" min="0" step="any" style="padding:.36rem .5rem;font-size:.78rem"></td><td style="padding:.28rem .3rem"><input class="hcc-input hero-me-avg" type="number" placeholder="200" min="0" step="any" style="padding:.36rem .5rem;font-size:.78rem"></td><td style="padding:.28rem .3rem"><button class="hero-me-del" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;padding:2px 4px">&#10005;</button></td>';
-  var delBtn = tr.querySelector('.hero-me-del');
-  if(delBtn) delBtn.addEventListener('click', function(){ if(get('heroMeBody').rows.length > 1) tr.remove(); });
+function addStockRow(){
+  var tbody = get('stockBody'), tr = document.createElement('tr');
+  tr.innerHTML = '<td><input class="st-input stock-sym" type="text" placeholder="TSLA" style="text-transform:uppercase"></td><td><input class="st-input stock-name" type="text" placeholder="Tesla Inc."></td><td><input class="st-input stock-qty" type="number" placeholder="5" min="0" step="any"></td><td><input class="st-input stock-avg" type="number" placeholder="200.00" min="0" step="any"></td><td><input class="st-input stock-cur" type="number" placeholder="250.00" min="0" step="any"></td><td><button class="st-del stock-del">&#10005;</button></td>';
   tbody.appendChild(tr);
-  tr.querySelector('.hero-me-sym').focus();
+  tr.querySelector('.stock-sym').focus();
 }
-function heroMeRemove(btn){
-  var tbody = get('heroMeBody');
-  if(tbody.rows.length > 1) btn.closest('tr').remove();
-}
-get('heroMeBody').addEventListener('input', function(e){
-  if(e.target.classList.contains('hero-me-sym')){
-    var pos = e.target.selectionStart;
-    e.target.value = e.target.value.toUpperCase();
-    e.target.setSelectionRange(pos, pos);
-  }
-});
 
-function heroAnalyzeManual(){
-  var rows = Array.from(get('heroMeBody').rows);
+function collectHoldings(){
+  var rows = Array.from(get('stockBody').rows);
   var holdings = [], errors = [];
   rows.forEach(function(row, i){
-    var sym = (row.querySelector('.hero-me-sym')?.value || '').trim().toUpperCase();
-    var name = row.querySelector('.hero-me-name')?.value.trim() || '';
-    var qty  = parseFloat(row.querySelector('.hero-me-qty')?.value);
-    var avg  = parseFloat(row.querySelector('.hero-me-avg')?.value);
+    var sym  = (row.querySelector('.stock-sym')?.value||'').trim().toUpperCase();
+    var name = (row.querySelector('.stock-name')?.value||'').trim();
+    var qty  = parseFloat(row.querySelector('.stock-qty')?.value);
+    var avg  = parseFloat(row.querySelector('.stock-avg')?.value);
+    var cur  = parseFloat(row.querySelector('.stock-cur')?.value);
     if(!sym) return;
-    if(!qty || qty <= 0){ errors.push('Row '+(i+1)+': shares must be > 0'); return; }
-    if(!avg || avg <= 0){ errors.push('Row '+(i+1)+': avg cost must be > 0'); return; }
-    holdings.push({symbol:sym, name:name||sym, quantity:qty, avgCost:avg, currentPrice:avg});
+    if(!qty||qty<=0){ errors.push('Row '+(i+1)+': shares must be > 0'); return; }
+    if(!avg||avg<=0){ errors.push('Row '+(i+1)+': avg cost must be > 0'); return; }
+    holdings.push({ symbol:sym, name:name||sym, quantity:qty, avgCost:avg, currentPrice:cur||avg });
   });
-  var errBox = get('heroManualErr');
-  if(!holdings.length){ errBox.style.display='block'; errBox.textContent='Add at least one holding.'; return; }
-  if(errors.length){ errBox.style.display='block'; errBox.textContent=errors[0]; return; }
-  errBox.style.display = 'none';
-
-  var btn = get('heroAnalyzeBtn'), sp = get('heroAnalyzeSpin'), bt = get('heroAnalyzeTxt');
-  btn.disabled = true; sp.classList.add('on'); bt.textContent = 'Analyzing...';
-
-  fetch('/api/portfolio/manual',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({holdings:holdings,profile:{horizon:get('horizon').value,risk:get('risk').value,style:get('style').value}})})
-  .then(function(r){return r.json().then(function(j){if(!r.ok||!j.success)throw new Error(j.error||'Failed.');return j;});})
-  .then(function(j){
-    P.data = j.data; P.encryptedSession = 'manual';
-    get('emptyState').style.display = 'none';
-    var res = get('results'); res.style.display = 'block'; res.classList.add('fi');
-    get('portConnectSection').style.display = 'none';
-    get('portLoadedSection').classList.add('show');
-    renderPortfolioSummary(j.data.summary);
-    renderHoldings(j.data.positions);
-    switchTab('portfolio');
-    toast(j.data.summary.totalPositions+' holdings loaded — AI analysis ready','ok');
-  })
-  .catch(function(e){ errBox.style.display='block'; errBox.textContent=e.message; })
-  .finally(function(){ btn.disabled=false; sp.classList.remove('on'); bt.textContent='&#128269; Analyze Portfolio with AI'; });
+  return { holdings, errors };
 }
 
-function heroLogin(){
-  var mfaVisible=get('heroMfaWrap').classList.contains('show');
-  if(mfaVisible){heroVerify();return;}
-  var email=get('heroEmail').value.trim(),pass=get('heroPass').value;
-  if(!email||!pass){toast('Enter your Robinhood email and password','info');return;}
-  P.rhEmail=email;P.rhPass=pass;
-  setHeroBtn(true,'Connecting...');get('heroErr').style.display='none';
-  fetch('/api/robinhood/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password:pass})})
-  .then(function(r){return r.json().then(function(j){
-    if(!r.ok){var err=new Error(j.error||'Connection failed.');err.hint=j.hint||'';err.status=r.status;throw err;}
-    return j;
-  });})
-  .then(function(j){
-    P.deviceToken=j.deviceToken;
-    if(j.success&&j.encryptedSession){P.encryptedSession=j.encryptedSession;fetchPortfolioAndReveal();}
-    else if(j.mfa_required||j.challenge_required){
-      P.challengeId=j.challengeId||null;
-      get('heroMfaWrap').classList.add('show');get('heroMfa').focus();
-      setHeroBtn(false,'Verify Code');
-      toast(j.challenge_required?'Code sent to your phone/email':'Enter your authenticator code','info');
-    }
-  })
-  .catch(function(e){
-    var box=get('heroErr');
-    box.style.display='block';
-    var hint=e.hint||'';
-    var blocked=(e.status===503)||(e.message.toLowerCase().includes('block'))||(e.message.toLowerCase().includes('server'));
-    if(!hint&&blocked) hint='Use Manual Portfolio Entry in the Portfolio tab — enter your tickers and shares. AI analysis is identical.';
-    box.innerHTML='<strong>'+esc(e.message)+'</strong>'+(hint?'<br><span style="font-size:.68rem;color:var(--muted2);display:block;margin-top:.4rem">'+esc(hint)+'</span>':'');
-    setHeroBtn(false,'Try Again');
-    if(blocked){
-      get('manualEntrySection').classList.add('show');
-      get('manualToggleBtn').textContent='- Hide manual entry';
-      get('rhErrorBox').style.display='block';
-      get('rhErrorMsg').textContent=e.message+(hint?' — '+hint:'');
-      toast('Use Manual Entry in Portfolio tab — works identically','info');
-    }
-  });
-}
-function heroVerify(){
-  var code=get('heroMfa').value.trim();if(!code){toast('Enter your verification code','info');return;}
-  setHeroBtn(true,'Verifying...');
-  fetch('/api/robinhood/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:P.rhEmail,password:P.rhPass,code:code,deviceToken:P.deviceToken,challengeId:P.challengeId})})
-  .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'Verification failed.');return j;});})
-  .then(function(j){if(j.success&&j.encryptedSession){P.encryptedSession=j.encryptedSession;fetchPortfolioAndReveal();}else throw new Error('Could not connect. Try again.');})
-  .catch(function(e){
-    var box=get('heroErr');box.style.display='block';
-    box.innerHTML=esc(e.message)+(e.hint?'<br><br><span style="color:var(--green)">&#8594; '+esc(e.hint)+'</span>':'');
-    setHeroBtn(false,'Connect & Import Portfolio');
-  });
-}
-function fetchPortfolioAndReveal(){
-  setHeroBtn(true,'Loading portfolio...');toast('Fetching your Robinhood portfolio...','info');
-  fetch('/api/robinhood/portfolio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({encryptedSession:P.encryptedSession})})
-  .then(function(r){return r.json().then(function(j){if(!r.ok||!j.success)throw new Error(j.error||'Portfolio fetch failed.');return j;});})
-  .then(function(j){
-    P.data=j.data;
-    get('emptyState').style.display='none';
-    var res=get('results');res.style.display='block';res.classList.add('fi');
-    get('portConnectSection').style.display='none';get('portLoadedSection').classList.add('show');
-    renderPortfolioSummary(j.data.summary);renderHoldings(j.data.positions);
-    switchTab('portfolio');toast('Portfolio loaded — '+j.data.summary.totalPositions+' positions','ok');
-    setHeroBtn(false,'Connect & Import Portfolio');
-  })
-  .catch(function(e){
-    var box=get('heroErr');box.style.display='block';
-    box.innerHTML=esc(e.message)+(e.hint?'<br><br><span style="color:var(--green)">&#8594; '+esc(e.hint)+'</span>':'');
-    setHeroBtn(false,'Connect & Import Portfolio');
-  });
-}
-function setHeroBtn(loading,text){var btn=get('heroLoginBtn'),sp=get('heroSpin'),t=get('heroLoginTxt');btn.disabled=loading;sp.classList.toggle('on',loading);t.textContent=text;}
+// ── Analyze flow ───────────────────────────────────────────────────────────────
+function analyzePortfolio(){
+  var err = get('entryErr');
+  err.style.display = 'none';
+  var { holdings, errors } = collectHoldings();
+  if(!holdings.length){ err.style.display='block'; err.textContent='Add at least one holding to analyze.'; return; }
+  if(errors.length){ err.style.display='block'; err.textContent=errors[0]; return; }
 
-// Portfolio tab login
-function rhLogin(){
-  get('rhErrorBox').style.display='none';
-  var email=get('rhEmail').value.trim(),password=get('rhPass').value;
-  if(!email||!password){toast('Enter your Robinhood email and password','info');return;}
-  P.rhEmail=email;P.rhPass=password;setRhBtn(true,'Connecting...');
-  fetch('/api/robinhood/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password:password})})
-  .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||j.hint||'Login failed.');return j;});})
-  .then(function(j){
-    P.deviceToken=j.deviceToken;
-    if(j.success&&j.encryptedSession){P.encryptedSession=j.encryptedSession;fetchPortfolio();}
-    else if(j.mfa_required||j.challenge_required){P.challengeId=j.challengeId||null;get('mfaSection').classList.add('show');get('rhMfa').focus();toast(j.challenge_required?'Code sent to your phone':'Enter authenticator code','info');setRhBtn(false,'Connect Account');}
-  })
-  .catch(function(e){
-    var box=get('rhErrorBox');box.style.display='block';
-    get('rhErrorMsg').textContent=e.message+(e.hint?' — '+e.hint:'');
-    get('manualEntrySection').classList.add('show');
-    get('manualToggleBtn').textContent='- Hide manual entry';
-    toast('Connection blocked — manual entry ready below','info');
-    setRhBtn(false,'Try Again');
-  });
-}
-function rhVerify(){
-  var code=get('rhMfa').value.trim();if(!code){toast('Enter verification code','info');return;}
-  get('rhVerSpin').classList.add('on');get('rhVerTxt').textContent='Verifying...';get('rhVerifyBtn').disabled=true;
-  fetch('/api/robinhood/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:P.rhEmail,password:P.rhPass,code:code,deviceToken:P.deviceToken,challengeId:P.challengeId})})
-  .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'Verification failed.');return j;});})
-  .then(function(j){if(j.success&&j.encryptedSession){P.encryptedSession=j.encryptedSession;fetchPortfolio();}else throw new Error('Could not get token. Try again.');})
-  .catch(function(e){toast(e.message,'err');get('rhVerSpin').classList.remove('on');get('rhVerTxt').textContent='&#10003; Verify & Connect';get('rhVerifyBtn').disabled=false;});
-}
-function fetchPortfolio(){
-  setRhBtn(true,'Loading portfolio...');toast('Fetching your portfolio...','info');get('rhErrorBox').style.display='none';
-  fetch('/api/robinhood/portfolio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({encryptedSession:P.encryptedSession})})
-  .then(function(r){return r.json().then(function(j){if(!r.ok||!j.success)throw new Error(j.error||'Portfolio fetch failed.');return j;});})
-  .then(function(j){
-    P.data=j.data;get('portConnectSection').style.display='none';get('portLoadedSection').classList.add('show');
-    renderPortfolioSummary(j.data.summary);renderHoldings(j.data.positions);
-    toast('Portfolio loaded — '+j.data.summary.totalPositions+' positions','ok');setRhBtn(false,'Connect Account');switchTab('portfolio');
-  })
-  .catch(function(e){toast(e.message,'err');setRhBtn(false,'Connect Account');});
-}
-function setRhBtn(loading,text){var btn=get('rhLoginBtn'),sp=get('rhSpin'),t=get('rhBtnTxt');btn.disabled=loading;sp.classList.toggle('on',loading);t.textContent=text;}
+  STATE.holdings = holdings;
+  STATE.profile = {
+    horizon: get('profHorizon').value,
+    risk:    get('profRisk').value,
+    goal:    get('profGoal').value
+  };
 
-function renderPortfolioSummary(s){
-  var dayUp=s.dayChange>=0,sign=dayUp?'+':'';
-  get('portSummaryCards').innerHTML=[
-    mkPsc('Total Value','$'+(s.totalEquity||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}),'var(--green)','Equity'),
-    mkPsc('Today',sign+'$'+Math.abs(s.dayChange||0).toFixed(2),dayUp?'var(--green)':'var(--red)',sign+(s.dayChangePct||0).toFixed(2)+'%'),
-    mkPsc('Cash','$'+(s.cash||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}),'var(--amber)','Buying Power'),
-    mkPsc('Positions',String(s.totalPositions||0),'var(--blue)','Holdings')
+  setAnalyzeBtn(true, 'Building portfolio data...');
+
+  // Step 1: build portfolio data from holdings
+  fetch('/api/portfolio/manual', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ holdings, profile: STATE.profile })
+  })
+  .then(function(r){ return r.json().then(function(j){ if(!r.ok||!j.success) throw new Error(j.error||'Failed.'); return j; }); })
+  .then(function(j){
+    STATE.portfolioData = j.data;
+    setAnalyzeBtn(true, 'Claude is analysing your portfolio...');
+    // Step 2: run AI analysis
+    return fetch('/api/portfolio-analyze', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ positions: j.data.positions, summary: j.data.summary, profile: STATE.profile })
+    });
+  })
+  .then(function(r){ return r.json().then(function(j){ if(!r.ok||!j.success) throw new Error(j.error||'Analysis failed.'); return j; }); })
+  .then(function(j){
+    STATE.portfolioAnalysis = j.data;
+    STATE.chatHistory = [
+      { role:'user', content: 'My portfolio: '+JSON.stringify(STATE.portfolioData.positions.map(function(p){ return p.symbol+'('+p.quantity+'sh @$'+p.avgCost.toFixed(2)+')'; }).join(', ')) },
+      { role:'assistant', content: 'I have analysed your portfolio. Here is my assessment:\n\n'+JSON.stringify(j.data) }
+    ];
+    renderResults();
+    showScreen('results');
+    toast('Portfolio analysis complete','ok');
+  })
+  .catch(function(e){ err.style.display='block'; err.textContent=e.message; })
+  .finally(function(){ setAnalyzeBtn(false, '&#128269; Analyze My Portfolio with Claude'); });
+}
+
+function setAnalyzeBtn(loading, text){
+  var btn=get('analyzeBtn'), sp=get('analyzeSpin'), t=get('analyzeTxt');
+  btn.disabled=loading; sp.classList.toggle('on',loading); t.innerHTML=text;
+}
+
+// ── Render results ─────────────────────────────────────────────────────────────
+function renderResults(){
+  var d = STATE.portfolioAnalysis;
+  var pd = STATE.portfolioData;
+
+  renderScoreHero(d);
+  renderStatRow(pd.summary);
+  renderActions(d.top_actions);
+  renderHoldings(pd.positions);
+  renderAnalysisGrid(d);
+  renderCashRec(d.cash_recommendation);
+  renderSectors(d.sector_breakdown);
+  renderDonut(pd.positions);
+  renderProfileDisplay();
+  renderSidebarCards(d);
+}
+
+function renderScoreHero(d){
+  var score=parseInt(d.diversification_score)||0, r=40, circ=2*Math.PI*r;
+  var dashoff=circ*(1-score/100);
+  var scoreColor=score>=70?'var(--green)':score>=50?'var(--amber)':'var(--red)';
+  var gColor={A:'var(--green)',B:'var(--green)',C:'var(--amber)',D:'var(--red)'}[(d.overall_grade||'B')[0]]||'var(--amber)';
+  var riskBadge='badge-green';
+  if(d.risk_level==='High'||d.risk_level==='Very High') riskBadge='badge-red';
+  else if(d.risk_level==='Moderate') riskBadge='badge-amber';
+
+  get('scoreHero').innerHTML=[
+    '<div class="score-ring-wrap">',
+      '<svg viewBox="0 0 100 100" width="100" height="100">',
+        '<circle cx="50" cy="50" r="'+r+'" fill="none" stroke="var(--bg3)" stroke-width="8"/>',
+        '<circle cx="50" cy="50" r="'+r+'" fill="none" stroke="'+scoreColor+'" stroke-width="8" stroke-linecap="round"',
+          ' stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+dashoff.toFixed(1)+'"',
+          ' transform="rotate(-90 50 50)"/>',
+        '<text x="50" y="44" text-anchor="middle" font-size="18" font-weight="700" fill="'+scoreColor+'" font-family="Space Mono,monospace">'+score+'</text>',
+        '<text x="50" y="60" text-anchor="middle" font-size="9" fill="#5a6478" font-family="Space Mono,monospace">/ 100</text>',
+      '</svg>',
+      '<div class="score-grade">Grade: <strong style="color:'+gColor+'">'+esc(d.overall_grade||'B')+'</strong></div>',
+    '</div>',
+    '<div class="score-info">',
+      '<div class="score-title">'+esc(d.risk_level||'Moderate')+' Risk Portfolio</div>',
+      d.one_liner?'<div class="score-subtitle">&ldquo;'+esc(d.one_liner)+'&rdquo;</div>':'',
+      d.overview?'<div class="score-overview">'+esc(d.overview)+'</div>':'',
+      '<div class="score-badges">',
+        '<span class="badge '+riskBadge+'">'+esc(d.risk_level||'Moderate')+' Risk</span>',
+        '<span class="badge badge-green">&#128274; AES-256-GCM Encrypted</span>',
+      '</div>',
+    '</div>'
   ].join('');
 }
-function mkPsc(label,value,color,sub){return'<div class="psc"><div class="psc-label">'+esc(label)+'</div><div class="psc-value" style="color:'+color+'">'+esc(value)+'</div><div class="psc-sub">'+esc(sub)+'</div></div>';}
 
-function renderHoldings(positions){
-  var body=get('holdingsBody');
-  if(!positions.length){body.innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--muted);font-size:.82rem">No positions found.</div>';return;}
-  var total=positions.reduce(function(s,p){return s+(p.marketValue||0);},0);
-  body.innerHTML=positions.map(function(p){
-    var up=p.plDollar>=0,sign=up?'+':'',pct=total>0?(p.marketValue/total*100).toFixed(1):'0.0';
-    return'<div class="ht-row"><span class="ht-sym">'+esc(p.symbol)+'</span><div><div class="ht-name">'+esc(p.name)+'</div><div style="font-size:.6rem;color:var(--muted);font-family:Space Mono,monospace">'+pct+'% of port</div></div><span class="ht-qty">'+(p.quantity||0).toFixed(p.quantity<1?4:2)+'</span><span class="ht-avg">$'+(p.avgCost||0).toFixed(2)+'</span><span class="ht-cur">$'+(p.currentPrice||0).toFixed(2)+'</span><span class="ht-val">$'+(p.marketValue||0).toFixed(2)+'</span><div style="text-align:right"><div class="ht-pl '+(up?'up':'down')+'">'+sign+'$'+Math.abs(p.plDollar||0).toFixed(2)+'</div><div class="ht-pct '+(up?'up':'down')+'">'+sign+(p.plPct||0).toFixed(1)+'%</div></div></div>';
+function renderStatRow(s){
+  var dayUp=s.dayChange>=0, sign=dayUp?'+':'';
+  var total=STATE.portfolioData.positions.reduce(function(sum,p){ return sum+(p.marketValue||0); },0);
+  var totalCost=STATE.portfolioData.positions.reduce(function(sum,p){ return sum+(p.costBasis||0); },0);
+  var totalPL=total-totalCost, plPct=totalCost>0?(totalPL/totalCost)*100:0;
+  var plUp=totalPL>=0, plSign=plUp?'+':'';
+  get('statRow').innerHTML=[
+    mkStat('Total Value', '$'+(total).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}), 'Portfolio equity', 'g'),
+    mkStat('Total P&amp;L', plSign+'$'+Math.abs(totalPL).toFixed(2), plSign+plPct.toFixed(1)+'% all time', plUp?'g':'r'),
+    mkStat('Positions', String(s.totalPositions||0), 'Holdings', 'b'),
+    mkStat('Cash', '$'+(s.cash||0).toFixed(2), 'Buying power', 'a'),
+  ].join('');
+}
+
+function mkStat(label, value, sub, cls){
+  return '<div class="stat-card"><div class="stat-label">'+label+'</div><div class="stat-value '+(cls||'')+'">'+value+'</div><div class="stat-sub">'+sub+'</div></div>';
+}
+
+function renderActions(actions){
+  var stack = get('actionsStack');
+  if(!actions||!actions.length){ stack.innerHTML='<div style="color:var(--muted);font-size:.82rem">No actions available.</div>'; return; }
+  stack.innerHTML = actions.map(function(a){
+    var pClass = {'High':'high','Medium':'medium','Low':'low'}[a.priority]||'low';
+    var pBadge = {'High':'ap-high','Medium':'ap-medium','Low':'ap-low'}[a.priority]||'ap-low';
+    return [
+      '<div class="action-card '+pClass+'">',
+        '<span class="action-priority '+pBadge+'">'+esc(a.priority)+'</span>',
+        '<div class="action-body">',
+          '<div class="action-type">'+esc(a.type||'')+(a.symbol?' &bull; '+esc(a.symbol):'')+'</div>',
+          '<div class="action-text">'+esc(a.action_text||'')+'</div>',
+          '<div class="action-reason">'+esc(a.reasoning||'')+'</div>',
+        '</div>',
+      '</div>'
+    ].join('');
   }).join('');
 }
 
-function portAnalyze(){
-  if(!P.data)return;
-  var btn=get('portAnalyzeBtn'),sp=get('paSpin'),bt=get('paBtnTxt');btn.disabled=true;sp.classList.add('on');bt.textContent='Analyzing with AI...';
-  var profile={horizon:get('horizon').value,risk:get('risk').value,style:get('style').value,amount:get('amount').value};
-  fetch('/api/portfolio-analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({positions:P.data.positions,summary:P.data.summary,profile:profile})})
-  .then(function(r){return r.json().then(function(j){if(!r.ok||!j.success)throw new Error(j.error||'Analysis failed.');return j;});})
-  .then(function(j){renderPortfolioAnalysis(j.data);toast('Portfolio analysis complete','ok');})
-  .catch(function(e){toast(e.message,'err');})
-  .finally(function(){btn.disabled=false;sp.classList.remove('on');bt.textContent='&#128269; Analyze My Portfolio with AI';});
+function renderHoldings(positions){
+  var body = get('holdingsBody');
+  var total = positions.reduce(function(s,p){ return s+(p.marketValue||0); },0);
+  body.innerHTML = positions.map(function(p){
+    var up=p.plDollar>=0, sign=up?'+':'';
+    var pct=total>0?(p.marketValue/total*100).toFixed(1):'0.0';
+    return [
+      '<div class="ht-row">',
+        '<div><div class="ht-sym">'+esc(p.symbol)+'</div><div style="font-size:.6rem;color:var(--muted);font-family:Space Mono,monospace">'+pct+'%</div></div>',
+        '<div class="ht-name">'+esc(p.name)+'</div>',
+        '<span class="ht-num">'+p.quantity.toFixed(p.quantity<1?4:2)+'</span>',
+        '<span class="ht-val">$'+p.marketValue.toFixed(2)+'</span>',
+        '<div class="ht-pl '+(up?'up':'down')+'">'+sign+'$'+Math.abs(p.plDollar||0).toFixed(2)+'</div>',
+        '<div class="ht-pct '+(up?'up':'down')+'">'+sign+(p.plPct||0).toFixed(1)+'%</div>',
+      '</div>'
+    ].join('');
+  }).join('');
 }
 
-function renderPortfolioAnalysis(d){
-  var wrap=get('portAnalysisResult');wrap.style.display='block';
-  var score=parseInt(d.diversification_score)||0,r=35,circ=2*Math.PI*r,dashoff=circ*(1-score/100);
-  var sColor=score>=70?'var(--green)':score>=50?'var(--amber)':'var(--red)';
-  var gColor={A:'var(--green)',B:'var(--green)',C:'var(--amber)',D:'var(--red)'}[(d.overall_grade||'B')[0]]||'var(--amber)';
-  var actHtml=(d.top_actions||[]).map(function(a){var pC={'High':'ap-high','Medium':'ap-medium','Low':'ap-low'}[a.priority]||'ap-low';return'<div class="action-item"><span class="action-priority '+pC+'">'+esc(a.priority)+'</span><div class="action-body"><div class="action-type">'+esc(a.type||'')+(a.symbol?' &bull; '+esc(a.symbol):'')+'</div><div class="action-text">'+esc(a.action_text||'')+'</div><div class="action-reason">'+esc(a.reasoning||'')+'</div></div></div>';}).join('');
-  var secHtml=(d.sector_breakdown||[]).map(function(s){var stC={'Overweight':'ss-ov','Good':'ss-ok','Underweight':'ss-uw'}[s.status]||'ss-ok';return'<div class="sector-row"><span class="sector-name">'+esc(s.sector)+'</span><div class="sector-bar-track"><div class="sector-bar-fill" style="width:'+Math.min(s.pct||0,100)+'%"></div></div><span class="sector-pct">'+(s.pct||0).toFixed(0)+'%</span><span class="sector-status '+stC+'">'+esc(s.status)+'</span></div>';}).join('');
-  var li=function(arr){return(arr||[]).map(function(x){return'<li>'+esc(x)+'</li>';}).join('');};
-  var trimH=(d.winners_to_trim||[]).map(function(w){return'<li>'+esc(w.symbol)+' &mdash; '+esc(w.reason)+'</li>';}).join('');
-  var cutH=(d.losers_to_cut||[]).map(function(w){return'<li>'+esc(w.symbol)+' &mdash; '+esc(w.reason)+'</li>';}).join('');
-  wrap.innerHTML=[
-    '<div class="port-analysis-wrap">',
-    '<div class="pa-header">',
-      '<div class="pa-score-wrap"><svg viewBox="0 0 90 90" width="90" height="90"><circle cx="45" cy="45" r="'+r+'" fill="none" stroke="var(--bg3)" stroke-width="7"/><circle cx="45" cy="45" r="'+r+'" fill="none" stroke="'+sColor+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+dashoff.toFixed(1)+'" transform="rotate(-90 45 45)"/><text x="45" y="41" text-anchor="middle" font-size="16" font-weight="700" fill="'+sColor+'" font-family="Space Mono,monospace">'+score+'</text><text x="45" y="55" text-anchor="middle" font-size="9" fill="#5a6478" font-family="Space Mono,monospace">Div.</text></svg><div class="pa-grade">Grade: <strong style="color:'+gColor+'">'+esc(d.overall_grade||'B')+'</strong></div></div>',
-      '<div class="pa-title-wrap"><div class="pa-name">'+esc(d.risk_level||'Moderate')+' Risk Portfolio</div>'+(d.one_liner?'<div class="pa-one-liner">&ldquo;'+esc(d.one_liner)+'&rdquo;</div>':'')+(d.overview?'<div class="pa-overview">'+esc(d.overview)+'</div>':'')+'</div>',
-    '</div>',
-    '<div class="pa-grid">',
-      '<div class="pa-card full"><div class="pa-card-title">&#127919; Top Actions</div><div class="action-row">'+actHtml+'</div></div>',
-      (d.cash_recommendation?'<div class="pa-card full" style="background:rgba(16,185,129,.04);border-color:var(--green-border)"><div class="pa-card-title" style="color:var(--green)">&#128176; Cash Recommendation</div><div style="font-size:.85rem;color:var(--muted2);line-height:1.8">'+esc(d.cash_recommendation)+'</div></div>':''),
-      '<div class="pa-card"><div class="pa-card-title">&#127757; Sector Exposure</div>'+secHtml+'</div>',
-      '<div class="pa-card"><div class="pa-card-title">&#128161; Key Insights</div><ul class="pa-list pa-muted">'+li(d.key_insights)+'</ul></div>',
-      '<div class="pa-card"><div class="pa-card-title">&#9888; Biggest Risks</div><ul class="pa-list pa-amber">'+li(d.biggest_risks)+'</ul></div>',
-      ((trimH||cutH)?'<div class="pa-card"><div class="pa-card-title">&#9986; Trim / Cut List</div>'+(trimH?'<div style="font-size:.65rem;font-family:Space Mono,monospace;color:var(--muted);margin-bottom:.35rem">Consider Trimming</div><ul class="pa-list pa-amber">'+trimH+'</ul>':'')+(cutH?'<div style="font-size:.65rem;font-family:Space Mono,monospace;color:var(--muted);margin-top:.65rem;margin-bottom:.35rem">Consider Cutting</div><ul class="pa-list pa-red">'+cutH+'</ul>':'')+'</div>':''),
-      (d.missing_exposure&&d.missing_exposure.length?'<div class="pa-card"><div class="pa-card-title">&#128269; Missing Exposure</div><ul class="pa-list pa-green">'+li(d.missing_exposure)+'</ul></div>':''),
-      (d.tax_insight?'<div class="pa-card full"><div class="pa-card-title">&#128203; Tax Insight</div><div style="font-size:.85rem;color:var(--muted2);line-height:1.8">'+esc(d.tax_insight)+'</div></div>':''),
-      (d.summary_bullets&&d.summary_bullets.length?'<div class="pa-card full"><div class="pa-card-title">&bull; Summary</div><ul class="pa-list pa-muted">'+li(d.summary_bullets)+'</ul></div>':''),
-    '</div></div>'
+function renderAnalysisGrid(d){
+  var grid = get('analysisGrid');
+  var trimH=(d.winners_to_trim||[]).map(function(w){ return '<li>'+esc(w.symbol)+' — '+esc(w.reason)+'</li>'; }).join('');
+  var cutH=(d.losers_to_cut||[]).map(function(w){ return '<li>'+esc(w.symbol)+' — '+esc(w.reason)+'</li>'; }).join('');
+  var missH=(d.missing_exposure||[]).map(function(m){ return '<li>'+esc(m)+'</li>'; }).join('');
+  var bullH=(d.summary_bullets||[]).map(function(b){ return '<li>'+esc(b)+'</li>'; }).join('');
+
+  var cards = [];
+  if(trimH||cutH) cards.push('<div class="acard"><div class="acard-title">&#9986; Trim &amp; Cut List</div>'+(trimH?'<div style="font-size:.65rem;font-family:Space Mono,monospace;color:var(--muted);margin-bottom:.35rem">Consider Trimming</div><ul class="alist al-amber">'+trimH+'</ul>':'')+(cutH?'<div style="font-size:.65rem;font-family:Space Mono,monospace;color:var(--muted);margin:.6rem 0 .35rem">Consider Cutting</div><ul class="alist al-red">'+cutH+'</ul>':'')+'</div>');
+  if(missH) cards.push('<div class="acard"><div class="acard-title">&#128269; Missing Exposure</div><ul class="alist al-green">'+missH+'</ul></div>');
+  if(bullH) cards.push('<div class="acard" style="grid-column:1/-1"><div class="acard-title">&bull; Portfolio Summary</div><ul class="alist al-muted">'+bullH+'</ul></div>');
+  if(d.tax_insight){
+    get('taxCard').style.display='';
+    get('taxText').textContent=d.tax_insight;
+  }
+  grid.innerHTML = cards.join('');
+}
+
+function renderCashRec(rec){
+  var el = get('cashRec');
+  if(!rec){ el.style.display='none'; return; }
+  el.style.display='';
+  el.innerHTML='<div class="cash-rec"><div class="cash-rec-title">&#128176; Cash &amp; Buying Power Recommendation</div><div class="cash-rec-text">'+esc(rec)+'</div></div>';
+}
+
+function renderSectors(sectors){
+  var card = get('sectorCard');
+  if(!sectors||!sectors.length){ card.innerHTML='<div style="color:var(--muted);font-size:.82rem">No sector data available.</div>'; return; }
+  card.innerHTML = sectors.map(function(s){
+    var stC={'Overweight':'ss-ov','Good':'ss-ok','Underweight':'ss-uw'}[s.status]||'ss-ok';
+    return [
+      '<div class="sector-row">',
+        '<span class="sector-name">'+esc(s.sector)+'</span>',
+        '<div class="sector-track"><div class="sector-fill" style="width:0%" data-w="'+Math.min(s.pct||0,100)+'"></div></div>',
+        '<span class="sector-pct">'+(s.pct||0).toFixed(0)+'%</span>',
+        '<span class="sector-status '+stC+'">'+esc(s.status)+'</span>',
+      '</div>'
+    ].join('');
+  }).join('');
+  setTimeout(function(){
+    document.querySelectorAll('.sector-fill').forEach(function(b){ b.style.width=b.getAttribute('data-w')+'%'; });
+  },100);
+}
+
+function renderDonut(positions){
+  var svg=get('donutSvg'), leg=get('donutLegend');
+  svg.innerHTML=''; leg.innerHTML='';
+  var total=positions.reduce(function(s,p){ return s+(p.marketValue||0); },0);
+  if(!total) return;
+  var cx=80, cy=80, R=62, iR=38, ang=-Math.PI/2;
+  positions.slice(0,8).forEach(function(p,i){
+    var pct=p.marketValue/total, sweep=pct*2*Math.PI, end=ang+sweep;
+    var col=COLORS[i%COLORS.length], lg=sweep>Math.PI?1:0;
+    var x1=cx+R*Math.cos(ang), y1=cy+R*Math.sin(ang);
+    var x2=cx+R*Math.cos(end), y2=cy+R*Math.sin(end);
+    var ix1=cx+iR*Math.cos(end), iy1=cy+iR*Math.sin(end);
+    var ix2=cx+iR*Math.cos(ang), iy2=cy+iR*Math.sin(ang);
+    var path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d','M '+x1.toFixed(1)+' '+y1.toFixed(1)+' A '+R+' '+R+' 0 '+lg+' 1 '+x2.toFixed(1)+' '+y2.toFixed(1)+' L '+ix1.toFixed(1)+' '+iy1.toFixed(1)+' A '+iR+' '+iR+' 0 '+lg+' 0 '+ix2.toFixed(1)+' '+iy2.toFixed(1)+' Z');
+    path.setAttribute('fill',col); path.setAttribute('stroke','#080b14'); path.setAttribute('stroke-width','2');
+    svg.appendChild(path);
+    var li=document.createElement('div'); li.className='leg-item';
+    li.innerHTML='<div class="leg-dot" style="background:'+col+'"></div><span class="leg-name">'+esc(p.symbol)+'</span><span class="leg-pct" style="color:'+col+'">'+(pct*100).toFixed(1)+'%</span>';
+    leg.appendChild(li);
+    ang=end;
+  });
+  var t1=document.createElementNS('http://www.w3.org/2000/svg','text');
+  t1.setAttribute('x',cx); t1.setAttribute('y',cy-4); t1.setAttribute('text-anchor','middle');
+  t1.setAttribute('fill','#dde1f0'); t1.setAttribute('font-size','11'); t1.textContent=positions.length+' stocks';
+  svg.appendChild(t1);
+}
+
+function renderProfileDisplay(){
+  var p=STATE.profile;
+  var labels={short:'Short (0-1yr)',medium:'Medium (1-5yr)',long:'Long (5+yr)'};
+  var riskLabels={conservative:'Conservative',moderate:'Moderate',aggressive:'Aggressive'};
+  var goalLabels={growth:'Capital Growth',income:'Dividend Income',preservation:'Preservation',balanced:'Balanced'};
+  get('profileDisplay').innerHTML=[
+    '<div class="pd-row"><span class="pd-label">Horizon</span><span class="pd-value">'+esc(labels[p.horizon]||p.horizon)+'</span></div>',
+    '<div class="pd-row"><span class="pd-label">Risk</span><span class="pd-value">'+esc(riskLabels[p.risk]||p.risk)+'</span></div>',
+    '<div class="pd-row"><span class="pd-label">Goal</span><span class="pd-value">'+esc(goalLabels[p.goal]||p.goal)+'</span></div>',
+    '<div class="pd-row"><span class="pd-label">Positions</span><span class="pd-value">'+esc(String(STATE.portfolioData.summary.totalPositions))+'</span></div>',
   ].join('');
 }
 
-function rhDisconnect(){
-  P.encryptedSession=null;P.data=null;P.useInIdeas=false;
-  get('portConnectSection').style.display='';get('portLoadedSection').classList.remove('show');
-  get('mfaSection').classList.remove('show');
-  get('rhEmail').value='';get('rhPass').value='';get('rhMfa').value='';
-  get('portAnalysisResult').style.display='none';
-  var uBtn=get('useInIdeasBtn');uBtn.textContent='&#8599; Use Portfolio Context';uBtn.classList.remove('active');
-  toast('Disconnected from Robinhood','info');
+function renderSidebarCards(d){
+  if(d.key_insights&&d.key_insights.length){
+    get('insightsCard').style.display='';
+    get('insightsList').innerHTML=d.key_insights.map(function(i){ return '<li>'+esc(i)+'</li>'; }).join('');
+  }
+  if(d.biggest_risks&&d.biggest_risks.length){
+    get('risksCard').style.display='';
+    get('risksList').innerHTML=d.biggest_risks.map(function(r){ return '<li>'+esc(r)+'</li>'; }).join('');
+  }
 }
 
-function toggleUseInIdeas(){
-  P.useInIdeas=!P.useInIdeas;
-  var btn=get('useInIdeasBtn');
-  if(P.useInIdeas){btn.textContent='&#10003; Portfolio Context Active';btn.classList.add('active');toast('Portfolio context will shape your next ideas','ok');}
-  else{btn.textContent='&#8599; Use Portfolio Context';btn.classList.remove('active');}
+// ── Generate targeted ideas ────────────────────────────────────────────────────
+function wireResults(){
+  get('backBtn').addEventListener('click', function(){ showScreen('entry'); });
+  get('exportBtn').addEventListener('click', exportReport);
+  get('genIdeasBtn').addEventListener('click', generateTargetedIdeas);
+  get('chatSend').addEventListener('click', sendChat);
+  get('chatIn').addEventListener('keydown', function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendChat(); } });
+  get('chatChips').addEventListener('click', function(e){ var c=e.target.closest('.chip'); if(c){ get('chatIn').value=c.textContent.trim(); sendChat(); } });
+  get('backToEntryBtn').addEventListener('click', function(){ showScreen('entry'); });
+  get('genIdeasOnlyBtn').addEventListener('click', generateIdeasOnly);
 }
 
-function buildPortfolioContext(){
-  if(!P.useInIdeas||!P.data)return null;
-  var top=P.data.positions.slice(0,10).map(function(p){return p.symbol+'('+p.quantity.toFixed(0)+'sh, $'+(p.marketValue||0).toFixed(0)+')';}).join(', ');
-  return'Current holdings: '+top+'. Total equity: $'+(P.data.summary.totalEquity||0).toFixed(0)+'. Cash: $'+(P.data.summary.cash||0).toFixed(0)+'. Avoid duplicating existing large positions.';
-}
+function generateTargetedIdeas(){
+  if(STATE.isGenIdeas) return;
+  STATE.isGenIdeas=true;
+  var btn=get('genIdeasBtn'), sp=get('genSpin'), t=get('genTxt');
+  btn.disabled=true; sp.classList.add('on'); t.textContent='Generating ideas...';
 
-// Manual entry
-function wireManualEntry(){
-  get('manualToggleBtn').addEventListener('click',function(){
-    var sec=get('manualEntrySection');sec.classList.toggle('show');
-    this.textContent=sec.classList.contains('show')?'- Hide manual entry':'+ Enter portfolio manually instead';
-  });
-  get('meAddRow').addEventListener('click',addManualRow);
-  get('meSubmitBtn').addEventListener('click',submitManualPortfolio);
-  get('meTableBody').addEventListener('click',function(e){var btn=e.target.closest('.me-del');if(btn){var row=btn.closest('tr');if(get('meTableBody').rows.length>1)row.remove();}});
-  get('meTableBody').addEventListener('input',function(e){if(e.target.classList.contains('me-sym')){var pos=e.target.selectionStart;e.target.value=e.target.value.toUpperCase();e.target.setSelectionRange(pos,pos);}});
-}
-function addManualRow(){
-  var tbody=get('meTableBody'),tr=document.createElement('tr');
-  tr.innerHTML='<td><input class="me-input me-sym" type="text" placeholder="TSLA" style="text-transform:uppercase"></td><td><input class="me-input me-name" type="text" placeholder="Tesla Inc."></td><td><input class="me-input me-qty" type="number" placeholder="5" min="0" step="any"></td><td><input class="me-input me-avg" type="number" placeholder="200.00" min="0" step="any"></td><td><input class="me-input me-cur" type="number" placeholder="220.00" min="0" step="any"></td><td><button class="me-del">&#10005;</button></td>';
-  tbody.appendChild(tr);tr.querySelector('.me-sym').focus();
-}
-function submitManualPortfolio(){
-  var rows=Array.from(get('meTableBody').rows),holdings=[],errors=[];
-  rows.forEach(function(row,i){
-    var sym=(row.querySelector('.me-sym')?.value||'').trim().toUpperCase();
-    var name=row.querySelector('.me-name')?.value.trim()||'';
-    var qty=parseFloat(row.querySelector('.me-qty')?.value);
-    var avg=parseFloat(row.querySelector('.me-avg')?.value);
-    var cur=parseFloat(row.querySelector('.me-cur')?.value);
-    if(!sym)return;
-    if(!qty||qty<=0){errors.push('Row '+(i+1)+': shares must be > 0');return;}
-    if(!avg||avg<=0){errors.push('Row '+(i+1)+': avg cost must be > 0');return;}
-    holdings.push({symbol:sym,name:name||sym,quantity:qty,avgCost:avg,currentPrice:cur||avg});
-  });
-  if(!holdings.length){toast('Add at least one holding','info');return;}
-  if(errors.length){toast(errors[0],'err');return;}
-  var btn=get('meSubmitBtn'),sp=get('meSpin'),bt=get('meBtnTxt');btn.disabled=true;sp.classList.add('on');bt.textContent='Loading...';
-  fetch('/api/portfolio/manual',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({holdings:holdings,profile:{horizon:get('horizon').value,risk:get('risk').value,style:get('style').value}})})
-  .then(function(r){return r.json().then(function(j){if(!r.ok||!j.success)throw new Error(j.error||'Failed.');return j;});})
-  .then(function(j){
-    P.data=j.data;P.encryptedSession='manual';
-    get('portConnectSection').style.display='none';get('portLoadedSection').classList.add('show');
-    renderPortfolioSummary(j.data.summary);renderHoldings(j.data.positions);
-    toast(j.data.summary.totalPositions+' holdings loaded','ok');switchTab('portfolio');
+  var d=STATE.portfolioAnalysis;
+  var portfolioCtx='Current portfolio: '+STATE.portfolioData.positions.map(function(p){
+    return p.symbol+'('+p.quantity.toFixed(0)+'sh @$'+p.avgCost.toFixed(2)+', value $'+p.marketValue.toFixed(0)+')';
+  }).join(', ')+'. Missing exposure: '+(d.missing_exposure||[]).join(', ')+'. Risk level: '+d.risk_level;
+
+  fetch('/api/generate', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      amount: '$10,000',
+      horizon: STATE.profile.horizon,
+      risk: STATE.profile.risk,
+      style: STATE.profile.goal==='income'?'dividend':'growth',
+      sectors: [],
+      context: 'Fill the gaps in my existing portfolio. Focus on what I am missing.',
+      portfolioContext: portfolioCtx
+    })
   })
-  .catch(function(e){toast(e.message,'err');})
-  .finally(function(){btn.disabled=false;sp.classList.remove('on');bt.textContent='&#128202; Analyze Portfolio';});
+  .then(function(r){ return r.json().then(function(j){ if(!r.ok||!j.success) throw new Error(j.error||'Failed.'); return j; }); })
+  .then(function(j){
+    STATE.ideas = j.data.ideas||[];
+    renderIdeas(STATE.ideas, 'ideasGrid', 'ideasSection');
+    get('ideasSection').style.display='';
+    get('ideasSection').scrollIntoView({behavior:'smooth',block:'start'});
+    get('ideaCtaCard').style.display='none';
+    toast('6 targeted ideas generated','ok');
+  })
+  .catch(function(e){ toast(e.message,'err'); })
+  .finally(function(){ STATE.isGenIdeas=false; btn.disabled=false; sp.classList.remove('on'); t.textContent='Regenerate Ideas'; });
+}
+
+function renderIdeas(ideas, gridId, sectionId){
+  var grid = get(gridId);
+  grid.innerHTML='';
+  ideas.forEach(function(idea,i){
+    var card=document.createElement('div');
+    var cC=function(r){ if(!r)return'gc'; var v=r.toLowerCase(); return v.includes('low')?'gc':v.includes('high')?'rc':'ac'; };
+    var rL=function(r){ if(!r)return'Med'; var v=r.toLowerCase(); return v.includes('low')?'Low':v.includes('high')?'High':'Med'; };
+    var rC=function(r){ if(!r)return'ic-b-mod'; var v=r.toLowerCase(); return v.includes('low')?'ic-b-low':v.includes('high')?'ic-b-high':'ic-b-mod'; };
+    card.className='idea-card '+cC(idea.risk);
+    var yh=idea.ticker?'https://finance.yahoo.com/quote/'+encodeURIComponent(idea.ticker):'https://finance.yahoo.com/lookup?s='+encodeURIComponent(idea.name);
+    var metaHtml='';
+    if(idea.ticker) metaHtml+='<span class="ic-ticker">'+esc(idea.ticker)+'</span><span style="color:var(--border2)">&middot;</span>';
+    metaHtml+='<span class="ic-cat">'+esc(idea.category||'')+'</span>';
+    card.innerHTML=[
+      '<div class="ic-top"><span class="ic-name">'+esc(idea.name||'')+'</span><span class="ic-badge '+rC(idea.risk)+'">'+rL(idea.risk)+'</span></div>',
+      '<div class="ic-meta">'+metaHtml+'</div>',
+      '<div class="ic-desc">'+esc(idea.description||'')+'</div>',
+      idea.why_now?'<div class="ic-why">'+esc(idea.why_now)+'</div>':'',
+      idea.upside?'<div class="ic-upside">&#8593; '+esc(idea.upside)+'</div>':'',
+      '<div class="ic-footer"><span class="ic-alloc">Suggested: '+(idea.allocation||0)+'%</span><a href="'+yh+'" target="_blank" rel="noopener" class="ic-link">Yahoo &#8599;</a></div>'
+    ].join('');
+    grid.appendChild(card);
+    setTimeout(function(){ card.classList.add('revealed'); }, i*70);
+  });
+}
+
+// ── Generate ideas only (skip flow) ───────────────────────────────────────────
+function generateIdeasOnly(){
+  var btn=get('genIdeasOnlyBtn'), sp=get('genOnlySpin'), t=get('genOnlyTxt');
+  btn.disabled=true; sp.classList.add('on'); t.textContent='Generating...';
+  var grid=get('ideasOnlyGrid');
+  grid.innerHTML='<div style="color:var(--muted);font-size:.8rem;font-family:Space Mono,monospace;padding:2rem">Generating 6 ideas...</div>';
+  fetch('/api/generate',{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      amount:'$'+get('ideaAmount').value.trim(),
+      horizon:get('ideaHorizon').value,
+      risk:get('ideaRisk').value,
+      style:get('ideaStyle').value,
+      sectors:[],context:''
+    })
+  })
+  .then(function(r){ return r.json().then(function(j){ if(!r.ok||!j.success) throw new Error(j.error||'Failed.'); return j; }); })
+  .then(function(j){
+    renderIdeas(j.data.ideas||[], 'ideasOnlyGrid', null);
+    toast('6 ideas generated','ok');
+  })
+  .catch(function(e){ toast(e.message,'err'); grid.innerHTML='<div style="color:#fca5a5;padding:2rem;font-size:.82rem">&#9888; '+esc(e.message)+'</div>'; })
+  .finally(function(){ btn.disabled=false; sp.classList.remove('on'); t.textContent='&#8599; Generate Ideas'; });
+}
+
+// ── Chat ───────────────────────────────────────────────────────────────────────
+function sendChat(){
+  if(STATE.isChat) return;
+  var input=get('chatIn'), q=input.value.trim();
+  if(!q) return;
+  if(!STATE.chatHistory.length){ toast('Analyze your portfolio first','info'); return; }
+  input.value=''; STATE.isChat=true; get('chatSend').disabled=true;
+
+  var thread=get('chatThread');
+  var ud=document.createElement('div'); ud.className='cmsg user';
+  ud.innerHTML='<div class="cmsg-role">You</div><div class="cmsg-text">'+esc(q)+'</div>';
+  thread.appendChild(ud);
+  var ad=document.createElement('div'); ad.className='cmsg ai';
+  ad.innerHTML='<div class="cmsg-role">Claude</div><div class="cmsg-text"><div class="typing-dots"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></div></div>';
+  thread.appendChild(ad); thread.scrollTop=thread.scrollHeight;
+  var at=ad.querySelector('.cmsg-text'), full='';
+
+  fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:STATE.chatHistory,question:q,profileSummary:'Portfolio: '+STATE.portfolioData.positions.map(function(p){ return p.symbol; }).join(', ')})})
+  .then(function(r){
+    if(!r.ok) throw new Error('Chat error '+r.status);
+    var reader=r.body.getReader(), dec=new TextDecoder(); at.textContent='';
+    function read(){ return reader.read().then(function(res){
+      if(res.done) return;
+      dec.decode(res.value,{stream:true}).split('\n').forEach(function(l){
+        l=l.trim(); if(!l.startsWith('data: ')) return;
+        try{ var p=JSON.parse(l.slice(6)); if(p.text){ full+=p.text; at.textContent=full; thread.scrollTop=thread.scrollHeight; } }catch(e){}
+      }); return read();
+    }); } return read();
+  })
+  .then(function(){ STATE.chatHistory.push({role:'user',content:q}); STATE.chatHistory.push({role:'assistant',content:full}); })
+  .catch(function(e){ at.textContent='Error: '+e.message; })
+  .finally(function(){ STATE.isChat=false; get('chatSend').disabled=false; thread.scrollTop=thread.scrollHeight; });
+}
+
+// ── Export ─────────────────────────────────────────────────────────────────────
+function exportReport(){
+  if(!STATE.portfolioAnalysis){ toast('Analyze your portfolio first','info'); return; }
+  var d=STATE.portfolioAnalysis, pd=STATE.portfolioData;
+  var lines=[
+    'QuantumInvest — Portfolio Strategy Report',
+    '='.repeat(50),
+    'Generated: '+new Date().toLocaleString(),
+    'Quantum Protection: AES-256-GCM',
+    '',
+    'PORTFOLIO GRADE: '+(d.overall_grade||'N/A')+' | RISK: '+(d.risk_level||'N/A')+' | SCORE: '+(d.diversification_score||0)+'/100',
+    '',
+    d.one_liner||'',
+    '',
+    d.overview||'',
+    '',
+    'TOP ACTIONS','='.repeat(50)
+  ];
+  (d.top_actions||[]).forEach(function(a,i){ lines.push((i+1)+'. ['+a.priority+'] '+a.action_text); lines.push('   '+a.reasoning); lines.push(''); });
+  lines.push('HOLDINGS','='.repeat(50));
+  pd.positions.forEach(function(p){ lines.push(p.symbol+' — '+p.quantity+' shares @ $'+p.avgCost.toFixed(2)+' | Value: $'+p.marketValue.toFixed(2)+' | P&L: '+(p.plDollar>=0?'+':'')+'$'+p.plDollar.toFixed(2)+' ('+p.plPct.toFixed(1)+'%)'); });
+  lines.push('','DISCLAIMER: For educational purposes only. Not financial advice.');
+  try{ navigator.clipboard.writeText(lines.join('\n')); toast('Report copied to clipboard','ok'); }
+  catch(e){ toast('Could not copy','err'); }
+}
+
+// ── Screen switching ───────────────────────────────────────────────────────────
+function showScreen(name){
+  get('entryScreen').style.display = name==='entry' ? '' : 'none';
+  get('resultsScreen').style.display = name==='results' ? '' : 'none';
+  get('ideasOnlyScreen').style.display = name==='ideasOnly' ? '' : 'none';
+  if(name==='results') window.scrollTo(0,0);
 }
 </script>
 </body>

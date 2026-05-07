@@ -37,8 +37,37 @@ function parseJSON(raw){
 }
 
 // ── Yahoo Finance helpers
-const YFH={"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36","Accept":"application/json,*/*"};
-async function yfGet(url){try{const r=await axios.get(url,{headers:YFH,timeout:8000,validateStatus:()=>true});return r.status===200?r.data:null;}catch(e){return null;}}
+const YFH={
+  "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  "Accept":"application/json, text/plain, */*",
+  "Accept-Language":"en-US,en;q=0.9",
+  "Accept-Encoding":"gzip, deflate, br",
+  "Origin":"https://finance.yahoo.com",
+  "Referer":"https://finance.yahoo.com/",
+};
+
+// Yahoo Finance crumb cache (needed for some endpoints)
+let _yfCrumb=null;
+async function getYFCrumb(){
+  if(_yfCrumb) return _yfCrumb;
+  try{
+    const r=await axios.get("https://query2.finance.yahoo.com/v1/test/getcrumb",{headers:{...YFH,"Cookie":"B=abc123"},timeout:5000,validateStatus:()=>true});
+    if(r.status===200&&typeof r.data==="string"&&r.data.length<100){_yfCrumb=r.data.trim();return _yfCrumb;}
+  }catch(e){}
+  return null;
+}
+
+async function yfGet(url){
+  try{
+    const crumb=await getYFCrumb();
+    const sep=url.includes("?")?"&":"?";
+    const finalUrl=crumb?url+sep+"crumb="+encodeURIComponent(crumb):url;
+    const r=await axios.get(finalUrl,{headers:YFH,timeout:9000,validateStatus:()=>true});
+    if(r.status===200) return r.data;
+    console.warn("[yfGet] status",r.status,"for",url.slice(0,80));
+    return null;
+  }catch(e){console.warn("[yfGet] error:",e.message?.slice(0,60));return null;}
+}
 
 async function fetchHistory(symbol){
   const end=Math.floor(Date.now()/1000), start=end-365*86400;
@@ -55,8 +84,11 @@ async function fetchHistory(symbol){
 }
 
 async function fetchFundamentals(symbol){
-  const data=await yfGet(`https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol}?modules=summaryDetail,defaultKeyStatistics,financialData,assetProfile,recommendationTrend`);
-  if(!data?.quoteSummary?.result?.[0]) return null;
+  let data=await yfGet(`https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol}?modules=summaryDetail,defaultKeyStatistics,financialData,assetProfile,recommendationTrend`);
+  if(!data?.quoteSummary?.result?.[0]){
+    data=await yfGet(`https://query1.finance.yahoo.com/v10/finance/quoteSummary/${symbol}?modules=summaryDetail,defaultKeyStatistics,financialData,assetProfile,recommendationTrend`);
+  }
+  if(!data?.quoteSummary?.result?.[0]){console.warn("[fetchFundamentals] no data for",symbol);return null;}
   const r=data.quoteSummary.result[0];
   const sd=r.summaryDetail||{},ks=r.defaultKeyStatistics||{},fd=r.financialData||{},ap=r.assetProfile||{},rt=r.recommendationTrend?.trend?.[0]||{};
   return {
@@ -75,7 +107,7 @@ async function fetchFundamentals(symbol){
 // ── Technical indicators
 function sma(arr,n){return arr.map((_,i)=>i<n-1?null:arr.slice(i-n+1,i+1).reduce((a,b)=>a+b,0)/n);}
 function ema(arr,n){const k=2/(n+1),out=[];for(let i=0;i<arr.length;i++){out.push(i===0?arr[i]:arr[i]*k+out[i-1]*(1-k));}return out;}
-function stddev(arr){const m=arr.reduce((a,b)=>a+b,0)/arr.length;return Math.sqrt(arr.reduce((s,v)=>s+(v-m)**2,0)/arr.length);}
+function stddev(arr){if(!arr||arr.length<2)return 0;const m=arr.reduce((a,b)=>a+b,0)/arr.length;return Math.sqrt(arr.reduce((s,v)=>s+(v-m)**2,0)/arr.length);}
 
 function computeRSI(closes,period=14){
   const gains=[],losses=[];
@@ -210,34 +242,45 @@ app.post("/api/full-analysis", analyzeLim, async (req,res)=>{
   const cash=cashPos?parseFloat(cashPos.avgCost||0)*parseFloat(cashPos.quantity||1):0;
   positions.forEach(p=>{p.weight=totalEquity>0?p.marketValue/totalEquity:0;});
   const symbols=positions.slice(0,8).map(p=>p.symbol);
+  // Fetch market data — each symbol individually guarded
   const [fundsArr,techArr]=await Promise.all([
-    Promise.all(symbols.map(s=>fetchFundamentals(s).catch(()=>null))),
-    Promise.all(symbols.map(s=>analyzeTechnical(s).catch(()=>null))),
+    Promise.all(symbols.map(async s=>{try{return await fetchFundamentals(s);}catch(e){console.warn("[fundamentals]",s,e.message);return null;}})),
+    Promise.all(symbols.map(async s=>{try{return await analyzeTechnical(s);}catch(e){console.warn("[technical]",s,e.message);return null;}})),
   ]);
+  console.log("[full-analysis] Market data fetched:",
+    "funds:", fundsArr.filter(Boolean).length+"/"+symbols.length,
+    "tech:",  techArr.filter(Boolean).length+"/"+symbols.length
+  );
   symbols.forEach((sym,i)=>{
     const pos=positions.find(p=>p.symbol===sym);if(!pos)return;
-    pos.fundamentals=fundsArr[i];pos.technical=techArr[i];
-    if(fundsArr[i]) pos.analystTarget=fundsArr[i].analystTarget;
-    if(techArr[i])  pos.historical=techArr[i];
+    pos.fundamentals=fundsArr[i]||null;
+    pos.technical=techArr[i]||null;
+    if(fundsArr[i]&&fundsArr[i].analystTarget) pos.analystTarget=fundsArr[i].analystTarget;
+    if(techArr[i]) pos.historical=techArr[i];
   });
+  // Build enriched prompt lines — gracefully skip missing data
   const posLines=positions.slice(0,8).map(p=>{
-    const f=p.fundamentals,t=p.technical;
-    const lines=[`\n== ${p.symbol} (${p.name}) ==`,
-      `  Position: ${p.quantity}sh @$${p.avgCost.toFixed(2)} avg | Current: $${p.currentPrice.toFixed(2)} | Value: $${p.marketValue.toFixed(2)} | P&L: ${p.plDollar>=0?"+":""}$${p.plDollar.toFixed(2)} (${p.plPct.toFixed(1)}%) | Weight: ${(p.weight*100).toFixed(1)}%`];
-    if(f){
-      lines.push(`  Fundamentals: P/E=${f.pe?.toFixed(1)||"N/A"} | FwdP/E=${f.forwardPE?.toFixed(1)||"N/A"} | PEG=${f.peg?.toFixed(2)||"N/A"} | P/B=${f.pb?.toFixed(2)||"N/A"} | Beta=${f.beta?.toFixed(2)||"N/A"}`);
-      lines.push(`  Growth: Revenue=${f.revenueGrowth!=null?(f.revenueGrowth*100).toFixed(1)+"%":"N/A"} | EPS_YoY=${f.epsGrowthYoY!=null?(f.epsGrowthYoY*100).toFixed(1)+"%":"N/A"} | ProfitMargin=${f.profitMargin!=null?(f.profitMargin*100).toFixed(1)+"%":"N/A"} | ROE=${f.roe!=null?(f.roe*100).toFixed(1)+"%":"N/A"}`);
-      lines.push(`  Balance: DebtEquity=${f.debtEquity?.toFixed(2)||"N/A"} | DivYield=${f.dividendYield!=null?(f.dividendYield*100).toFixed(2)+"%":"N/A"} | 52W: $${f.fiftyTwoLow?.toFixed(2)||"?"}–$${f.fiftyTwoHigh?.toFixed(2)||"?"}`);
-      if(f.analystTarget) lines.push(`  Analysts: Target=$${f.analystTarget.toFixed(2)} | ${f.analystBuy}Buy ${f.analystHold}Hold ${f.analystSell}Sell | Rec: ${f.recommendation||"N/A"}`);
+    try{
+      const f=p.fundamentals,t=p.technical;
+      const lines=[`\n== ${p.symbol} (${p.name}) ==`,
+        `  Position: ${p.quantity}sh @$${p.avgCost.toFixed(2)} avg | Current: $${p.currentPrice.toFixed(2)} | Value: $${p.marketValue.toFixed(2)} | P&L: ${p.plDollar>=0?"+":""}$${p.plDollar.toFixed(2)} (${p.plPct.toFixed(1)}%) | Weight: ${(p.weight*100).toFixed(1)}%`];
+      if(f){
+        lines.push(`  Fundamentals: P/E=${f.pe?.toFixed(1)||"N/A"} | FwdP/E=${f.forwardPE?.toFixed(1)||"N/A"} | PEG=${f.peg?.toFixed(2)||"N/A"} | P/B=${f.pb?.toFixed(2)||"N/A"} | Beta=${f.beta?.toFixed(2)||"N/A"}`);
+        lines.push(`  Growth: Revenue=${f.revenueGrowth!=null?(f.revenueGrowth*100).toFixed(1)+"%":"N/A"} | EPS_YoY=${f.epsGrowthYoY!=null?(f.epsGrowthYoY*100).toFixed(1)+"%":"N/A"} | ProfitMargin=${f.profitMargin!=null?(f.profitMargin*100).toFixed(1)+"%":"N/A"} | ROE=${f.roe!=null?(f.roe*100).toFixed(1)+"%":"N/A"}`);
+        lines.push(`  Balance: DebtEquity=${f.debtEquity?.toFixed(2)||"N/A"} | DivYield=${f.dividendYield!=null?(f.dividendYield*100).toFixed(2)+"%":"N/A"} | 52W: $${f.fiftyTwoLow?.toFixed(2)||"?"}–$${f.fiftyTwoHigh?.toFixed(2)||"?"}`);
+        if(f.analystTarget) lines.push(`  Analysts: Target=$${f.analystTarget.toFixed(2)} | ${f.analystBuy}Buy ${f.analystHold}Hold ${f.analystSell}Sell | Rec: ${f.recommendation||"N/A"}`);
+      }
+      if(t&&t.trend){
+        const tr=t.trend;
+        lines.push(`  Technical: ${tr.trend} | 3M=${tr.perf3m!=null?(tr.perf3m*100).toFixed(1)+"%":"N/A"} | 1Y=${tr.perf1y!=null?(tr.perf1y*100).toFixed(1)+"%":"N/A"} | Vol=${tr.annualVol!=null?(tr.annualVol*100).toFixed(0)+"%/yr":"N/A"}`);
+        lines.push(`  MAs: 20d=$${tr.ma20?.toFixed(2)||"?"} 50d=$${tr.ma50?.toFixed(2)||"?"} 200d=$${tr.ma200?.toFixed(2)||"?"} | Support=$${tr.support?.toFixed(2)||"?"} Resistance=$${tr.resistance?.toFixed(2)||"?"}`);
+        if(t.signals&&t.signals.length) lines.push(`  Indicators: ${t.signals.map(s=>`${s.indicator}(${s.value},${s.signal})`).join(" ")}`);
+        if(t.patterns&&t.patterns.length) lines.push(`  Patterns: ${t.patterns.map(p=>`${p.name}(${p.signal})`).join(", ")}`);
+      }
+      return lines.join("\n");
+    }catch(lineErr){
+      return `\n== ${p.symbol} ==\n  Position: $${p.marketValue.toFixed(2)} | P&L: ${p.plDollar>=0?"+":""}$${p.plDollar.toFixed(2)}`;
     }
-    if(t){
-      const tr=t.trend;
-      lines.push(`  Technical: ${tr.trend} | 3M=${tr.perf3m!=null?(tr.perf3m*100).toFixed(1)+"%":"N/A"} | 1Y=${tr.perf1y!=null?(tr.perf1y*100).toFixed(1)+"%":"N/A"} | Vol=${(tr.annualVol*100).toFixed(0)}%/yr`);
-      lines.push(`  MAs: 20d=$${tr.ma20?.toFixed(2)||"?"} 50d=$${tr.ma50?.toFixed(2)||"?"} 200d=$${tr.ma200?.toFixed(2)||"?"} | Support=$${tr.support?.toFixed(2)||"?"} Resistance=$${tr.resistance?.toFixed(2)||"?"}`);
-      if(t.signals.length) lines.push(`  Indicators: ${t.signals.map(s=>`${s.indicator}(${s.value},${s.signal})`).join(" ")}`);
-      if(t.patterns.length) lines.push(`  Patterns: ${t.patterns.map(p=>`${p.name}(${p.signal})`).join(", ")}`);
-    }
-    return lines.join("\n");
   }).join("\n");
   const prompt=`Perform a complete investment analysis of this portfolio. Use ALL the fundamental and technical data provided.
 
@@ -255,7 +298,11 @@ Respond ONLY raw JSON:
     const analysis=parseJSON(msg.content[0].text);
     stats.analyses++;
     res.json({success:true,data:{positions,summary:{totalEquity,dayChange:0,dayChangePct:0,cash,totalPositions:positions.length},analysis,technical:Object.fromEntries(symbols.map((s,i)=>[s,techArr[i]])),fundamentals:Object.fromEntries(symbols.map((s,i)=>[s,fundsArr[i]]))}});
-  }catch(e){console.error("[full-analysis]",e.message);res.status(500).json({error:e.message});}
+  }catch(e){
+    console.error("[full-analysis] ERROR:", e.message);
+    console.error("[full-analysis] STACK:", e.stack?.split("\n").slice(0,5).join(" | "));
+    res.status(500).json({error:e.message||"Internal analysis error. Check Render logs."});
+  }
 });
 
 app.post("/api/simulate", analyzeLim, async (req,res)=>{

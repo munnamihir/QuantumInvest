@@ -730,7 +730,6 @@ function analyzePortfolio(){
     STATE.portfolioAnalysis = j.data.analysis;
     STATE.technicalData     = j.data.technical;
     STATE.fundamentalData   = j.data.fundamentals;
-    console.log('[analyzePortfolio] success. positions='+j.data.positions.length+' analysis keys='+Object.keys(j.data.analysis||{}).join(','));
     STATE.chatHistory=[
       {role:'user',content:'Portfolio: '+j.data.positions.map(function(p){return p.symbol+'('+p.quantity+'sh @$'+p.avgCost.toFixed(2)+', value $'+p.marketValue.toFixed(0)+')';}).join(', ')},
       {role:'assistant',content:'Analysis complete. Grade: '+(j.data.analysis&&j.data.analysis.overall_grade)+'. '+(j.data.analysis&&j.data.analysis.overview)}
@@ -738,7 +737,7 @@ function analyzePortfolio(){
     renderResults();
     showScreen('results');
     setTimeout(function(){ runSimulator(); }, 200);
-    toast('Analysis complete — check console for render details','ok');
+    toast('Portfolio analysis complete','ok');
   })
   .catch(function(e){ err.style.display='block'; err.textContent=e.message; })
   .finally(function(){ setAnalyzeBtn(false, '&#128269; Analyze My Portfolio with Claude'); });
@@ -753,26 +752,19 @@ function setAnalyzeBtn(loading, text){
 function renderResults(){
   var d = STATE.portfolioAnalysis;
   var pd = STATE.portfolioData;
-  console.log('[renderResults] called. d=', !!d, 'pd=', !!pd);
-  if(!d || !pd){ console.error('[renderResults] missing data!'); toast('Render error: no data','err'); return; }
-
-  var steps = [
-    ['scoreHero',    function(){ renderScoreHero(d); }],
-    ['statRow',      function(){ renderStatRow(pd.summary); }],
-    ['actionsStack', function(){ renderActions(d.top_actions); }],
-    ['holdingsBody', function(){ renderHoldings(pd.positions); }],
-    ['analysisGrid', function(){ renderAnalysisGrid(d); }],
-    ['cashRec',      function(){ renderCashRec(d.cash_recommendation); }],
-    ['sectorCard',   function(){ renderSectors(d.sector_breakdown); }],
-    ['donut',        function(){ renderDonut(pd.positions); }],
-    ['profile',      function(){ renderProfileDisplay(); }],
-    ['sidebar',      function(){ renderSidebarCards(d); }],
-  ];
-  steps.forEach(function(step){
-    try { step[1](); console.log('[render] ✓', step[0]); }
-    catch(e){ console.error('[render] ✗', step[0], e.message, e.stack); }
-  });
-  console.log('[renderResults] done');
+  if(!d || !pd){ toast('Render error: no data','err'); return; }
+  [
+    function(){ renderScoreHero(d); },
+    function(){ renderStatRow(pd.summary); },
+    function(){ renderActions(d.top_actions); },
+    function(){ renderHoldings(pd.positions); },
+    function(){ renderAnalysisGrid(d); },
+    function(){ renderCashRec(d.cash_recommendation); },
+    function(){ renderSectors(d.sector_breakdown); },
+    function(){ renderDonut(pd.positions); },
+    function(){ renderProfileDisplay(); },
+    function(){ renderSidebarCards(d); },
+  ].forEach(function(fn){ try{ fn(); }catch(e){ console.error('[render]',e.message); } });
 }
 
 function renderScoreHero(d){
@@ -1118,13 +1110,12 @@ function exportReport(){
 
 // ── Screen switching ───────────────────────────────────────────────────────────
 function showScreen(name){
-  console.log('[showScreen]', name);
+  // Must use explicit display values — '' falls back to CSS 'display:none'
   var es=get('entryScreen'), rs=get('resultsScreen'), ios=get('ideasOnlyScreen');
-  if(es)  es.style.display  = name==='entry'     ? '' : 'none';
-  if(rs)  rs.style.display  = name==='results'   ? '' : 'none';
-  if(ios) ios.style.display = name==='ideasOnly' ? '' : 'none';
+  if(es)  es.style.display  = name==='entry'     ? 'flex'  : 'none';
+  if(rs)  rs.style.display  = name==='results'   ? 'block' : 'none';
+  if(ios) ios.style.display = name==='ideasOnly' ? 'block' : 'none';
   if(name==='results') window.scrollTo(0,0);
-  console.log('[showScreen] resultsScreen display=', rs ? rs.style.display : 'NOT FOUND');
 }
 </script>
 </body>

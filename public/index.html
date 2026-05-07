@@ -472,10 +472,10 @@ textarea{resize:vertical;min-height:58px;line-height:1.5}
 
       <!-- Tab switcher -->
       <div style="display:flex;gap:4px;margin-bottom:1.1rem;background:var(--bg3);border-radius:10px;padding:4px">
-        <button id="heroTabManual" onclick="heroShowTab('manual')" style="flex:1;padding:.5rem .75rem;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;background:var(--green);color:#fff">
+        <button id="heroTabManual" style="flex:1;padding:.5rem .75rem;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;background:var(--green);color:#fff">
           &#128203; Manual Entry
         </button>
-        <button id="heroTabRH" onclick="heroShowTab('rh')" style="flex:1;padding:.5rem .75rem;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:var(--muted)">
+        <button id="heroTabRH" style="flex:1;padding:.5rem .75rem;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:var(--muted)">
           &#128202; Robinhood <span style="font-size:.6rem;opacity:.7">(local only)</span>
         </button>
       </div>
@@ -499,15 +499,15 @@ textarea{resize:vertical;min-height:58px;line-height:1.5}
               <td style="padding:.28rem .3rem"><input class="hcc-input hero-me-name" type="text" placeholder="Apple" style="padding:.36rem .5rem;font-size:.78rem"></td>
               <td style="padding:.28rem .3rem"><input class="hcc-input hero-me-qty" type="number" placeholder="10" min="0" step="any" style="padding:.36rem .5rem;font-size:.78rem"></td>
               <td style="padding:.28rem .3rem"><input class="hcc-input hero-me-avg" type="number" placeholder="150" min="0" step="any" style="padding:.36rem .5rem;font-size:.78rem"></td>
-              <td style="padding:.28rem .3rem"><button onclick="heroMeRemove(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;padding:2px 4px">&#10005;</button></td>
+              <td style="padding:.28rem .3rem"><button class="hero-me-del" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;padding:2px 4px">&#10005;</button></td>
             </tr>
           </tbody>
         </table>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.85rem">
-          <button onclick="heroMeAddRow()" style="font-size:.72rem;color:var(--green);background:none;border:1px solid var(--green-border);border-radius:6px;padding:.32rem .75rem;cursor:pointer;font-family:'DM Sans',sans-serif">+ Add row</button>
+          <button id="heroMeAddRowBtn" style="font-size:.72rem;color:var(--green);background:none;border:1px solid var(--green-border);border-radius:6px;padding:.32rem .75rem;cursor:pointer;font-family:'DM Sans',sans-serif">+ Add row</button>
           <span style="font-size:.62rem;color:var(--muted)">Add CASH for buying power</span>
         </div>
-        <button class="hcc-connect-btn" id="heroAnalyzeBtn" onclick="heroAnalyzeManual()">
+        <button class="hcc-connect-btn" id="heroAnalyzeBtn">
           <span class="spin" id="heroAnalyzeSpin"></span>
           <span id="heroAnalyzeTxt">&#128269; Analyze Portfolio with AI</span>
         </button>
@@ -712,6 +712,17 @@ function wireAll(){
   document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeSidebar();get('wlDrawer').classList.remove('open');}});
   // Hero login
   if(get('heroLoginBtn')) get('heroLoginBtn').addEventListener('click',heroLogin);
+  // Hero card tab buttons and manual entry
+  if(get('heroTabManual')) get('heroTabManual').addEventListener('click', function(){ heroShowTab('manual'); });
+  if(get('heroTabRH'))     get('heroTabRH').addEventListener('click',     function(){ heroShowTab('rh'); });
+  if(get('heroMeAddRowBtn')) get('heroMeAddRowBtn').addEventListener('click', heroMeAddRow);
+  if(get('heroAnalyzeBtn'))  get('heroAnalyzeBtn').addEventListener('click', heroAnalyzeManual);
+  // Event delegation for static delete buttons in hero table
+  var heroMeBody = get('heroMeBody');
+  if(heroMeBody) heroMeBody.addEventListener('click', function(e){
+    var btn = e.target.closest('.hero-me-del');
+    if(btn && get('heroMeBody').rows.length > 1) btn.closest('tr').remove();
+  });
   if(get('heroSkip')) get('heroSkip').addEventListener('click',openSidebarMobile);
   get('heroEmail').addEventListener('keydown',function(e){if(e.key==='Enter')get('heroPass').focus();});
   get('heroPass').addEventListener('keydown',function(e){if(e.key==='Enter')heroLogin();});
@@ -1062,7 +1073,9 @@ function heroShowTab(tab){
 // Hero manual entry
 function heroMeAddRow(){
   var tbody = get('heroMeBody'), tr = document.createElement('tr');
-  tr.innerHTML = '<td style="padding:.28rem .3rem"><input class="hcc-input hero-me-sym" type="text" placeholder="TSLA" style="text-transform:uppercase;padding:.36rem .5rem;font-size:.78rem"></td><td style="padding:.28rem .3rem"><input class="hcc-input hero-me-name" type="text" placeholder="Tesla" style="padding:.36rem .5rem;font-size:.78rem"></td><td style="padding:.28rem .3rem"><input class="hcc-input hero-me-qty" type="number" placeholder="5" min="0" step="any" style="padding:.36rem .5rem;font-size:.78rem"></td><td style="padding:.28rem .3rem"><input class="hcc-input hero-me-avg" type="number" placeholder="200" min="0" step="any" style="padding:.36rem .5rem;font-size:.78rem"></td><td style="padding:.28rem .3rem"><button onclick="heroMeRemove(this)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;padding:2px 4px">&#10005;</button></td>';
+  tr.innerHTML = '<td style="padding:.28rem .3rem"><input class="hcc-input hero-me-sym" type="text" placeholder="TSLA" style="text-transform:uppercase;padding:.36rem .5rem;font-size:.78rem"></td><td style="padding:.28rem .3rem"><input class="hcc-input hero-me-name" type="text" placeholder="Tesla" style="padding:.36rem .5rem;font-size:.78rem"></td><td style="padding:.28rem .3rem"><input class="hcc-input hero-me-qty" type="number" placeholder="5" min="0" step="any" style="padding:.36rem .5rem;font-size:.78rem"></td><td style="padding:.28rem .3rem"><input class="hcc-input hero-me-avg" type="number" placeholder="200" min="0" step="any" style="padding:.36rem .5rem;font-size:.78rem"></td><td style="padding:.28rem .3rem"><button class="hero-me-del" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;padding:2px 4px">&#10005;</button></td>';
+  var delBtn = tr.querySelector('.hero-me-del');
+  if(delBtn) delBtn.addEventListener('click', function(){ if(get('heroMeBody').rows.length > 1) tr.remove(); });
   tbody.appendChild(tr);
   tr.querySelector('.hero-me-sym').focus();
 }

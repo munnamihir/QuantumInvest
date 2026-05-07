@@ -121,24 +121,74 @@ app.post("/api/robinhood/login", rhLim, async (req,res) => {
   if(!email||!password) return res.status(400).json({error:"Email and password required."});
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({error:"Invalid email."});
   const deviceToken = uuid();
-  let lastData = {};
-  for(let ui=0;ui<RH_UAS.length;ui++){
-    const {status,data} = await rhPost("/oauth2/token/",{
-      username:email,password,grant_type:"password",client_id:RH_CLIENT,
-      expires_in:86400,scope:"internal",device_token:deviceToken,challenge_type:"sms"
-    },{},ui);
-    lastData=data;
-    if(status===200&&data.access_token){
-      const enc=encryptData({token:data.access_token,email,ts:Date.now()});
-      return res.json({success:true,encryptedSession:enc,deviceToken});
+  const attempts = [];
+
+  for (let ui = 0; ui < RH_UAS.length; ui++) {
+    const { status, data } = await rhPost("/oauth2/token/", {
+      username: email, password,
+      grant_type: "password", client_id: RH_CLIENT,
+      expires_in: 86400, scope: "internal",
+      device_token: deviceToken, challenge_type: "sms"
+    }, {}, ui);
+
+    // Log FULL response so Render logs show exactly what Robinhood returns
+    console.log(`[RH Login] UA#${ui} status=${status} body=${JSON.stringify(data).slice(0, 300)}`);
+
+    // Extract error message from any known field
+    const extractMsg = (d) =>
+      d?.detail ||
+      (Array.isArray(d?.non_field_errors) ? d.non_field_errors[0] : null) ||
+      d?.message ||
+      d?.error ||
+      (typeof d === "string" ? d : null) ||
+      "";
+
+    const detail = extractMsg(data);
+    attempts.push({ ua: ui, status, detail, raw: data });
+
+    if (status === 200 && data.access_token) {
+      const enc = encryptData({ token: data.access_token, email, ts: Date.now() });
+      return res.json({ success: true, encryptedSession: enc, deviceToken });
     }
-    if(data.mfa_required) return res.json({success:false,mfa_required:true,deviceToken});
-    if(data.challenge) return res.json({success:false,challenge_required:true,challengeId:data.challenge.id,deviceToken});
-    if(!isVerErr(data)) break;
+    if (data.mfa_required) return res.json({ success: false, mfa_required: true, deviceToken });
+    if (data.challenge) return res.json({ success: false, challenge_required: true, challengeId: data.challenge.id, deviceToken });
   }
-  if(isVerErr(lastData)) return res.status(503).json({error:"Robinhood is blocking automated access right now.",hint:"Use Manual Entry below — AI analysis works exactly the same."});
-  const msg=lastData.detail||(Array.isArray(lastData.non_field_errors)?lastData.non_field_errors[0]:null)||"Login failed. Check credentials.";
-  res.status(401).json({error:msg});
+
+  // Build best error message from all attempts
+  const bestDetail = attempts.map(a => a.detail).find(d => d) || "";
+  const bestStatus = attempts[0]?.status || 0;
+  const low = bestDetail.toLowerCase();
+
+  console.error("[RH Login] All UAs failed. Best detail:", bestDetail, "Best status:", bestStatus);
+
+  // IP / cloud block — status 0 means network refused, or version error
+  if (bestStatus === 0 || isVerErr({ detail: bestDetail }) || (!bestDetail && bestStatus >= 400)) {
+    return res.status(503).json({
+      error: "Robinhood is blocking connections from this server's IP address.",
+      hint: "Cloud servers are commonly blocked by Robinhood. Use Manual Portfolio Entry below — enter your holdings directly. The AI analysis is exactly the same."
+    });
+  }
+  if (low.includes("credential") || low.includes("password") || low.includes("invalid") || low.includes("unable to log in")) {
+    return res.status(401).json({ error: "Wrong email or password. Check your Robinhood credentials and try again." });
+  }
+  if (low.includes("device") || low.includes("unrecognized") || low.includes("trusted")) {
+    return res.status(401).json({ error: "Unrecognized device. Log into robinhood.com in a browser first, then retry here." });
+  }
+  if (low.includes("too many") || low.includes("throttl") || low.includes("limit") || bestStatus === 429) {
+    return res.status(429).json({ error: "Too many login attempts. Wait 30 minutes then try again." });
+  }
+  if (low.includes("update") || low.includes("version") || low.includes("upgrade")) {
+    return res.status(503).json({
+      error: "Robinhood rejected the connection (version check failed).",
+      hint: "Use Manual Portfolio Entry below instead."
+    });
+  }
+
+  // Fallback — show raw Robinhood message if we have one, else show IP block message
+  return res.status(bestStatus >= 400 ? bestStatus : 503).json({
+    error: bestDetail || "Robinhood is blocking this server. Use Manual Entry below.",
+    hint: bestDetail ? "" : "Cloud server IPs are commonly flagged by Robinhood. Manual entry works identically for AI analysis."
+  });
 });
 
 // ── POST /api/robinhood/verify

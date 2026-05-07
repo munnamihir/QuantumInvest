@@ -975,13 +975,24 @@ function generateTargetedIdeas(){
     return p.symbol+'('+p.quantity.toFixed(0)+'sh @$'+p.avgCost.toFixed(2)+', value $'+p.marketValue.toFixed(0)+')';
   }).join(', ')+'. Missing exposure: '+(d.missing_exposure||[]).join(', ')+'. Risk level: '+d.risk_level;
 
+  // Slim the payload — only send what the server needs, no technical/candle data
+  var slimPositions = (STATE.portfolioData.positions||[]).map(function(p){
+    return { symbol:p.symbol, name:p.name, marketValue:p.marketValue, weight:p.weight };
+  });
+  var slimAnalysis = {
+    missing_exposure: STATE.portfolioAnalysis.missing_exposure||[],
+    key_weaknesses:   STATE.portfolioAnalysis.key_weaknesses||[],
+    biggest_risks:    STATE.portfolioAnalysis.biggest_risks||[],
+    overall_grade:    STATE.portfolioAnalysis.overall_grade||'',
+    risk_level:       STATE.portfolioAnalysis.risk_level||'',
+  };
   fetch('/api/generate-gap-ideas', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify({
-      analysis: STATE.portfolioAnalysis,
-      positions: STATE.portfolioData.positions,
-      profile: STATE.profile
+      analysis:  slimAnalysis,
+      positions: slimPositions,
+      profile:   STATE.profile
     })
   })
   .then(function(r){ return r.json().then(function(j){ if(!r.ok||!j.success) throw new Error(j.error||'Failed.'); return j; }); })
@@ -1337,20 +1348,21 @@ function runSimulator(){
             historical:p.historical};
   });
 
+  var fetchMonths = SIM_MONTHS; // capture at call time
   fetch('/api/simulate',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({positions:slimPositions, optimizedWeights:optimizedWeights, months:SIM_MONTHS})
+    body:JSON.stringify({positions:slimPositions, optimizedWeights:optimizedWeights, months:fetchMonths})
   })
   .then(function(r){
     if(!r.ok) throw new Error('Simulate HTTP '+r.status);
     return r.json();
   })
   .then(function(j){
-    if(j.success&&j.data){STATE.simData=j.data;drawSimChart(SIM_MONTHS);}
+    if(j.success&&j.data){ STATE.simData=j.data; drawSimChart(fetchMonths); }
     else console.warn('Simulator no data:',j.error);
   })
-  .catch(function(e){console.warn('Simulator error:',e.message);});
+  .catch(function(e){ console.warn('Simulator error:',e.message); });
 }
 
 function drawSimChart(months){
@@ -1558,11 +1570,12 @@ document.addEventListener('DOMContentLoaded',function(){
       btn.classList.add('active');
       var months=parseInt(btn.getAttribute('data-months'));
       SIM_MONTHS=months;
-      if(STATE.simData&&STATE.simData.months===months){
-        drawSimChart(months);
-      } else {
-        runSimulator();
-      }
+      // Always re-fetch for new time horizon (server runs fresh Monte Carlo)
+      // But only once — debounce subsequent clicks
+      if(btn._fetching) return;
+      btn._fetching=true;
+      setTimeout(function(){ btn._fetching=false; },3000);
+      runSimulator();
     });
   });
 

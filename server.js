@@ -468,11 +468,11 @@ app.post("/api/simulate", analyzeLim, express.json({ limit: "32kb" }), async (re
 });
 
 // ── Generate gap ideas
-app.post("/api/generate-gap-ideas", genLim, async (req, res) => {
+app.post("/api/generate-gap-ideas", genLim, express.json({ limit: "16kb" }), async (req, res) => {
   try {
     const { analysis, positions, profile } = req.body;
     const missing   = (analysis?.missing_exposure || []).join(", ") || "diversification";
-    const weakness  = (analysis?.key_weaknesses   || []).slice(0, 3).join("; ") || "concentration";
+    const weakness  = (analysis?.key_weaknesses   || analysis?.biggest_risks || []).slice(0, 3).join("; ") || "concentration";
     const current   = (positions || []).map(p => p.symbol).join(", ") || "none";
     const prompt = `Generate exactly 6 investment ideas to fill gaps in this portfolio.
 

@@ -304,6 +304,47 @@ textarea{resize:vertical;min-height:58px;line-height:1.5}
   .results-main{padding:1.25rem}
   .topnav{padding:.75rem 1.25rem}
 }
+
+/* ── Technical analysis cards */
+.tech-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:1.5rem}
+.tech-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.tech-card-header{padding:.75rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
+.tech-sym{font-family:"Space Mono",monospace;font-size:.88rem;font-weight:700;color:var(--green)}
+.tech-summary-badge{font-size:.6rem;font-family:"Space Mono",monospace;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
+.tsb-bullish{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.tsb-bearish{background:var(--red-bg);color:#f87171;border:1px solid var(--red-border)}
+.tsb-neutral{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.tech-chart-area{position:relative;height:140px;background:var(--bg3);cursor:crosshair}
+.tech-rsi-area{position:relative;height:52px;background:var(--bg3);border-top:1px solid var(--border)}
+.tech-signals{padding:.65rem 1rem;display:flex;flex-wrap:wrap;gap:5px}
+.sig-pill{font-size:.6rem;font-family:"Space Mono",monospace;padding:2px 7px;border-radius:20px}
+.sig-bull{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.sig-bear{background:var(--red-bg);color:#f87171;border:1px solid var(--red-border)}
+.sig-neut{background:var(--bg3);color:var(--muted);border:1px solid var(--border2)}
+.pattern-tag{font-size:.6rem;padding:2px 7px;border-radius:20px;font-family:"Space Mono",monospace}
+.pt-bull{background:rgba(16,185,129,.12);color:#34d399;border:1px solid var(--green-border)}
+.pt-bear{background:rgba(239,68,68,.12);color:#f87171;border:1px solid var(--red-border)}
+.pt-neut{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.tech-metrics{padding:.5rem 1rem .75rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:.35rem}
+.tm{font-size:.66rem;color:var(--muted2)}.tm strong{display:block;font-size:.72rem;font-family:"Space Mono",monospace;color:var(--text)}
+
+/* ── Simulator */
+.sim-section{margin-bottom:1.5rem}
+.sim-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.sim-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+.sim-title{font-size:.95rem;font-weight:700}
+.sim-controls{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.sim-btn{font-size:.7rem;font-family:"Space Mono",monospace;padding:4px 11px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s}
+.sim-btn.active,.sim-btn:hover{border-color:var(--green-border);color:var(--green);background:var(--green-bg)}
+.sim-canvas-wrap{padding:1.25rem;position:relative}
+.sim-legend{display:flex;gap:1.25rem;flex-wrap:wrap;padding:.25rem 1.25rem 1rem;font-size:.72rem;font-family:"Space Mono",monospace}
+.sim-leg-item{display:flex;align-items:center;gap:5px}
+.sim-leg-dot{width:22px;height:3px;border-radius:2px;flex-shrink:0}
+.sim-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 1.25rem 1.25rem}
+.sim-stat{background:var(--bg3);border-radius:9px;padding:.65rem .85rem}
+.ss-label{font-size:.6rem;font-family:"Space Mono",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+.ss-value{font-size:.92rem;font-weight:700}
+.ss-sub{font-size:.62rem;color:var(--muted);margin-top:1px}
 </style>
 </head>
 <body>
@@ -469,7 +510,39 @@ textarea{resize:vertical;min-height:58px;line-height:1.5}
       </div>
 
       <!-- Chat -->
-      <div class="section-label">&#128172; Ask Claude About Your Portfolio</div>
+      <!-- Simulator -->
+      <div class="sim-section" id="simSection" style="display:none">
+        <div class="section-label">&#128200; Portfolio Value Simulator — Monte Carlo (600 runs)</div>
+        <div class="sim-card">
+          <div class="sim-header">
+            <div class="sim-title" id="simTitle">Projecting your portfolio...</div>
+            <div class="sim-controls">
+              <button class="sim-btn active" data-months="12">1 Year</button>
+              <button class="sim-btn" data-months="24">2 Years</button>
+              <button class="sim-btn" data-months="36">3 Years</button>
+              <button class="sim-btn" data-months="60">5 Years</button>
+            </div>
+          </div>
+          <div class="sim-canvas-wrap">
+            <canvas id="simCanvas" height="280" style="width:100%;display:block"></canvas>
+          </div>
+          <div class="sim-legend">
+            <div class="sim-leg-item"><div class="sim-leg-dot" style="background:#10b981"></div>Median (current)</div>
+            <div class="sim-leg-item"><div class="sim-leg-dot" style="background:rgba(16,185,129,.25);height:10px;border-radius:4px"></div>P25–P75 range</div>
+            <div class="sim-leg-item"><div class="sim-leg-dot" style="background:#3b82f6"></div>Median (optimized)</div>
+            <div class="sim-leg-item"><div class="sim-leg-dot" style="background:rgba(59,130,246,.2);height:10px;border-radius:4px"></div>Optimized range</div>
+          </div>
+          <div class="sim-stats" id="simStats"></div>
+        </div>
+      </div>
+
+      <!-- Technical analysis per stock -->
+      <div id="techSection" style="display:none">
+        <div class="section-label">&#128202; Live Technical Analysis — Candlesticks + Indicators</div>
+        <div class="tech-grid" id="techGrid"></div>
+      </div>
+
+            <div class="section-label">&#128172; Ask Claude About Your Portfolio</div>
       <div class="chat-section">
         <div class="chat-thread" id="chatThread"></div>
         <div class="chat-input-wrap">
@@ -571,8 +644,11 @@ var STATE = {
   profile: {},
   portfolioData: null,
   portfolioAnalysis: null,
+  technicalData: {},
+  fundamentalData: {},
   chatHistory: [],
   ideas: [],
+  simData: null,
   isAnalyzing: false,
   isChat: false,
   isGenIdeas: false
@@ -641,46 +717,28 @@ function collectHoldings(){
 function analyzePortfolio(){
   var err = get('entryErr');
   err.style.display = 'none';
-  var { holdings, errors } = collectHoldings();
-  if(!holdings.length){ err.style.display='block'; err.textContent='Add at least one holding to analyze.'; return; }
-  if(errors.length){ err.style.display='block'; err.textContent=errors[0]; return; }
-
-  STATE.holdings = holdings;
-  STATE.profile = {
-    horizon: get('profHorizon').value,
-    risk:    get('profRisk').value,
-    goal:    get('profGoal').value
-  };
-
-  setAnalyzeBtn(true, 'Building portfolio data...');
-
-  // Step 1: build portfolio data from holdings
-  fetch('/api/portfolio/manual', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ holdings, profile: STATE.profile })
-  })
-  .then(function(r){ return r.json().then(function(j){ if(!r.ok||!j.success) throw new Error(j.error||'Failed.'); return j; }); })
-  .then(function(j){
-    STATE.portfolioData = j.data;
-    setAnalyzeBtn(true, 'Claude is analysing your portfolio...');
-    // Step 2: run AI analysis
-    return fetch('/api/portfolio-analyze', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ positions: j.data.positions, summary: j.data.summary, profile: STATE.profile })
-    });
-  })
+  var col = collectHoldings();
+  if(!col.holdings.length){ err.style.display='block'; err.textContent='Add at least one holding to analyze.'; return; }
+  if(col.errors.length){ err.style.display='block'; err.textContent=col.errors[0]; return; }
+  STATE.holdings = col.holdings;
+  STATE.profile = { horizon:get('profHorizon').value, risk:get('profRisk').value, goal:get('profGoal').value };
+  setAnalyzeBtn(true, 'Fetching live market data + technicals...');
+  fetch('/api/full-analysis',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({holdings:STATE.holdings,profile:STATE.profile})})
   .then(function(r){ return r.json().then(function(j){ if(!r.ok||!j.success) throw new Error(j.error||'Analysis failed.'); return j; }); })
   .then(function(j){
-    STATE.portfolioAnalysis = j.data;
-    STATE.chatHistory = [
-      { role:'user', content: 'My portfolio: '+JSON.stringify(STATE.portfolioData.positions.map(function(p){ return p.symbol+'('+p.quantity+'sh @$'+p.avgCost.toFixed(2)+')'; }).join(', ')) },
-      { role:'assistant', content: 'I have analysed your portfolio. Here is my assessment:\n\n'+JSON.stringify(j.data) }
+    STATE.portfolioData     = { positions:j.data.positions, summary:j.data.summary };
+    STATE.portfolioAnalysis = j.data.analysis;
+    STATE.technicalData     = j.data.technical;
+    STATE.fundamentalData   = j.data.fundamentals;
+    STATE.chatHistory=[
+      {role:'user',content:'Portfolio: '+j.data.positions.map(function(p){return p.symbol+'('+p.quantity+'sh @$'+p.avgCost.toFixed(2)+', value $'+p.marketValue.toFixed(0)+')';}).join(', ')},
+      {role:'assistant',content:'Analysis complete. Grade: '+j.data.analysis.overall_grade+'. '+j.data.analysis.overview}
     ];
     renderResults();
     showScreen('results');
-    toast('Portfolio analysis complete','ok');
+    // Auto-fetch simulator
+    runSimulator();
+    toast('Real analysis complete — live data + technical indicators','ok');
   })
   .catch(function(e){ err.style.display='block'; err.textContent=e.message; })
   .finally(function(){ setAnalyzeBtn(false, '&#128269; Analyze My Portfolio with Claude'); });
@@ -916,17 +974,13 @@ function generateTargetedIdeas(){
     return p.symbol+'('+p.quantity.toFixed(0)+'sh @$'+p.avgCost.toFixed(2)+', value $'+p.marketValue.toFixed(0)+')';
   }).join(', ')+'. Missing exposure: '+(d.missing_exposure||[]).join(', ')+'. Risk level: '+d.risk_level;
 
-  fetch('/api/generate', {
+  fetch('/api/generate-gap-ideas', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify({
-      amount: '$10,000',
-      horizon: STATE.profile.horizon,
-      risk: STATE.profile.risk,
-      style: STATE.profile.goal==='income'?'dividend':'growth',
-      sectors: [],
-      context: 'Fill the gaps in my existing portfolio. Focus on what I am missing.',
-      portfolioContext: portfolioCtx
+      analysis: STATE.portfolioAnalysis,
+      positions: STATE.portfolioData.positions,
+      profile: STATE.profile
     })
   })
   .then(function(r){ return r.json().then(function(j){ if(!r.ok||!j.success) throw new Error(j.error||'Failed.'); return j; }); })
@@ -1063,3 +1117,441 @@ function showScreen(name){
 </script>
 </body>
 </html>
+<script>
+// ══════════════════════════════════════════════════════
+// CHART RENDERING — Pure Canvas, no external library
+// ══════════════════════════════════════════════════════
+
+var CSS = {
+  bg:     '#080b14', bg2:'#0d1121', bg3:'#141928',
+  border: 'rgba(255,255,255,0.06)', border2:'rgba(255,255,255,0.12)',
+  text:   '#dde1f0', muted:'#5a6478', muted2:'#8b95a8',
+  green:  '#10b981', green2:'rgba(16,185,129,0.18)',
+  red:    '#ef4444', red2:'rgba(239,68,68,0.18)',
+  amber:  '#f59e0b', blue:'#3b82f6', blue2:'rgba(59,130,246,0.18)',
+  purple: '#8b5cf6',
+};
+
+// ── Utility: map value to canvas Y
+function mapY(val, min, max, top, bottom) {
+  return bottom - ((val - min) / (max - min)) * (bottom - top);
+}
+function mapX(i, len, left, right) {
+  return left + (i / (len - 1)) * (right - left);
+}
+
+// ── Draw candlestick chart on a canvas element
+function drawCandleChart(canvas, tech) {
+  if(!canvas || !tech || !tech.candles || !tech.candles.length) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth || 600;
+  const H = parseInt(canvas.getAttribute('height')) || 140;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const candles  = tech.candles;
+  const ma20     = tech.ma20 || [];
+  const ma50     = tech.ma50 || [];
+  const bb       = tech.bb   || {};
+  const PAD      = { top:8, bottom:8, left:2, right:40 };
+  const cLeft    = PAD.left, cRight = W - PAD.right;
+  const cTop     = PAD.top,  cBottom= H - PAD.bottom;
+
+  // Price range
+  const highs  = candles.map(d=>d.high);
+  const lows   = candles.map(d=>d.low);
+  const allVals= [...highs, ...lows, ...(bb.upper||[]).filter(Boolean), ...(bb.lower||[]).filter(Boolean)];
+  const minP   = Math.min(...allVals) * 0.998;
+  const maxP   = Math.max(...allVals) * 1.002;
+
+  ctx.clearRect(0,0,W,H);
+
+  // Grid lines
+  ctx.strokeStyle = CSS.border;
+  ctx.lineWidth   = 0.5;
+  for(let i=0; i<=4; i++) {
+    const y = cTop + (i/4)*(cBottom-cTop);
+    ctx.beginPath(); ctx.moveTo(cLeft,y); ctx.lineTo(cRight,y); ctx.stroke();
+    const price = maxP - (i/4)*(maxP-minP);
+    ctx.fillStyle = CSS.muted;
+    ctx.font = '9px Space Mono, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('$'+price.toFixed(0), W-3, y+3);
+  }
+
+  const n = candles.length;
+
+  // Bollinger Bands fill
+  if(bb.upper && bb.lower) {
+    ctx.beginPath();
+    for(let i=0;i<n;i++){
+      const x=mapX(i,n,cLeft,cRight);
+      const y=mapY(bb.upper[i]||maxP,minP,maxP,cTop,cBottom);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    for(let i=n-1;i>=0;i--){
+      const x=mapX(i,n,cLeft,cRight);
+      const y=mapY(bb.lower[i]||minP,minP,maxP,cTop,cBottom);
+      ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.fillStyle='rgba(139,92,246,0.06)';
+    ctx.fill();
+    // BB lines
+    ['upper','mid','lower'].forEach(function(k,ki){
+      if(!bb[k]) return;
+      ctx.beginPath();
+      ctx.strokeStyle=['rgba(139,92,246,0.4)','rgba(139,92,246,0.25)','rgba(139,92,246,0.4)'][ki];
+      ctx.lineWidth=0.6;
+      for(let i=0;i<n;i++){
+        if(bb[k][i]==null) continue;
+        const x=mapX(i,n,cLeft,cRight);
+        const y=mapY(bb[k][i],minP,maxP,cTop,cBottom);
+        i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    });
+  }
+
+  // MA lines
+  function drawMA(arr, color) {
+    ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=1;
+    var started=false;
+    for(var i=0;i<n;i++){
+      if(arr[i]==null) continue;
+      var x=mapX(i,n,cLeft,cRight), y=mapY(arr[i],minP,maxP,cTop,cBottom);
+      if(!started){ctx.moveTo(x,y);started=true;}else{ctx.lineTo(x,y);}
+    }
+    ctx.stroke();
+  }
+  drawMA(ma20, 'rgba(245,158,11,0.7)');
+  drawMA(ma50, 'rgba(59,130,246,0.7)');
+
+  // Candlesticks
+  const cw = Math.max(1, Math.floor((cRight-cLeft)/n*0.6));
+  for(var i=0;i<n;i++){
+    var d=candles[i];
+    if(!d||d.open==null) continue;
+    var x    = mapX(i,n,cLeft,cRight);
+    var yH   = mapY(d.high, minP,maxP,cTop,cBottom);
+    var yL   = mapY(d.low,  minP,maxP,cTop,cBottom);
+    var yO   = mapY(d.open, minP,maxP,cTop,cBottom);
+    var yC   = mapY(d.close,minP,maxP,cTop,cBottom);
+    var bull  = d.close >= d.open;
+    var color = bull ? CSS.green : CSS.red;
+
+    // Wick
+    ctx.strokeStyle=color; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x,yH); ctx.lineTo(x,yL); ctx.stroke();
+    // Body
+    var bodyTop=Math.min(yO,yC), bodyH=Math.max(1,Math.abs(yO-yC));
+    ctx.fillStyle=bull ? CSS.green : CSS.red;
+    ctx.fillRect(x-cw/2, bodyTop, cw, bodyH);
+  }
+}
+
+// ── RSI chart
+function drawRSIChart(canvas, rsiData) {
+  if(!canvas||!rsiData) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth || 600;
+  const H = parseInt(canvas.getAttribute('height')) || 52;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
+
+  const n = rsiData.length;
+  const PAD={top:4,bottom:4,left:2,right:40};
+  const cL=PAD.left,cR=W-PAD.right,cT=PAD.top,cB=H-PAD.bottom;
+
+  ctx.clearRect(0,0,W,H);
+
+  // Zones
+  ctx.fillStyle='rgba(239,68,68,0.06)';
+  ctx.fillRect(cL,cT,cR-cL,mapY(70,0,100,cT,cB)-cT);
+  ctx.fillStyle='rgba(16,185,129,0.06)';
+  ctx.fillRect(cL,mapY(30,0,100,cT,cB),cR-cL,cB-mapY(30,0,100,cT,cB));
+
+  // Level lines
+  [30,50,70].forEach(function(lvl){
+    ctx.strokeStyle=lvl===50?CSS.border2:CSS.border;
+    ctx.lineWidth=0.5; ctx.setLineDash(lvl===50?[3,3]:[]);
+    ctx.beginPath();ctx.moveTo(cL,mapY(lvl,0,100,cT,cB));ctx.lineTo(cR,mapY(lvl,0,100,cT,cB));ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=CSS.muted; ctx.font='8px Space Mono,monospace'; ctx.textAlign='right';
+    ctx.fillText(lvl,W-3,mapY(lvl,0,100,cT,cB)+3);
+  });
+
+  // RSI line
+  ctx.beginPath(); ctx.strokeStyle=CSS.purple; ctx.lineWidth=1.2;
+  var started=false;
+  for(var i=0;i<n;i++){
+    if(rsiData[i]==null) continue;
+    var x=mapX(i,n,cL,cR),y=mapY(rsiData[i],0,100,cT,cB);
+    if(!started){ctx.moveTo(x,y);started=true;}else{ctx.lineTo(x,y);}
+  }
+  ctx.stroke();
+
+  // Label
+  var lastRSI=rsiData.filter(function(v){return v!=null;}).slice(-1)[0];
+  if(lastRSI!=null){
+    ctx.fillStyle=lastRSI>70?CSS.red:lastRSI<30?CSS.green:CSS.muted2;
+    ctx.font='bold 9px Space Mono,monospace'; ctx.textAlign='left';
+    ctx.fillText('RSI '+lastRSI.toFixed(1),cL+3,cT+11);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// SIMULATOR CHART
+// ══════════════════════════════════════════════════════
+
+var SIM_MONTHS = 12;
+
+function runSimulator(){
+  if(!STATE.portfolioData||!STATE.portfolioData.positions.length) return;
+  // Build optimized weights from Claude's actions (simplified: use analyst targets)
+  var positions = STATE.portfolioData.positions;
+  var optimized = positions.map(function(p){
+    var f = STATE.fundamentalData && STATE.fundamentalData[p.symbol];
+    return {symbol:p.symbol, weight:p.weight, analystTarget:f&&f.analystTarget?f.analystTarget:null, currentPrice:p.currentPrice, historical:p.historical||STATE.technicalData&&STATE.technicalData[p.symbol]};
+  });
+  fetch('/api/simulate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({positions:positions.map(function(p){return Object.assign({},p,{historical:STATE.technicalData&&STATE.technicalData[p.symbol]||null,analystTarget:STATE.fundamentalData&&STATE.fundamentalData[p.symbol]&&STATE.fundamentalData[p.symbol].analystTarget||null});}),optimizedWeights:optimized,months:SIM_MONTHS})})
+  .then(function(r){return r.json();})
+  .then(function(j){
+    if(j.success){STATE.simData=j.data;drawSimChart(SIM_MONTHS);}
+  })
+  .catch(function(e){console.warn('Simulator error:',e.message);});
+}
+
+function drawSimChart(months){
+  var canvas=document.getElementById('simCanvas');
+  if(!canvas||!STATE.simData) return;
+  get('simSection').style.display='';
+  var data=STATE.simData;
+  var totalEquity=data.totalEquity||10000;
+  // Re-run if months changed
+  if(data.months!==months){
+    SIM_MONTHS=months;runSimulator();return;
+  }
+
+  var dpr=window.devicePixelRatio||1;
+  var W=canvas.offsetWidth||800;
+  var H=280;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  var ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+
+  var PAD={top:20,bottom:40,left:16,right:70};
+  var cL=PAD.left,cR=W-PAD.right,cT=PAD.top,cB=H-PAD.bottom;
+  var curr=data.current,opt=data.optimized;
+  var numM=curr.percentiles.p50.length;
+
+  // Find Y range across all percentiles
+  var allVals=[...curr.percentiles.p10,...curr.percentiles.p90];
+  if(opt) allVals.push(...opt.percentiles.p10,...opt.percentiles.p90);
+  var minM=Math.min(...allVals)*0.97, maxM=Math.max(...allVals)*1.03;
+
+  // Y axis grid
+  var gridCount=5;
+  for(var g=0;g<=gridCount;g++){
+    var frac=g/gridCount;
+    var val=minM+frac*(maxM-minM);
+    var y=cB-(frac*(cB-cT));
+    ctx.strokeStyle=CSS.border; ctx.lineWidth=0.5;
+    ctx.beginPath();ctx.moveTo(cL,y);ctx.lineTo(cR,y);ctx.stroke();
+    var dollarVal=totalEquity*val;
+    ctx.fillStyle=CSS.muted; ctx.font='9px Space Mono,monospace'; ctx.textAlign='left';
+    ctx.fillText('$'+formatK(dollarVal),cR+4,y+3);
+  }
+
+  // X axis labels
+  ctx.fillStyle=CSS.muted; ctx.font='9px Space Mono,monospace'; ctx.textAlign='center';
+  for(var m=0;m<numM;m+=Math.ceil(numM/6)){
+    var x=mapX(m,numM,cL,cR);
+    ctx.fillText('M'+(m+1),x,cB+14);
+  }
+  ctx.fillText('M'+numM,cR,cB+14);
+
+  // Draw scenario (band + median line)
+  function drawScenario(pct, bandColor, lineColor, lineWidth){
+    // Fan (p25-p75)
+    ctx.beginPath();
+    for(var i=0;i<numM;i++){
+      var x=mapX(i,numM,cL,cR);
+      var y=mapY(pct.p75[i],minM,maxM,cT,cB);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    for(var i=numM-1;i>=0;i--){
+      var x=mapX(i,numM,cL,cR);
+      var y=mapY(pct.p25[i],minM,maxM,cT,cB);
+      ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.fillStyle=bandColor;
+    ctx.fill();
+    // Outer band (p10-p90) — thinner
+    ctx.beginPath();
+    for(var i=0;i<numM;i++){var x=mapX(i,numM,cL,cR),y=mapY(pct.p90[i],minM,maxM,cT,cB);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+    for(var i=numM-1;i>=0;i--){var x=mapX(i,numM,cL,cR),y=mapY(pct.p10[i],minM,maxM,cT,cB);ctx.lineTo(x,y);}
+    ctx.closePath(); ctx.fillStyle=bandColor.replace('0.2','0.07').replace('0.18','0.06'); ctx.fill();
+    // Median line
+    ctx.beginPath(); ctx.strokeStyle=lineColor; ctx.lineWidth=lineWidth;
+    for(var i=0;i<numM;i++){
+      var x=mapX(i,numM,cL,cR),y=mapY(pct.p50[i],minM,maxM,cT,cB);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+
+  drawScenario(curr.percentiles, CSS.green2, CSS.green, 2);
+  if(opt) drawScenario(opt.percentiles, CSS.blue2, CSS.blue, 2);
+
+  // Start line
+  ctx.strokeStyle=CSS.muted; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(cL,mapY(1,minM,maxM,cT,cB));ctx.lineTo(cR,mapY(1,minM,maxM,cT,cB));ctx.stroke();
+  ctx.setLineDash([]);
+
+  // End labels on right
+  var endM=numM-1;
+  function labelEnd(pct,color,offset){
+    var y=mapY(pct.p50[endM],minM,maxM,cT,cB);
+    ctx.fillStyle=color; ctx.font='bold 9px Space Mono,monospace'; ctx.textAlign='left';
+    ctx.fillText('$'+formatK(totalEquity*pct.p50[endM]),cR+4,y+3+offset);
+  }
+  labelEnd(curr.percentiles,CSS.green,0);
+  if(opt) labelEnd(opt.percentiles,CSS.blue,0);
+
+  // Update sim stats
+  var stats=[];
+  var finalM=curr.percentiles.p50[numM-1];
+  var finalAmt=totalEquity*finalM;
+  var ret=(finalM-1)*100;
+  stats.push('<div class="sim-stat"><div class="ss-label">Median Value ('+months+'mo)</div><div class="ss-value '+(ret>=0?'g':'r')+'">${'+formatK(finalAmt)+'}</div><div class="ss-sub">'+(ret>=0?'+':'')+ret.toFixed(1)+'% return</div></div>');
+  stats.push('<div class="sim-stat"><div class="ss-label">Optimistic (P90)</div><div class="ss-value g">$'+formatK(totalEquity*curr.percentiles.p90[numM-1])+'</div><div class="ss-sub">Best case</div></div>');
+  stats.push('<div class="sim-stat"><div class="ss-label">Conservative (P10)</div><div class="ss-value a">$'+formatK(totalEquity*curr.percentiles.p10[numM-1])+'</div><div class="ss-sub">Worst case</div></div>');
+  if(opt){
+    var optFinal=opt.percentiles.p50[numM-1];
+    var optRet=(optFinal-finalM)*100;
+    stats.push('<div class="sim-stat"><div class="ss-label">Optimized Upside</div><div class="ss-value '+(optRet>=0?'g':'r')+'">'+(optRet>=0?'+':'')+optRet.toFixed(1)+'%</div><div class="ss-sub">vs current allocation</div></div>');
+  }
+  get('simStats').innerHTML=stats.join('');
+
+  // Update title
+  get('simTitle').textContent='Portfolio Projection — '+months+'-Month Outlook ('+(opt?'current vs optimized':'current allocation')+')';
+}
+
+function formatK(val){
+  if(val>=1000000) return (val/1000000).toFixed(2)+'M';
+  if(val>=1000)    return (val/1000).toFixed(1)+'k';
+  return val.toFixed(0);
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER TECHNICAL CARDS
+// ══════════════════════════════════════════════════════
+
+function renderTechnicalCards(){
+  if(!STATE.technicalData) return;
+  var grid=get('techGrid');
+  if(!grid) return;
+  var symbols=Object.keys(STATE.technicalData).filter(function(s){return STATE.technicalData[s];});
+  if(!symbols.length) return;
+  get('techSection').style.display='';
+  grid.innerHTML='';
+  symbols.slice(0,6).forEach(function(sym,idx){
+    var t=STATE.technicalData[sym];
+    if(!t) return;
+    var card=document.createElement('div');
+    card.className='tech-card';
+    var sumClass={'bullish':'tsb-bullish','bearish':'tsb-bearish','neutral':'tsb-neutral'}[t.summary]||'tsb-neutral';
+    var sumEmoji={'bullish':'▲','bearish':'▼','neutral':'◆'}[t.summary]||'◆';
+    var tr=t.trend||{};
+    var lastRSI=(t.rsi||[]).filter(function(v){return v!=null;}).slice(-1)[0];
+    var lastClose=(t.closes||[]).slice(-1)[0];
+    var f=STATE.fundamentalData&&STATE.fundamentalData[sym];
+
+    var sigHtml=(t.signals||[]).map(function(s){
+      return '<span class="sig-pill '+(s.signal==='bullish'?'sig-bull':s.signal==='bearish'?'sig-bear':'sig-neut')+'">'+s.indicator+': '+s.value+'</span>';
+    }).join('');
+    var patHtml=(t.patterns||[]).map(function(p){
+      return '<span class="pattern-tag '+(p.signal==='bullish'?'pt-bull':p.signal==='bearish'?'pt-bear':'pt-neut')+'">'+p.name+'</span>';
+    }).join('');
+
+    card.innerHTML=[
+      '<div class="tech-card-header">',
+        '<div><span class="tech-sym">'+sym+'</span>'+(lastClose?'<span style="font-size:.7rem;color:var(--muted2);margin-left:8px">$'+lastClose.toFixed(2)+'</span>':'')+'</div>',
+        '<span class="tech-summary-badge '+sumClass+'">'+sumEmoji+' '+t.summary+'</span>',
+      '</div>',
+      // Candle chart placeholder
+      '<div class="tech-chart-area"><canvas id="candle_'+idx+'" height="140" style="width:100%;display:block"></canvas></div>',
+      // RSI chart
+      '<div class="tech-rsi-area"><canvas id="rsi_'+idx+'" height="52" style="width:100%;display:block"></canvas></div>',
+      // Signals
+      '<div class="tech-signals">'+(sigHtml||'<span class="sig-pill sig-neut">No signals</span>')+' '+patHtml+'</div>',
+      // Key metrics
+      '<div class="tech-metrics">',
+        '<div class="tm"><strong>'+(tr.trend||'—')+'</strong>Trend</div>',
+        '<div class="tm"><strong>'+(lastRSI!=null?lastRSI.toFixed(1):'—')+'</strong>RSI(14)</div>',
+        '<div class="tm"><strong>'+(tr.perf3m!=null?(tr.perf3m*100).toFixed(1)+'%':'—')+'</strong>3-Month</div>',
+        '<div class="tm"><strong>'+(tr.perf1y!=null?(tr.perf1y*100).toFixed(1)+'%':'—')+'</strong>1-Year</div>',
+        '<div class="tm"><strong>'+(tr.annualVol!=null?(tr.annualVol*100).toFixed(0)+'%':'—')+'</strong>Volatility</div>',
+        '<div class="tm"><strong>'+(f&&f.pe?f.pe.toFixed(1):'—')+'</strong>P/E Ratio</div>',
+      '</div>',
+    ].join('');
+    grid.appendChild(card);
+    // Draw charts after DOM insertion
+    setTimeout(function(){
+      var cc=document.getElementById('candle_'+idx);
+      var rc=document.getElementById('rsi_'+idx);
+      drawCandleChart(cc,t);
+      drawRSIChart(rc,t.rsi);
+    },idx*60);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// WIRE SIMULATOR CONTROLS
+// ══════════════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded',function(){
+  // Sim month buttons
+  var simBtns=document.querySelectorAll('.sim-btn[data-months]');
+  simBtns.forEach(function(btn){
+    btn.addEventListener('click',function(){
+      simBtns.forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+      var months=parseInt(btn.getAttribute('data-months'));
+      SIM_MONTHS=months;
+      if(STATE.simData&&STATE.simData.months===months){
+        drawSimChart(months);
+      } else {
+        runSimulator();
+      }
+    });
+  });
+
+  // Re-render charts on resize
+  var resizeTimer;
+  window.addEventListener('resize',function(){
+    clearTimeout(resizeTimer);
+    resizeTimer=setTimeout(function(){
+      if(STATE.simData) drawSimChart(SIM_MONTHS);
+      renderTechnicalCards();
+    },200);
+  });
+});
+
+// ── Override renderResults to also render charts
+var _origRenderResults=window.renderResults;
+window.renderResults=function(){
+  if(_origRenderResults) _origRenderResults();
+  setTimeout(function(){
+    renderTechnicalCards();
+  },100);
+};
+</script>
